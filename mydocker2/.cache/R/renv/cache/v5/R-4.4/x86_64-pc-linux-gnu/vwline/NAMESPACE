@@ -1,0 +1,51 @@
+
+importFrom("grDevices", "chull", "rgb")
+importFrom("stats", "approx")
+import("grid")
+import("polyclip")
+importFrom("gridBezier",
+           "BezierGrob",
+           "BezierNormal",
+           "BezierPoints",
+           "grid.Bezier",
+           "nSteps")
+
+export(## Main API
+       "grid.vwcurve", "vwcurveGrob",
+       "grid.vwXspline", "vwXsplineGrob",
+       "grid.vwline", "vwlineGrob",
+       "grid.brushXspline", "brushXsplineGrob",
+       "grid.offsetXspline", "offsetXsplineGrob",
+       "grid.offsetBezier", "offsetBezierGrob",
+
+       ## Specifying widths
+       "widthSpec", "widthSpline", "BezierWidth",
+
+       ## Specifying brushes
+       "verticalBrush", "circleBrush", "squareBrush",
+
+       ## Rendering brushed paths
+       "vwPolygon", "vwPath",
+
+       ## Querying grobs
+       "edgePoints", "outline"
+    
+       )
+
+S3method("makeContent", "vwcurveGrob")
+S3method("makeContent", "vwXsplineGrob")
+S3method("makeContent", "vwlineGrob")
+S3method("makeContent", "brushXsplineGrob")
+S3method("makeContent", "offsetXsplineGrob")
+S3method("makeContent", "offsetBezierGrob")
+S3method("edgePoints", "vwcurveGrob")
+S3method("edgePoints", "vwXsplineGrob")
+S3method("edgePoints", "vwlineGrob")
+S3method("edgePoints", "brushXsplineGrob")
+S3method("edgePoints", "offsetXsplineGrob")
+S3method("edgePoints", "offsetBezierGrob")
+S3method("outline", "vwlineGrob")
+S3method("outline", "offsetXsplineGrob")
+S3method("outline", "offsetBezierGrob")
+
+S3method("length", "widthSpec")

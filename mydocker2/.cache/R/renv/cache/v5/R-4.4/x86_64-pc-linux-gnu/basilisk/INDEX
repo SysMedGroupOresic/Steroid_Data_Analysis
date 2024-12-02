@@ -1,0 +1,13 @@
+BasiliskEnvironment-class
+                        The BasiliskEnvironment class
+PyPiLink                Link to PyPi
+basiliskStart           Start and stop 'basilisk'-related processes
+configureBasiliskEnv    Configure client environments
+createLocalBasiliskEnv
+                        Create a local conda environment manually
+findPersistentEnv       Find the persistent environment
+getBasiliskFork         Options for 'basilisk'
+listPackages            List packages
+obtainEnvironmentPath   Obtain the environment path
+setupBasiliskEnv        Set up 'basilisk'-managed environments
+useBasiliskEnv          Use 'basilisk' environments

@@ -1,0 +1,45 @@
+.onAttach               Run when daiR is attached
+build_block_df          Build block dataframe
+build_token_df          Build token dataframe
+create_processor        Create processor
+dai_async               OCR documents asynchronously
+dai_auth                Check authentication
+dai_notify              Notify on job completion
+dai_status              Check job status
+dai_sync                OCR document synchronously
+dai_token               Produce access token
+dai_user                Get user information
+delete_processor        Delete processor
+disable_processor       Disable processor
+draw_blocks             Draw block bounding boxes
+draw_entities           Draw entity bounding boxes
+draw_lines              Draw line bounding boxes
+draw_paragraphs         Draw paragraph bounding boxes
+draw_tokens             Draw token bounding boxes
+enable_processor        Enable processor
+from_labelme            Extract block coordinates from labelme files
+get_entities            Get entities
+get_processor_info      Get information about processor
+get_processor_versions
+                        List available versions of processor
+get_processors          List created processors
+get_project_id          Get project id
+get_tables              Get tables
+get_text                Get text
+image_to_pdf            Convert images to PDF
+img_to_binbase          Image to base64 tiff
+is_colour               Check that a string is a valid colour
+                        representation
+is_json                 Check that a file is JSON
+is_pdf                  Check that a file is PDF
+list_processor_types    List available processor types
+make_hocr               Make hOCR file
+merge_shards            Merge shards
+pdf_to_binbase          PDF to base64 tiff
+reassign_tokens         Assign tokens to new blocks
+reassign_tokens2        Assign tokens to a single new block
+redraw_blocks           Inspect revised block bounding boxes
+split_block             Split a block bounding box
+tables_from_dai_file    Get tables from output file
+tables_from_dai_response
+                        Get tables from response object

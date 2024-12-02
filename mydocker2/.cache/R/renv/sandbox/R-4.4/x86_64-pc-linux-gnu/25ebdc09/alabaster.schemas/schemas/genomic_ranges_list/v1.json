@@ -1,0 +1,179 @@
+{
+    "$id": "genomic_ranges_list/v1.json",
+    "$schema": "http://json-schema.org/draft-07/schema",
+    "_attributes": {
+        "format": "text/csv",
+        "restore": {
+            "R": "alabaster.ranges::loadGRangesList"
+        }
+    },
+    "additionalProperties": false,
+    "description": "A compressed list of genomic ranges, used to represent groups of genomic ranges, e.g., all exons for each gene. The concatenated object (pointed at by the `concatenated` property) should be a genomic ranges object, as defined by the `genomic_ranges` schema.\n\nDerived from `compressed_list/v1.json`: a virtual compressed list where all elements are vector-like objects of the same type, corresponding to the CompressedList class from the [**IRanges**](https://bioconductor.org/packages/IRanges) Bioconductor package. Each list element contains a vector-like object with a variable number of subelements, which can be concatenated into a single vector-like object of the same type with length equal to the sum of the individual element lengths.The use of a concatenated object improves storage efficiency as list elements can be compressed into a single file.\n\n The partitioning of the concatenated object into individual list elements is described in a data frame, saved to `path` as a CSV file; see [here](https://github.com/ArtifactDB/takane/blob/master/docs/specifications/compressed_list/v1.md) for a detailed specification. This data frame contains one row per list element and has a `number` column that specifies the size of each vector-like object. Subelements are partitioned by assigning the specified `number` of consecutive subelements into a contiguous series of vector-like objects, each of which correspond to successive list elements.If the `names` property is `true`, `number` should be the second column, where the first column of the data frame contains the names of the list elements.\n\n Concrete subclasses are expected to provide a `concatenated` property that points to the concatenated object.",
+    "properties": {
+        "$schema": {
+            "description": "The schema to use.",
+            "type": "string"
+        },
+        "compressed_list": {
+            "additionalProperties": false,
+            "properties": {
+                "compression": {
+                    "description": "Type of compression applied to the file.",
+                    "enum": [
+                        "none",
+                        "gzip",
+                        "bzip2"
+                    ],
+                    "type": "string"
+                },
+                "element_data": {
+                    "description": "Pointer to a data frame containing additional annotations for each element in the list. If omitted, no additional annotations are present.",
+                    "properties": {
+                        "resource": {
+                            "_children": {
+                                "contains": [
+                                    "data_frame"
+                                ]
+                            },
+                            "properties": {
+                                "path": {
+                                    "description": "Relative path of the resource from the root of the project directory.",
+                                    "type": "string"
+                                },
+                                "type": {
+                                    "description": "Type of file. Local files should be present in the same project directory.",
+                                    "enum": [
+                                        "local"
+                                    ],
+                                    "type": "string"
+                                }
+                            },
+                            "required": [
+                                "type",
+                                "path"
+                            ],
+                            "type": "object"
+                        }
+                    },
+                    "required": [
+                        "resource"
+                    ],
+                    "type": "object"
+                },
+                "length": {
+                    "description": "Number of entries, specifically the number of groups.",
+                    "type": "integer"
+                },
+                "names": {
+                    "default": false,
+                    "description": "Whether the list is named. If `true`, the first column of CSV contains the names of the list elements.",
+                    "type": "boolean"
+                },
+                "other_data": {
+                    "description": "Pointer to a list containing additional metadata for this object. Omitted if no additional metadata is available.",
+                    "properties": {
+                        "resource": {
+                            "_children": {
+                                "contains": [
+                                    "basic_list"
+                                ]
+                            },
+                            "properties": {
+                                "path": {
+                                    "description": "Relative path of the resource from the root of the project directory.",
+                                    "type": "string"
+                                },
+                                "type": {
+                                    "description": "Type of file. Local files should be present in the same project directory.",
+                                    "enum": [
+                                        "local"
+                                    ],
+                                    "type": "string"
+                                }
+                            },
+                            "required": [
+                                "type",
+                                "path"
+                            ],
+                            "type": "object"
+                        }
+                    },
+                    "required": [
+                        "resource"
+                    ],
+                    "type": "object"
+                }
+            },
+            "required": [
+                "compression",
+                "length"
+            ],
+            "type": "object"
+        },
+        "genomic_ranges_list": {
+            "additionalProperties": false,
+            "properties": {
+                "concatenated": {
+                    "description": "Pointer to the genomic ranges object, created by concatenating the ranges across all groups in the genomic ranges list.",
+                    "properties": {
+                        "resource": {
+                            "_children": {
+                                "contains": [
+                                    "genomic_ranges"
+                                ]
+                            },
+                            "properties": {
+                                "path": {
+                                    "description": "Relative path of the resource from the root of the project directory.",
+                                    "type": "string"
+                                },
+                                "type": {
+                                    "description": "Type of file. Local files should be present in the same project directory.",
+                                    "enum": [
+                                        "local"
+                                    ],
+                                    "type": "string"
+                                }
+                            },
+                            "required": [
+                                "type",
+                                "path"
+                            ],
+                            "type": "object"
+                        }
+                    },
+                    "required": [
+                        "resource"
+                    ],
+                    "type": "object"
+                }
+            },
+            "required": [
+                "concatenated"
+            ],
+            "type": "object"
+        },
+        "is_child": {
+            "default": false,
+            "description": "Is this a child document, only to be interpreted in the context of the parent document from which it is linked? This may have implications for search and metadata requirements.",
+            "type": "boolean"
+        },
+        "md5sum": {
+            "description": "MD5 checksum for the file.",
+            "type": "string"
+        },
+        "path": {
+            "description": "Path to the file in the project directory.",
+            "type": "string"
+        }
+    },
+    "required": [
+        "$schema",
+        "compressed_list",
+        "genomic_ranges_list",
+        "md5sum",
+        "path"
+    ],
+    "title": "Genomic Ranges List",
+    "type": "object"
+}

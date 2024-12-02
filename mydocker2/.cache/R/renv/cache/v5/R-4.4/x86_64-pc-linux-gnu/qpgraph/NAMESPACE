@@ -1,0 +1,247 @@
+useDynLib(qpgraph)
+
+import(methods)
+
+import(graph)
+
+import(Matrix)
+
+importFrom(stats,
+           approxfun,
+           cov,
+           df,
+           formula,
+           integrate,
+           median,
+           p.adjust,
+           p.adjust.methods,
+           pbeta,
+           pchisq,
+           phyper,
+           pt,
+           qbeta,
+           qchisq,
+           qt,
+           rchisq,
+           rnorm,
+           runif,
+           var)
+
+importFrom(grid,
+           grid.lines,
+           grid.text,
+           grid.newpage,
+           grid.rect,
+           grid.segments,
+           grid.curve,
+           grid.points,
+           gpar,
+           viewport,
+           unit,
+           pushViewport)
+
+importFrom(graphics,
+           abline,
+           axis,
+           boxplot,
+           close.screen,
+           hist,
+           legend,
+           screen,
+           segments,
+           split.screen,
+           text)
+
+importFrom(grDevices,
+           gray,
+           grey)
+
+importFrom(utils,
+           combn,
+           installed.packages,
+           read.table,
+           setTxtProgressBar,
+           txtProgressBar,
+           write.table)
+
+importClassesFrom(Biobase,
+                  ExpressionSet)
+
+importClassesFrom(S4Vectors,
+                  Rle)
+
+importClassesFrom(GenomicRanges,
+                  GRanges)
+
+importMethodsFrom(Biobase,
+                  exprs,
+                  pData,
+                  featureNames,
+                  sampleNames,
+                  varLabels)
+
+importMethodsFrom(GenomicRanges,
+                  start, end, strand, sort,
+                  "[", "[<-", "$", "$<-")
+
+importMethodsFrom(S4Vectors,
+                  cbind, rbind,
+                  mcols, "mcols<-", "[[", "[[<-",
+                  metadata)
+
+importMethodsFrom(AnnotationDbi,
+                  metadata,
+                  mget,
+                  revmap)
+
+importMethodsFrom(GenomeInfoDb,
+                  seqnames,
+                  seqlengths,
+                  seqlevels)
+
+importMethodsFrom(GenomicFeatures,
+                  transcripts)
+
+importFrom(Biobase,
+           subListExtract)
+
+importFrom(S4Vectors,
+           DataFrame)
+
+importFrom(annotate,
+           getAnnMap)
+
+importFrom(parallel,
+           makeCluster,
+           clusterSetRNGStream,
+           clusterEvalQ,
+           stopCluster,
+           clusterExport,
+           clusterApply,
+           clusterCall)
+
+importFrom(BiocParallel, bpparam,
+                         bplapply)
+
+importFrom(GenomeInfoDb,
+           Seqinfo,
+           seqinfo,
+           genome,
+           rankSeqlevels,
+           orderSeqlevels)
+
+importFrom(IRanges,
+           IRanges)
+
+importFrom(GenomicRanges,
+           GRanges)
+
+importFrom(mvtnorm,
+           rmvnorm)
+
+importFrom(qtl,
+           sim.cross,
+           pull.map)
+
+importFrom(Rgraphviz,
+           layoutGraph,
+           renderGraph,
+           plot)
+
+exportClasses("SsdMatrix",
+              "erGraphParam",
+              "dRegularGraphParam",
+              "erMarkedGraphParam",
+              "dRegularMarkedGraphParam",
+              "UGgmm",
+              "HMgmm",
+              "eQTLcross",
+              "eQTLcrossParam",
+              "eQTLnetworkEstimationParam",
+              "eQTLnetwork",
+              "qpGraph")
+
+S3method(rmvnorm, UGgmm)
+S3method(rmvnorm, numeric)
+S3method(sim.cross, eQTLcross)
+S3method(sim.cross, matrix)
+
+exportMethods("qpNrr",
+              "qpAvgNrr",
+              "qpGenNrr",
+              "qpGraph",
+              "qpPAC",
+              "qpPCC",
+              "qpCItest",
+              "qpAllCItests",
+              "qpEdgeNrr",
+              "qpEdgeCor",
+              "qpPathWeight",
+              "qpFunctionalCoherence",
+              "show",
+              "det",
+              "determinant",
+              "dim",
+              "dimnames",
+              "summary",
+              "rmvnorm",
+              "rcmvnorm",
+              "sim.cross",
+              "plot",
+              "rgraphBAM",
+              "UGgmm",
+              "HMgmm",
+              "rUGgmm",
+              "rHMgmm",
+              "$",
+              "eQTLcross",
+              "reQTLcross",
+              "addGenes",
+              "addeQTL",
+              "addGeneAssociation",
+              "alleQTL",
+              "ciseQTL",
+              "transeQTL",
+              "allGeneAssociations",
+              "geneticMap",
+              "physicalMap",
+              "graph",
+              "ggData",
+              "markerNames",
+              "geneNames",
+              "geneAnnotation",
+              "eQTLnetworkEstimate",
+              "varExplained",
+              "resetCutoffs")
+
+export(qpHist,
+       qpGraphDensity,
+       qpCliqueNumber,
+       qpClique,
+       qpBoundary,
+       qpAnyGraph,
+       qpGetCliques,
+       qpUpdateCliquesRemoving,
+       qpIPF,
+       qpHTF,
+       qpPAC,
+       qpPCC,
+       qpRndGraph,
+       qpRndWishart,
+       qpG2Sigma,
+       qpUnifRndAssociation,
+       qpK2ParCor,
+       qpPrecisionRecall,
+       qpPRscoreThreshold,
+       qpImportNrr,
+       qpTopPairs,
+       qpPlotNetwork,
+       qpPlotMap,
+       qpCov,
+       erGraphParam,
+       dRegularGraphParam,
+       erMarkedGraphParam,
+       dRegularMarkedGraphParam,
+       eQTLcrossParam,
+       eQTLnetworkEstimationParam,
+       filterCollinearities)

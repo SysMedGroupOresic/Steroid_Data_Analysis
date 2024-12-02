@@ -1,0 +1,205 @@
+---
+title: "Developing packages with _beachmat_"
+author: "Aaron Lun"
+package: beachmat
+output: 
+  BiocStyle::html_document:
+    toc_float: yes
+vignette: >
+  %\VignetteIndexEntry{Developer guide}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}  
+---
+
+```{r, echo=FALSE, results="hide", message=FALSE}
+require(knitr)
+opts_chunk$set(error=FALSE, message=FALSE, warning=FALSE)
+```
+
+# Overview 
+
+The `r Biocpkg("beachmat")` package provides a C++ API to extract numeric data from matrix-like R objects,
+based on the matrix representations in the [**tatami**](https://github.com/tatami-inc/tatami/) library.
+This enables Bioconductor packages to use C++ for high-performance processing of data in arbitrary R matrices, including:
+
+- ordinary dense `matrix` objects
+- dense and sparse matrices from the `r CRANpkg("Matrix")` package
+- `DelayedMatrix` objects with delayed operations from the `r Biocpkg("DelayedArray")` package
+- and any abstract matrix-like object with a `DelayedArray::extract_array()` method.
+
+Where possible, `r Biocpkg("beachmat")` will map the R object to its C++ representation, bypassing the R interpreter to directly extract the matrix contents.
+This provides fast access by avoiding R-level evaluation, saves memory by avoiding block processing and memory allocations, and permits more fine-grained parallelization.
+For objects without native support, the R interpreter is called in a thread-safe manner to ensure that any downstream C++ code still works.
+
+# Linking instructions
+
+Packages that use `r Biocpkg("beachmat")`'s API should set the following:
+
+- The compiler should support the C++17 standard.
+Developers need to tell the build system to use C++17, by modifying the `SystemRequirements` field of the `DESCRIPTION` file:
+
+        SystemRequirements: C++17
+
+   ... or modifying the `PKG_CPPFLAGS` in the `Makevars` with the relevant flags.
+
+-  `r CRANpkg("Rcpp")` should be installed.
+Developers need to ensure that `r CRANpkg("Rcpp")` is loaded when the package is loaded.
+This requires addition of `Rcpp` to the `Imports` field of the `DESCRIPTION` file:
+
+        Imports: Rcpp
+
+    ... and a corresponding  `importFrom` specification in the `NAMESPACE` file:
+
+        importFrom(Rcpp, sourceCpp)
+ 
+    (The exact function to be imported doesn't matter, as long as the namespace is loaded.
+    Check out the `r CRANpkg("Rcpp")` documentation for more details.)
+
+- Linking to `r Biocpkg("beachmat")` is as simple as writing:
+
+        LinkingTo: Rcpp, assorthead, beachmat
+
+    ... in the `DESCRIPTION` file. 
+
+# Reading matrix data
+
+Given an arbitrary matrix-like object, we create its C++ representation using the `initializeCpp()` function.
+This process is very cheap as no data is copied, so the C++ object only holds views on the memory allocated and owned by R itself. 
+
+```{r}
+# Mocking up some kind of matrix-like object.
+library(Matrix)
+x <- round(rsparsematrix(1000, 10, 0.2))
+
+# Initializing it in C++.
+library(beachmat)
+ptr <- initializeCpp(x)
+```
+
+`ptr` now refers to a `BoundNumericMatrix` object, the composition of which can be found in the `Rtatami.h` header.
+Of particular relevance is the `ptr` member, which contains a pointer to a `tatami::NumericMatrix` object derived from the argument to `initializeCpp()`.
+Developers can read the documentation in the header file for more details:
+
+```{r, eval=FALSE}
+browseURL(system.file("include", "Rtatami.h", package="beachmat"))
+```
+
+Now we can write a function that uses **tatami** to operate on `ptr`.
+All functionality described in **tatami**'s [documentation](https://tatami-inc.github.io/tatami/) can be used here;
+the only `r Biocpkg("beachmat")`-specific factor is that developers should include the `Rtatami.h` header first (which takes care of the **tatami** headers).
+Let's just say we want to compute column sums - a simple implementation might look like this:
+
+```{Rcpp}
+#include "Rtatami.h"
+#include <vector>
+#include <algorithm>
+
+// Not necessary in a package context, it's only used for this vignette:
+// [[Rcpp::depends(beachmat, assorthead)]]
+
+// [[Rcpp::export(rng=false)]]
+Rcpp::NumericVector column_sums(Rcpp::RObject initmat) {
+    Rtatami::BoundNumericPointer parsed(initmat);
+    const auto& ptr = parsed->ptr;
+
+    auto NR = ptr->nrow();
+    auto NC = ptr->ncol();
+    std::vector<double> buffer(NR);
+    Rcpp::NumericVector output(NC);
+    auto wrk = ptr->dense_column();
+
+    for (int i = 0; i < NC; ++i) {
+        auto extracted = wrk->fetch(i, buffer.data());
+        output[i] = std::accumulate(extracted, extracted + NR, 0.0);
+    }
+
+    return output;
+}
+```
+
+Let's compile this function with `r CRANpkg("Rcpp")` and put it to work.
+We can just pass in the `ptr` that we created earlier:
+
+```{r}
+column_sums(ptr)
+```
+
+In general, we suggest calling `initializeCpp()` within package functions rather than asking users to call it themselves.
+The external pointers should never be exposed to the user, as they do not behave like regular objects, e.g., they are not serializable.
+Fortunately, the `initializeCpp()` calls are very cheap and can be performed at the start of any R function that needs to do matrix operations in C++.
+
+# Enabling parallelization
+
+**tatami** calls are normally thread-safe, but if the `tatami::NumericMatrix` is constructed from an unsupported object, it needs to call R to extract the matrix contents.
+The R interpreter is strictly single-threaded, which requires some care when defining our chosen parallelization scheme.
+The easiest way to achieve parallelization is to use the `tatami::parallelize()` function:
+
+```{Rcpp}
+#include "Rtatami.h"
+#include <vector>
+#include <algorithm>
+
+// Not necessary in a package context, it's only used for this vignette:
+// [[Rcpp::depends(beachmat, assorthead)]]
+
+// [[Rcpp::export(rng=false)]]
+Rcpp::NumericVector parallel_column_sums(Rcpp::RObject initmat, int nthreads) {
+    Rtatami::BoundNumericPointer parsed(initmat);
+    const auto& ptr = parsed->ptr;
+
+    auto NR = ptr->nrow();
+    auto NC = ptr->ncol();
+    Rcpp::NumericVector output(NC);
+
+    tatami::parallelize([&](int thread, int start, int length) {
+        std::vector<double> buffer(NR);
+        auto wrk = ptr->dense_column();
+        for (int i = start, end = start + length; i < end; ++i) {
+            auto extracted = wrk->fetch(i, buffer.data());
+            output[i] = std::accumulate(extracted, extracted + NR, 0.0);
+        }
+    }, NC, nthreads);
+
+    return output;
+}
+```
+
+Now we put it to work with 2 threads.
+Note that `tatami::parallelize()` (or specifically, the macros in `Rtatami.h`) will use the standard `<thread>` library to handle parallelization,
+so it will work even on toolchains that do not have OpenMP support.
+
+```{r}
+parallel_column_sums(ptr, 2)
+```
+
+More advanced users can check out the parallelization-related documentation in the [**tatami_r**](https://github.com/tatami-inc/tatami_r) repository. 
+
+# Comparison to block processing
+
+The conventional approach to iterating over a matrix is to use `r Biocpkg("DelayedArray")`'s block processing mechanism, i.e., `DelayedArray::blockApply`.
+This is implemented completely in R and is convenient for developers as it can be used directly with any R function.
+However, its performance only goes so far, and several years of experience with its use has revealed a few shortcomings:
+
+- Looping over the blocks in R incurs some overhead from the interpreter.
+  In most cases, this difference is modest compared to the time spent in the user-defined function itself, but occasionally there are very noticeable performance issues.
+  For example, the extraction of each block is unable to re-use information from the extraction of the previous block, 
+  resulting in very slow iterations for some matrix types, e.g., when processing a compressed sparse column matrix using row-wise blocks.
+- When extracting rows or columns, each block processing iteration allocates a block that typically contains multiple rows or columns.
+  This allows for vectorized operations across the block but increases memory usage as the block must be realized into one of the standard formats.
+  Conversely, small blocks will increase the number of required iterations and the looping overhead.
+  This introduces an awkward tension between speed and memory efficiency that must be managed by the end user.
+- When parallelizing (e.g., with `r Biocpkg("BiocParallel")`), each worker process needs to holds its own block in memory for processing.
+  This exacerbates the speed/memory trade-off as the extra memory usage from block realization is effectively multiplied by the number of workers.
+  We have also observed that workers are rather reckless with their memory consumption as they do not consider the existence of other workers,
+  causing them to use more memory than expected and leading to OOM errors on resource-limited systems.
+
+Shifting the iteration into C++ with `r Biocpkg("beachmat")` avoids many of these issues.
+The looping overhead is effectively eliminated as the R interpreter is no longer involved.
+Only one row/column is extracted at a time for most `tatami::Matrix` classes, minimizing memory overhead and avoiding the need for manual block size management in most cases.
+Parallelization is also much easier with the standard `<thread>` library, as we do not need to spin up or fork to create a separate process.
+
+# Session information {-}
+
+```{r}
+sessionInfo()
+```

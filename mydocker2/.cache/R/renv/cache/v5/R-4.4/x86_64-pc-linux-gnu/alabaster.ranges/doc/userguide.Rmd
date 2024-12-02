@@ -1,0 +1,70 @@
+---
+title: Saving genomic ranges to artifacts and back again
+author:
+- name: Aaron Lun
+  email: infinite.monkeys.with.keyboards@gmail.com
+package: alabaster.ranges
+date: "Revised: November 20, 2023"
+output:
+  BiocStyle::html_document
+vignette: >
+  %\VignetteIndexEntry{Saving and loading genomic ranges}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, echo=FALSE}
+library(BiocStyle)
+self <- Biocpkg("alabaster.ranges")
+knitr::opts_chunk$set(error=FALSE, warning=FALSE, message=FALSE)
+```
+
+# Overview 
+
+The `r self` package implements methods to save genomic ranges (i.e., `GRanges` and `GRangesList` objects) to file artifacts and load them back into R.
+It also supports various `CompressedList` subclasses, including the somewhat useful `CompressedSplitDataFrameList`.
+Check out `r Biocpkg("alabaster.base")` for more details on the motivation and concepts of the **alabaster** framework.
+
+# Quick start
+
+Given some genomic ranges, we can use `saveObject()` to save it inside a staging directory:
+
+```{r}
+library(GenomicRanges)
+gr <- GRanges("chrA", IRanges(sample(100), width=sample(100)))
+mcols(gr)$score <- runif(length(gr))
+metadata(gr)$genome <- "Aaron"
+seqlengths(gr) <- c(chrA=1000)
+
+library(alabaster.ranges)
+tmp <- tempfile()
+saveObject(gr, tmp)
+
+list.files(tmp, recursive=TRUE)
+```
+
+We can then easily load it back in with `readObject()`.
+
+```{r}
+roundtrip <- readObject(tmp)
+roundtrip
+```
+
+The same can be done for `GRangesList` and `CompressedList` subclasses.
+
+## Further comments 
+
+Metadata is preserved during this round-trip:
+
+```{r}
+metadata(roundtrip)
+mcols(roundtrip)
+seqinfo(roundtrip)
+```
+
+# Session information {-}
+
+```{r}
+sessionInfo()
+```
+

@@ -1,0 +1,52 @@
+Package: HDF5Array
+Title: HDF5 datasets as array-like objects in R
+Description: The HDF5Array package is an HDF5 backend for DelayedArray objects.
+	It implements the HDF5Array, H5SparseMatrix, H5ADMatrix, and
+	TENxMatrix classes, 4 convenient and memory-efficient array-like
+	containers for representing and manipulating either: (1) a conventional
+	(a.k.a. dense) HDF5 dataset, (2) an HDF5 sparse matrix (stored in
+	CSR/CSC/Yale format), (3) the central matrix of an h5ad file (or any
+	matrix in the /layers group), or (4) a 10x Genomics sparse matrix.
+	All these containers are DelayedArray extensions and thus support all
+	operations (delayed or block-processed) supported by DelayedArray
+	objects.
+biocViews: Infrastructure, DataRepresentation, DataImport, Sequencing,
+        RNASeq, Coverage, Annotation, GenomeAnnotation, SingleCell,
+        ImmunoOncology
+URL: https://bioconductor.org/packages/HDF5Array
+BugReports: https://github.com/Bioconductor/HDF5Array/issues
+Version: 1.34.0
+License: Artistic-2.0
+Encoding: UTF-8
+Author: Hervé Pagès
+Maintainer: Hervé Pagès <hpages.on.github@gmail.com>
+Depends: R (>= 3.4), methods, SparseArray (>= 1.5.42), DelayedArray (>=
+        0.31.8), rhdf5 (>= 2.31.6)
+Imports: utils, stats, tools, Matrix, rhdf5filters, BiocGenerics (>=
+        0.51.2), S4Vectors, IRanges, S4Arrays (>= 1.1.1)
+LinkingTo: S4Vectors (>= 0.27.13), Rhdf5lib
+SystemRequirements: GNU make
+Suggests: BiocParallel, GenomicRanges, SummarizedExperiment (>=
+        1.15.1), h5vcData, ExperimentHub, TENxBrainData, zellkonverter,
+        GenomicFeatures, RUnit, SingleCellExperiment,
+        DelayedMatrixStats, genefilter
+Collate: utils.R H5File-class.R h5ls.R h5utils.R
+        H5DSetDescriptor-class.R h5dimscales.R uaselection.R h5mread.R
+        h5mread_from_reshaped.R h5writeDimnames.R h5summarize.R
+        HDF5ArraySeed-class.R HDF5Array-class.R
+        ReshapedHDF5ArraySeed-class.R ReshapedHDF5Array-class.R
+        dump-management.R writeHDF5Array.R
+        saveHDF5SummarizedExperiment.R H5SparseMatrixSeed-class.R
+        H5SparseMatrix-class.R H5ADMatrixSeed-class.R
+        H5ADMatrix-class.R TENxMatrixSeed-class.R TENxMatrix-class.R
+        writeTENxMatrix.R zzz.R
+git_url: https://git.bioconductor.org/packages/HDF5Array
+git_branch: RELEASE_3_20
+git_last_commit: dab3921
+git_last_commit_date: 2024-10-29
+Repository: Bioconductor 3.20
+Date/Publication: 2024-10-29
+NeedsCompilation: yes
+Packaged: 2024-10-30 03:14:40 UTC; biocbuild
+Built: R 4.4.1; x86_64-w64-mingw32; 2024-10-30 16:02:43 UTC; windows
+Archs: x64

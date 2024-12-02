@@ -1,0 +1,151 @@
+Anderson                Hypothetical data for Alexander Anderson
+AndersonBias            Hypothetical data for Alexander Anderson with
+                        gender bias
+AndersonRainBarrel      Hypothetical data for Alexander Anderson on
+                        rain barrel installation
+AndersonRainGarden      Hypothetical data for Alexander Anderson on
+                        rain garden installation
+BobBelcher              Hypothetical data for ratings of instructors in
+                        unreplicated CBD
+Breakfast               Hypothetical data for students' breakfast
+                        habits and travel to school
+BrendonSmall            Hypothetical data for Brendon Small and company
+BullyHill               Hypothetical data for proportion of students
+                        passing a certification
+Catbus                  Hypothetical data for Catbus and company
+HayleySmith             Hypothetical data for responses about adopting
+                        lawn care practices
+Monarchs                Hypothetical data for monarch butterflies in
+                        gardens
+Nurseries               Data for proportion of good practices followed
+                        by plant nuseries
+PMCMRTable              Convert PMCMR Objects to a Data Frame
+Pennsylvania18          Votes for the Democratic candidate in
+                        Pennsylvania 18 in 2016 and 2018
+Pooh                    Hypothetical data for paired ratings of Pooh
+                        Bear
+PoohPiglet              Hypothetical data for ratings of Pooh, Piglet,
+                        and Tigger
+Religion                Hypothetical data for change in religion after
+                        a caucusing event
+accuracy                Minimum maximum accuracy, mean absolute percent
+                        error, median absolute error, root mean square
+                        error, coefficient of variation, and Efron's
+                        pseudo r-squared
+blom                    Normal scores transformation
+cateNelson              Cate-Nelson models for bivariate data
+cateNelsonFixedY        Cate-Nelson models for bivariate data with a
+                        fixed critical Y value
+cldList                 Compact letter display for lists of comparisons
+cliffDelta              Cliff's delta
+cohenG                  Cohen's g and odds ratio for paired contingency
+                        tables
+cohenH                  Cohen's h to compare proportions for 2 x 2
+                        contingency tables
+cohenW                  Cohen's w (omega)
+compareGLM              Compare fit statistics for glm models
+compareLM               Compare fit statistics for lm models
+countRSquare            Count pseudo r-squared for logistic and other
+                        binary outcome models
+cramerV                 Cramer's V (phi)
+cramerVFit              Cramer's V for chi-square goodness-of-fit tests
+efronRSquared           Efron's pseudo r-squared
+epsilonSquared          Epsilon-squared
+freemanTheta            Freeman's theta
+fullPTable              Convert a lower triangle matrix to a full
+                        matrix
+groupwiseCMH            Post-hoc tests for Cochran-Mantel-Haenszel test
+groupwiseGeometric      Groupwise geometric means and confidence
+                        intervals
+groupwiseHuber          Groupwise Huber M-estimators and confidence
+                        intervals
+groupwiseMean           Groupwise means and confidence intervals
+groupwiseMedian         Groupwise medians and confidence intervals
+groupwisePercentile     Groupwise percentiles and confidence intervals
+groupwiseSum            Groupwise sums
+kendallW                Kendall's W with bootstrapped confidence
+                        interval
+mangiaficoD             Mangiafico's d
+multiMangiaficoD        Mangiafico's d
+multiVDA                Pairwise Vargha and Delaney's A and Cliff's
+                        delta
+nagelkerke              Pseudo r-squared measures for various models
+nagelkerkeHermite       [Defunct!] Pseudo r-squared measures for
+                        hermite models
+nominalSymmetryTest     Exact and McNemar symmetry tests for paired
+                        contingency tables
+oneSampleDominance      Dominance statistic for one-sample data
+ordinalEtaSquared       Eta-squared for ordinal variables
+pairedSampleDominance   Dominance statistic for two-sample paired data
+pairwiseDifferences     [Defunct!] Pairwise differences for
+                        unreplicated CBD
+pairwiseMcnemar         Pairwise McNemar and related tests for Cochran
+                        Q test post-hoc
+pairwiseMedianMatrix    Pairwise Mood's median tests with matrix output
+pairwiseMedianTest      Pairwise Mood's median tests
+pairwiseModelAnova      Compare model objects with F test and
+                        likelihood ratio test
+pairwiseNominalIndependence
+                        Pairwise tests of independence for nominal data
+pairwiseNominalMatrix   Pairwise tests of independence for nominal data
+                        with matrix output
+pairwiseOrdinalIndependence
+                        Pairwise tests of independence for tables with
+                        one ordered nominal variable
+pairwiseOrdinalMatrix   [Defunct!] Pairwise two-sample ordinal
+                        regression with matrix output
+pairwiseOrdinalPairedMatrix
+                        [Defunct!] Pairwise two-sample ordinal
+                        regression for paired data with matrix output
+pairwiseOrdinalPairedTest
+                        [Defunct!] Pairwise two-sample ordinal
+                        regression for paired data
+pairwiseOrdinalTest     [Defunct!] Pairwise two-sample ordinal
+                        regression
+pairwisePercentileTest
+                        Pairwise permutation tests for percentiles
+pairwisePermutationMatrix
+                        Pairwise two-sample independence tests with
+                        matrix output
+pairwisePermutationSymmetry
+                        Pairwise two-sample symmetry tests
+pairwisePermutationSymmetryMatrix
+                        Pairwise two-sample symmetry tests with matrix
+                        output
+pairwisePermutationTest
+                        Pairwise two-sample independence tests
+pairwiseRobustMatrix    [Defunct!] Pairwise two-sample robust tests
+                        with matrix output
+pairwiseRobustTest      [Defunct!] Pairwise two-sample robust tests
+pairwiseSignMatrix      [Defunct!] Pairwise sign tests with matrix
+                        output
+pairwiseSignTest        [Defunct!] Pairwise sign tests
+percentileTest          Test of percentiles by permutation test
+phi                     phi
+plotDensityHistogram    Histogram with a density curve
+plotNormalDensity       Density plot with a normal curve
+plotNormalHistogram     Histogram with a normal curve
+plotPredy               Plot a predicted line from a bivariate model
+quantileCI              Quantiles and confidence intervals
+rcompanion-package      Functions to Support Extension Education
+                        Program Evaluation
+scheirerRayHare         Scheirer Ray Hare test
+spearmanRho             Spearman's rho, Kendall's tau, Pearson's r
+transformTukey          Tukey's Ladder of Powers
+vda                     Vargha and Delaney's A
+wilcoxonOR              Agresti's Generalized Odds Ratio for Stochastic
+                        Dominance
+wilcoxonOneSampleR      r effect size for Wilcoxon one-sample
+                        signed-rank test
+wilcoxonOneSampleRC     Rank biserial correlation coefficient for
+                        one-sample Wilcoxon test
+wilcoxonPS              Grissom and Kim's Probability of Superiority
+                        (PS)
+wilcoxonPairedR         r effect size for Wilcoxon two-sample paired
+                        signed-rank test
+wilcoxonPairedRC        Matched-pairs rank biserial correlation
+                        coefficient
+wilcoxonR               r effect size for Wilcoxon two-sample rank-sum
+                        test
+wilcoxonRG              Glass rank biserial correlation coefficient
+wilcoxonZ               Wilcoxon z statistic

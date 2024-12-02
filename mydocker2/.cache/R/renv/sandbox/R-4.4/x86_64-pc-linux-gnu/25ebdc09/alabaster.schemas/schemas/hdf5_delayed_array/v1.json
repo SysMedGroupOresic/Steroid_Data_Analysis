@@ -1,0 +1,81 @@
+{
+    "$id": "hdf5_delayed_array/v1.json",
+    "$schema": "http://json-schema.org/draft-07/schema",
+    "_attributes": {
+        "format": "application/x-hdf5",
+        "restore": {
+            "R": "alabaster.matrix::loadArray"
+        }
+    },
+    "additionalProperties": false,
+    "description": "Delayed array saved in a group of a HDF5 file as an n-dimensional dataset. This follows the [**chihaya**](https://ltla.github.io/chihaya) specification (version 1) for delayed operations, based on the [**DelayedArray**](https://bioconductor.org/packages/DelayedArray) Bioconductor package.\n\nDerived from `array/v1.json`: some kind of multi-dimensional array, where we store metadata about the dimensions and type of data. The exact implementation of the array is left to concrete subclasses.",
+    "properties": {
+        "$schema": {
+            "description": "The schema to use.",
+            "type": "string"
+        },
+        "array": {
+            "additionalProperties": false,
+            "properties": {
+                "dimensions": {
+                    "description": "Dimensions of an n-dimensional array.",
+                    "items": {
+                        "type": "integer"
+                    },
+                    "minItems": 1,
+                    "type": "array"
+                },
+                "type": {
+                    "description": "Type of data stored in this array.",
+                    "enum": [
+                        "boolean",
+                        "number",
+                        "integer",
+                        "string",
+                        "other"
+                    ],
+                    "type": "string"
+                }
+            },
+            "required": [
+                "dimensions"
+            ],
+            "type": "object"
+        },
+        "hdf5_delayed_array": {
+            "additionalProperties": false,
+            "properties": {
+                "group": {
+                    "description": "Name of the group containing the delayed array.",
+                    "type": "string"
+                }
+            },
+            "required": [
+                "group"
+            ],
+            "type": "object"
+        },
+        "is_child": {
+            "default": false,
+            "description": "Is this a child document, only to be interpreted in the context of the parent document from which it is linked? This may have implications for search and metadata requirements.",
+            "type": "boolean"
+        },
+        "md5sum": {
+            "description": "MD5 checksum for the file.",
+            "type": "string"
+        },
+        "path": {
+            "description": "Path to the file in the project directory.",
+            "type": "string"
+        }
+    },
+    "required": [
+        "$schema",
+        "array",
+        "hdf5_delayed_array",
+        "md5sum",
+        "path"
+    ],
+    "title": "HDF5 delayed array",
+    "type": "object"
+}

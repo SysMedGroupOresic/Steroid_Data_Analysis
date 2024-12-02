@@ -1,0 +1,24 @@
+citHeader("To cite superb version 0.95 in publications use:")
+
+bibentry(
+  bibtype  = "Article",
+  title    = "Summary plots with adjusted error bars: The superb framework with an implementation in {R}",
+  author   = c("Denis Cousineau", "Marc-Andre Goulet", "Bradley Harding"),
+  journal  = "Advances in Methods and Practices in Psychological Science",
+  year     = "2021",
+  volume   = "4",
+  number   = "3",
+  pages    = "1--46",
+  url      = "https://dcousin3.github.io/superb/",
+  doi      = "10.1177/25152459211035109",
+  textVersion = paste(
+    "Cousineau, D., Goulet, M.A., & Harding. B (2021) ",
+    "Summary plots with adjusted error bars: The superb framework with an implementation in R",
+    "Advances in Methods and Practices in Psychological Science, doi: https://doi.org/10.1177/25152459211035109"
+  )
+)
+
+citFooter(paste(
+    "We have invested a lot of time and effort in creating superb.",
+    "Please cite it when using it. Academic retribution is citation!")
+)

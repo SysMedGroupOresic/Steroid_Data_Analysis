@@ -1,0 +1,151 @@
+{
+    "$id": "sequence_string_set/v1.json",
+    "$schema": "http://json-schema.org/draft-07/schema",
+    "_attributes": {
+        "metadata_only": true,
+        "restore": {
+            "R": "alabaster.string::loadXStringSet"
+        }
+    },
+    "additionalProperties": false,
+    "description": "Sequences for DNA, RNA or protein molecules, plus some extra annotations. This corresponds to a `XStringSet` object from the [**Biostrings**](https://bioconductor.org/packages/Biostrings) Bioconductor package. If the sequences are associated with quality scores, this corresponds instead to a `QualityScaledXStringSet` object.",
+    "properties": {
+        "$schema": {
+            "description": "The schema to use.",
+            "type": "string"
+        },
+        "is_child": {
+            "default": false,
+            "description": "Is this a child document, only to be interpreted in the context of the parent document from which it is linked? This may have implications for search and metadata requirements.",
+            "type": "boolean"
+        },
+        "path": {
+            "description": "Path to the file in the project directory.",
+            "type": "string"
+        },
+        "sequence_string_set": {
+            "additionalProperties": false,
+            "properties": {
+                "names": {
+                    "default": false,
+                    "description": "Whether the sequences were named. If `false`, placeholder names are created in the sequence file at `sequence_file`; these should be ignored for further processing.",
+                    "type": "boolean"
+                },
+                "other_data": {
+                    "description": "A list containing additional annotations for the object. Omitted if no annotations are present.",
+                    "properties": {
+                        "resource": {
+                            "_children": {
+                                "contains": [
+                                    "basic_list"
+                                ]
+                            },
+                            "properties": {
+                                "path": {
+                                    "description": "Relative path of the resource from the root of the project directory.",
+                                    "type": "string"
+                                },
+                                "type": {
+                                    "description": "Type of file. Local files should be present in the same project directory.",
+                                    "enum": [
+                                        "local"
+                                    ],
+                                    "type": "string"
+                                }
+                            },
+                            "required": [
+                                "type",
+                                "path"
+                            ],
+                            "type": "object"
+                        }
+                    },
+                    "required": [
+                        "resource"
+                    ],
+                    "type": "object"
+                },
+                "sequence_data": {
+                    "description": "A data frame containing additional annotations for each sequence. Each row corresponds to a sequence in the FASTA/FASTQ file. Omitted if no annotations are present.",
+                    "properties": {
+                        "resource": {
+                            "_children": {
+                                "contains": [
+                                    "data_frame"
+                                ]
+                            },
+                            "properties": {
+                                "path": {
+                                    "description": "Relative path of the resource from the root of the project directory.",
+                                    "type": "string"
+                                },
+                                "type": {
+                                    "description": "Type of file. Local files should be present in the same project directory.",
+                                    "enum": [
+                                        "local"
+                                    ],
+                                    "type": "string"
+                                }
+                            },
+                            "required": [
+                                "type",
+                                "path"
+                            ],
+                            "type": "object"
+                        }
+                    },
+                    "required": [
+                        "resource"
+                    ],
+                    "type": "object"
+                },
+                "sequence_file": {
+                    "description": "Biological sequences in FASTA or FASTQ format. The nature of the sequence and the presence/type of quality scores is determined from the `sequence_file`'s own metadata.",
+                    "properties": {
+                        "resource": {
+                            "_children": {
+                                "contains": [
+                                    "fasta_file",
+                                    "fastq_file"
+                                ]
+                            },
+                            "properties": {
+                                "path": {
+                                    "description": "Relative path of the resource from the root of the project directory.",
+                                    "type": "string"
+                                },
+                                "type": {
+                                    "description": "Type of file. Local files should be present in the same project directory.",
+                                    "enum": [
+                                        "local"
+                                    ],
+                                    "type": "string"
+                                }
+                            },
+                            "required": [
+                                "type",
+                                "path"
+                            ],
+                            "type": "object"
+                        }
+                    },
+                    "required": [
+                        "resource"
+                    ],
+                    "type": "object"
+                }
+            },
+            "required": [
+                "sequence_file"
+            ],
+            "type": "object"
+        }
+    },
+    "required": [
+        "$schema",
+        "path",
+        "sequence_string_set"
+    ],
+    "title": "Sequence string set",
+    "type": "object"
+}

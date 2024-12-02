@@ -1,0 +1,17 @@
+geom_alluvial           geom_alluvial
+geom_alluvial_label     geom_alluvial_label
+geom_sankey             geom_sankey Creates a sankey plot which
+                        visualize flows between nodes. Each observation
+                        needs to have a 'x' aesthetic as well as a
+                        'next_x' column which declares where that
+                        observation should flow. Also each observation
+                        should have a 'node' and a 'next_node'
+                        aesthetic which provide information about which
+                        group in the y-direction. By default each row
+                        of the data frame is counted to calculate the
+                        size of flows. A manual flow value can be added
+                        with the 'value' aesthetic.
+geom_sankey_bump        geom_sankey_bump
+geom_sankey_label       geom_sankey_label
+make_long               make_long
+theme_sankey            sankey_themes

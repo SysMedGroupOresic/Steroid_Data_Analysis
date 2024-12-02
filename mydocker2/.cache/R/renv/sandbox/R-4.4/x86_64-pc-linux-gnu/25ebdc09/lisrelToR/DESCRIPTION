@@ -1,0 +1,22 @@
+Package: lisrelToR
+Type: Package
+Title: Import Output from LISREL into R
+Version: 0.3
+Depends: R (>= 2.15.0)
+Author: Sacha Epskamp
+Maintainer: Sacha Epskamp <mail@sachaepskamp.com>
+Description: This is an unofficial package aimed at automating the import of LISREL output in R.  This package or its maintainer is not in any way affiliated with the creators of LISREL and SSI, Inc.
+License: GPL-2
+NeedsCompilation: no
+Packaged: 2024-02-07 01:59:22 UTC; sachaepskamp
+Repository: RSPM
+Date/Publication: 2024-02-07 12:50:13 UTC
+Encoding: UTF-8
+Built: R 4.4.0; ; 2024-04-25 18:29:11 UTC; windows
+RemoteType: standard
+RemotePkgRef: lisrelToR
+RemoteRef: lisrelToR
+RemoteRepos: https://packagemanager.posit.co/cran/latest
+RemoteReposName: CRAN
+RemotePkgPlatform: x86_64-w64-mingw32
+RemoteSha: 0.3

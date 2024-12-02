@@ -1,0 +1,522 @@
+
+                                DATE: 11/26/2012
+                                  TIME: 14:11
+
+
+                          L I S R E L  9.10 (STUDENT)
+
+                                       BY
+
+                         Karl G. Jöreskog & Dag Sörbom
+
+
+
+                    This program is published exclusively by
+                    Scientific Software International, Inc.
+                         http://www.ssicentral.com
+
+        Copyright by Scientific Software International, Inc., 1981-2012
+          Use of this program is subject to the terms specified in the
+                        Universal Copyright Convention.
+
+ The following lines were read from file C:\Users\Sacha\Documents\lisrel\mi1.lis:
+
+ title groups
+ da No=1868 ni=4 ng=2
+ cm sy
+ 8.24
+ 2.84       8.47
+ 3.54       3.24       9.06
+ 2.55       2.40       2.86       9.36
+ Me
+ 10.41      10.37      10.73      10.41
+ la
+ pc         pa         oa         ma
+ mo ly=fu,fr ps=sy,fr te=sy,fr ne=1 ny=4 ty=fu,fr al=fu,fi
+ le
+ perfIQ
+ pa ly
+ 0 2 3 4
+ ma ly
+ 1 0 0 0
+ ma al
+ 0
+ pa ps
+ 1
+ pa te
+ 1
+ 0 1
+ 0 0 1
+ 0 0 0 1
+ ! pa ty
+ ! 21 22 23 24
+ ou
+
+ groups                                                                         
+
+                           Number of Input Variables  4
+                           Number of Y - Variables    4
+                           Number of X - Variables    0
+                           Number of ETA - Variables  1
+                           Number of KSI - Variables  0
+                           Number of Observations   305
+                           Number of Groups           2
+ title N=305  Group 2
+ da no=305 ni=4
+ cm sy
+ 9.18
+ 3.40       9.18
+ 4.39       3.68       8.76
+ 3.51       3.12       1.81      10.37
+ Me
+ 8.12       8.10       7.89       8.39
+ la
+ pc         pa         oa         ma
+ mo ly=fu,fr ps=sy,fr te=sy,fr ne=1 ny=4 ty=in al=fu,fr
+ ! note ty=in
+ le
+ perfIQ
+ pa ly
+ 0 2 3 4
+ ma ly
+ 1 0 0 0
+ ma al
+ -2
+ pa al ! estimate the mean in group 2. this parameter is the mean difference!
+ 1
+ pa te
+ 1
+ 0 1
+ 0 0 1
+ 0 0 0 1
+ ! pa ty   ! i used ty=in on the mo line. parameter number is an alternative
+ ! 21 22 23 24
+ ou mi
+
+ title N=305  Group 2                                                           
+
+                           Number of Input Variables  4
+                           Number of Y - Variables    4
+                           Number of X - Variables    0
+                           Number of ETA - Variables  1
+                           Number of KSI - Variables  0
+                           Number of Observations   305
+                           Number of Groups           2
+
+ groups                                                                         
+
+         Covariance Matrix       
+
+                  pc         pa         oa         ma   
+            --------   --------   --------   --------
+       pc      8.240
+       pa      2.840      8.470
+       oa      3.540      3.240      9.060
+       ma      2.550      2.400      2.860      9.360
+
+ Total Variance = 35.130 Generalized Variance = 3453.917                                
+
+ Largest Eigenvalue = 17.538 Smallest Eigenvalue = 5.085                                   
+
+ Condition Number = 1.857
+
+         Means   
+
+                  pc         pa         oa         ma   
+            --------   --------   --------   --------
+              10.410     10.370     10.730     10.410
+
+ title N=305  Group 2                                                           
+
+         Covariance Matrix       
+
+                  pc         pa         oa         ma   
+            --------   --------   --------   --------
+       pc      9.180
+       pa      3.400      9.180
+       oa      4.390      3.680      8.760
+       ma      3.510      3.120      1.810     10.370
+
+ Total Variance = 37.490 Generalized Variance = 3827.891                                
+
+ Largest Eigenvalue = 19.362 Smallest Eigenvalue = 4.152                                   
+
+ Condition Number = 2.159
+
+         Means   
+
+                  pc         pa         oa         ma   
+            --------   --------   --------   --------
+               8.120      8.100      7.890      8.390
+
+
+ groups                                                                         
+
+ Parameter Specifications
+
+ LAMBDA-Y EQUALS LAMBDA-Y IN THE FOLLOWING GROUP
+
+         PSI         
+
+              perfIQ
+            --------
+                   4
+
+         THETA-EPS   
+
+                  pc         pa         oa         ma
+            --------   --------   --------   --------
+                   5          6          7          8
+
+ TAU-Y EQUALS TAU-Y IN THE FOLLOWING GROUP
+
+
+ title N=305  Group 2                                                           
+
+ Parameter Specifications
+
+         LAMBDA-Y    
+
+              perfIQ
+            --------
+       pc          0
+       pa          1
+       oa          2
+       ma          3
+
+         PSI         
+
+              perfIQ
+            --------
+                  13
+
+         THETA-EPS   
+
+                  pc         pa         oa         ma
+            --------   --------   --------   --------
+                  14         15         16         17
+
+         TAU-Y       
+
+                  pc         pa         oa         ma
+            --------   --------   --------   --------
+                   9         10         11         12
+
+         ALPHA       
+
+              perfIQ
+            --------
+                  18
+ 
+
+
+ groups                                                                         
+
+ Number of Iterations = 7           
+
+ LISREL Estimates (Maximum Likelihood)                           
+
+ LAMBDA-Y EQUALS LAMBDA-Y IN THE FOLLOWING GROUP
+
+         Covariance Matrix of ETA                
+
+              perfIQ   
+            --------
+               3.210
+
+         PSI         
+
+              perfIQ   
+            --------
+               3.210
+             (0.477)
+               6.728
+ 
+
+         THETA-EPS   
+
+                  pc         pa         oa         ma   
+            --------   --------   --------   --------
+               5.088      5.787      5.150      7.311
+             (0.542)    (0.570)    (0.584)    (0.658)
+               9.393     10.158      8.817     11.109
+ 
+
+         Squared Multiple Correlations for Y - Variables         
+
+                  pc         pa         oa         ma   
+            --------   --------   --------   --------
+               0.387      0.321      0.429      0.213
+
+ TAU-Y EQUALS TAU-Y IN THE FOLLOWING GROUP
+
+                                 Log-likelihood Values
+
+                        Estimated Model          Saturated Model
+                        ---------------          ---------------
+ Number of free parameters(t)        18                       14
+ -2ln(L)                       7448.841                 7428.988
+ AIC (Akaike, 1974)*           7484.841                 7456.988
+ BIC (Schwarz, 1978)*          7564.254                 7518.753
+
+*LISREL uses AIC= 2t - 2ln(L) and BIC = tln(N)- 2ln(L)
+
+
+                         Group Goodness of Fit Statistics
+
+ Contribution to Chi-Square                            6.075
+ Percentage Contribution to Chi-Square                 30.601
+ 
+ Root Mean Square Residual (RMR)                       0.0661
+ Standardized RMR                                      0.00754
+ Goodness of Fit Index (GFI)                           1.00
+
+ groups                                                                         
+
+ Modification Indices and Expected Change
+
+         Modification Indices for LAMBDA-Y       
+
+              perfIQ   
+            --------
+       pc      0.047
+       pa      0.040
+       oa      0.033
+       ma      0.078
+
+         Expected Change for LAMBDA-Y    
+
+              perfIQ   
+            --------
+       pc     -0.031
+       pa     -0.021
+       oa      0.022
+       ma      0.029
+
+ No Non-Zero Modification Indices for PSI         
+
+         Modification Indices for THETA-EPS      
+
+                  pc         pa         oa         ma   
+            --------   --------   --------   --------
+       pc       - - 
+       pa      0.107       - - 
+       oa      0.009      0.000       - - 
+       ma       - -       0.030      0.013       - - 
+
+         Expected Change for THETA-EPS   
+
+                  pc         pa         oa         ma   
+            --------   --------   --------   --------
+       pc       - - 
+       pa     -0.146       - - 
+       oa      0.047     -0.003       - - 
+       ma       - -       0.079      0.053       - - 
+
+         Modification Indices for TAU-Y          
+
+                  pc         pa         oa         ma   
+            --------   --------   --------   --------
+               2.641      0.005      1.599      0.258
+
+         Expected Change for TAU-Y       
+
+                  pc         pa         oa         ma   
+            --------   --------   --------   --------
+              -0.091     -0.004      0.067      0.039
+
+ No Non-Zero Modification Indices for ALPHA       
+
+
+ title N=305  Group 2                                                           
+
+ Number of Iterations = 7           
+
+ LISREL Estimates (Maximum Likelihood)                           
+
+         LAMBDA-Y    
+
+              perfIQ   
+            --------
+       pc      1.000
+ 
+       pa      0.923
+             (0.070)
+              13.097
+ 
+       oa      1.098
+             (0.077)
+              14.253
+ 
+       ma      0.784
+             (0.071)
+              11.064
+ 
+
+         Covariance Matrix of ETA                
+
+              perfIQ   
+            --------
+               3.693
+
+         Mean Vector of Eta-Variables
+
+              perfIQ   
+            --------
+              -2.469
+
+         PSI         
+
+              perfIQ   
+            --------
+               3.693
+             (0.530)
+               6.964
+ 
+
+         THETA-EPS   
+
+                  pc         pa         oa         ma   
+            --------   --------   --------   --------
+               5.006      5.963      4.681      8.356
+             (0.543)    (0.588)    (0.564)    (0.743)
+               9.215     10.147      8.302     11.242
+ 
+
+         Squared Multiple Correlations for Y - Variables         
+
+                  pc         pa         oa         ma   
+            --------   --------   --------   --------
+               0.425      0.345      0.488      0.214
+
+         TAU-Y       
+
+                  pc         pa         oa         ma   
+            --------   --------   --------   --------
+              10.500     10.374     10.663     10.371
+             (0.155)    (0.155)    (0.164)    (0.157)
+              67.597     67.101     65.159     65.999
+ 
+
+         ALPHA       
+
+              perfIQ   
+            --------
+              -2.469
+             (0.209)
+             -11.825
+ 
+
+                                 Log-likelihood Values
+
+                        Estimated Model          Saturated Model
+                        ---------------          ---------------
+ Number of free parameters(t)        18                       14
+ -2ln(L)                       7448.841                 7428.988
+ AIC (Akaike, 1974)*           7484.841                 7456.988
+ BIC (Schwarz, 1978)*          7564.254                 7518.753
+
+*LISREL uses AIC= 2t - 2ln(L) and BIC = tln(N)- 2ln(L)
+
+
+                        Global Goodness of Fit Statistics
+
+ Degrees of Freedom for (C1)-(C2)                      10
+ Maximum Likelihood Ratio Chi-Square (C1)              19.853 (P = 0.0307)
+ Browne's (1984) ADF Chi-Square (C2_NT)                -19927.496 (P = 0.0000)
+ Estimated Non-centrality Parameter (NCP)              9.853
+ 90 Percent Confidence Interval for NCP                (0.863 ; 26.584)
+ 
+ Minimum Fit Function Value                            0.0326
+ Population Discrepancy Function Value (F0)            0.0162
+ 90 Percent Confidence Interval for F0                 (0.00142 ; 0.0437)
+ Root Mean Square Error of Approximation (RMSEA)       0.0569
+ 90 Percent Confidence Interval for RMSEA              (0.0168 ; 0.0934)
+ P-Value for Test of Close Fit (RMSEA < 0.05)          0.336
+ 
+ Expected Cross-Validation Index (ECVI)                0.0917
+ 90 Percent Confidence Interval for ECVI               (0.0638 ; 0.106)
+ ECVI for Saturated Model                              0.0328
+ ECVI for Independence Model                           0.756
+ 
+ Chi-Square for Independence Model (12 df)           452.673
+ 
+ Normed Fit Index (NFI)                                45.094
+ Non-Normed Fit Index (NNFI)                           55.384
+ Parsimony Normed Fit Index (PNFI)                     37.579
+ Comparative Fit Index (CFI)                           1.000
+ Incremental Fit Index (IFI)                           46.115
+ Relative Fit Index (RFI)                              53.913
+ 
+ Critical N (CN)                                       0.292
+ 
+
+
+                         Group Goodness of Fit Statistics
+
+ Contribution to Chi-Square                            6.156
+ Percentage Contribution to Chi-Square                 31.008
+ 
+ Root Mean Square Residual (RMR)                       0.548
+ Standardized RMR                                      0.0568
+ Goodness of Fit Index (GFI)                           0.974
+
+ title N=305  Group 2                                                           
+
+ Modification Indices and Expected Change
+
+         Modification Indices for LAMBDA-Y       
+
+              perfIQ   
+            --------
+       pc      0.046
+       pa     24.536
+       oa     -0.099
+       ma      0.173
+
+         Expected Change for LAMBDA-Y    
+
+              perfIQ   
+            --------
+       pc      0.031
+       pa      3.996
+       oa      0.015
+       ma     -0.035
+
+ No Non-Zero Modification Indices for PSI         
+
+         Modification Indices for THETA-EPS      
+
+                  pc         pa         oa         ma   
+            --------   --------   --------   --------
+       pc       - - 
+       pa      1.634       - - 
+       oa      2.337      0.072       - - 
+       ma      4.045      2.824     16.503       - - 
+
+         Expected Change for THETA-EPS   
+
+                  pc         pa         oa         ma   
+            --------   --------   --------   --------
+       pc       - - 
+       pa     -0.590       - - 
+       oa      0.786      0.131       - - 
+       ma      0.958      0.817     -2.009       - - 
+
+         Modification Indices for TAU-Y          
+
+                  pc         pa         oa         ma   
+            --------   --------   --------   --------
+              -3.923     -0.001      0.100     -0.086
+
+         Expected Change for TAU-Y       
+
+                  pc         pa         oa         ma   
+            --------   --------   --------   --------
+              -0.203      0.004     -0.121     -0.011
+
+ No Non-Zero Modification Indices for ALPHA       
+
+ Max. Mod. Index is   24.54 for Element ( 2, 1) of LAMBDA-Y in Group  2
+
+                           Time used 0.016 seconds                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                         

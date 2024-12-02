@@ -1,0 +1,15 @@
+readAtomicVectorList    Load an atomic vector list
+readDataFrameList       Load a data frame list
+readGRanges             Read a GRanges from disk
+readGRangesList         Read a GRangesList from disk
+readSeqinfo             Read a Seqinfo from disk
+saveObject,CompressedAtomicList-method
+                        Save compressed list of atomic vectors to disk
+saveObject,CompressedSplitDataFrameList-method
+                        Save compressed lists of data frames to disk
+saveObject,GRanges-method
+                        Save a GRanges object to disk
+saveObject,GRangesList-method
+                        Save a GRangesList object to disk
+saveObject,Seqinfo-method
+                        Save a Seqinfo object to disk

@@ -1,0 +1,41 @@
+Rfc3339                 Representing Internet date/times
+acquireFile             Acquire file or metadata
+altReadObject           Alter the reading function
+altSaveObject           Alter the saving generic
+anyMissing              Find missing values
+chooseMissingPlaceholderForHdf5
+                        Choose a missing value placeholder
+createRedirection       Create a redirection file
+hdf5                    HDF5 utilities
+listObjects             List objects in a directory
+loadDirectory           Load all non-child objects in a directory
+moveObject              Move a non-child object in the staging
+                        directory
+quickLoadObject         Convenience helpers for handling local
+                        directories
+quickReadCsv            Quickly read and write a CSV file
+readAtomicVector        Read an atomic vector from disk
+readBaseFactor          Read a factor from disk
+readBaseList            Read a base list from disk
+readDataFrame           Read a DataFrame from disk
+readDataFrameFactor     Read a DataFrame factor from disk
+readMetadata            Read R-level metadata
+readObject              Read an object from disk
+readObjectFile          Utilities to read and save the object file
+removeObject            Remove a non-child object from the staging
+                        directory
+saveAtomicVector        Save atomic vectors to disk
+saveBaseFactor          Save a factor to disk
+saveBaseList            Save a base list to disk
+saveFormats             Choose the format for certain objects
+saveMetadata            Save R-level metadata to disk
+saveObject              Save objects to disk
+saveObject,DataFrame-method
+                        Save a DataFrame to disk
+saveObject,DataFrameFactor-method
+                        Stage a DataFrameFactor object
+transformVectorForHdf5
+                        Transform a vector to save in a HDF5 file
+validateDirectory       Validate a directory of objects
+validateObject          Validate an object's on-disk representation
+writeMetadata           Saving the metadata

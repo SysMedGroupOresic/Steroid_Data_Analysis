@@ -1,0 +1,115 @@
+Baker2009               Network meta-analysis of pharmacologic
+                        treatments for chronic obstructive pulmonary
+                        disease
+Dogliotti2014           Network meta-analysis of antithrombotic
+                        treatments in patients with non-valvular atrial
+                        fibrillation
+Dong2013                Network meta-analysis for chronic obstructive
+                        pulmonary disease
+Franchini2012           Network meta-analysis of treatments for
+                        Parkinson's disease
+Gurusamy2011            Network meta-analysis on blood loss during
+                        liver transplantation
+Linde2015               Network meta-analysis of treatments for
+                        depression
+Linde2016               Network meta-analysis of primary care
+                        depression treatments
+Senn2013                Network meta-analysis in diabetes
+Stowe2010               Network meta-analysis of adjuvant treatments to
+                        levodopa therapy for Parkinson's disease
+Woods2010               Count statistics of survival data
+as.data.frame.netconnection
+                        Create a data frame from an object of class
+                        netconnection
+as.data.frame.netmeta   Create a data frame from an object of class
+                        netmeta
+decomp.design           Design-based decomposition of Cochran's Q in
+                        network meta-analysis
+dietaryfat              Network meta-analysis of dietary fat
+discomb                 Additive network meta-analysis for combinations
+                        of treatments (disconnected networks)
+forest.netbind          Forest plot showing results of two or more
+                        network meta-analyses
+forest.netcomb          Forest plot for additive network meta-analysis
+forest.netcomparison    Forest plot for complex interventions in
+                        component network meta-analysis
+forest.netcomplex       Forest plot for complex interventions in
+                        component network meta-analysis
+forest.netmeta          Forest plot for network meta-analysis
+forest.netsplit         Forest plot for direct and indirect evidence
+funnel.netmeta          'Comparison-adjusted' funnel plot
+hasse                   Hasse diagram
+hatmatrix               Derive hat matrix from network meta-analysis
+heatplot                Generic function for heat plots
+heatplot.netmeta        Heat Plot
+invmat                  Moore-Penrose Pseudoinverse of a Matrix
+metabias.netmeta        Test of funnel plot asymmetry in network
+                        meta-analysis
+netbind                 Combine network meta-analysis objects
+netcomb                 Additive network meta-analysis for combinations
+                        of treatments
+netcomparison           Calculate comparison effects of two arbitrary
+                        complex interventions in component network
+                        meta-analysis
+netcomplex              Calculate effect of arbitrary complex
+                        interventions in component network
+                        meta-analysis
+netconnection.default   Get information on network connectivity (number
+                        of subnetworks, distance matrix)
+netcontrib              Contribution matrix in network meta-analysis
+netdistance             Calculate distance matrix for an adjacency
+                        matrix
+netgraph                Generic function for network graphs
+netgraph.discomb        Network graph for objects of class discomb
+netgraph.netcomb        Network graph for objects of class netcomb
+netgraph.netconnection
+                        Network graph for objects of class
+                        netconnection
+netgraph.netimpact      Network graph for objects of class netimpact
+netgraph.netmeta        Network graph
+netheat                 Net heat plot
+netimpact               Determine the importance of individual studies
+                        in network meta-analysis
+netleague               Create league table with network meta-analysis
+                        results
+netmatrix               Create a matrix with additional information for
+                        pairwise comparisons
+netmeasures             Measures for characterizing a network
+                        meta-analysis
+netmeta                 Network meta-analysis using graph-theoretical
+                        method
+netmeta-package         netmeta: Brief overview of methods and general
+                        hints
+netmetabin              Network meta-analysis of binary outcome data
+netpairwise             Conduct pairwise meta-analyses for all
+                        comparisons with direct evidence in a network
+                        meta-analysis
+netposet                Partial order of treatments in network
+                        meta-analysis
+netrank                 Frequentist method to rank treatments in
+                        network
+netsplit                Split direct and indirect evidence in network
+                        meta-analysis
+nettable                Table with network meta-analysis results
+pairwise                Transform meta-analysis data from two arm-based
+                        formats into contrast-based format
+plot.netposet           Scatter plot or biplot showing partially order
+                        of treatment ranks
+plot.netrank            Plot treatment ranking(s) of network
+                        meta-analyses
+plot.rankogram          Plot rankograms
+print.decomp.design     Print method for objects of class decomp.design
+print.netbind           Print method for objects of class netbind
+print.netcomb           Print method for objects of class netcomb
+print.netimpact         Print method for objects of class netimpact
+print.summary.netcomb   Print detailed information for component
+                        network meta-analysis
+print.summary.netmeta   Print detailed results of network meta-analysis
+radial.netmeta          'Comparison-adjusted' radial plot
+rankogram               Calculate rankogram
+smokingcessation        Network meta-analysis of interventions for
+                        smoking cessation
+subset.pairwise         Return subset of pairwise object
+summary.netcomb         Summary method for objects of class netcomb
+summary.netmeta         Summary method for objects of class netmeta
+treats                  Abbreviate treatment names

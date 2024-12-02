@@ -1,0 +1,34 @@
+Package: qpgraph
+Title: Estimation of genetic and molecular regulatory networks from
+        high-throughput genomics data
+Version: 2.40.0
+Authors@R: c(person("Robert", "Castelo", role=c("aut", "cre"), email="robert.castelo@upf.edu"),
+             person("Alberto", "Roverato", role="aut", email="alberto.roverato@unibo.it"))
+Description: Estimate gene and eQTL networks from high-throughput expression and genotyping assays.
+License: GPL (>= 2)
+Depends: R (>= 3.5)
+Imports: methods, parallel, Matrix (>= 1.5-0), grid, annotate, graph
+        (>= 1.45.1), Biobase, S4Vectors, BiocParallel, AnnotationDbi,
+        IRanges, GenomeInfoDb, GenomicRanges, GenomicFeatures, mvtnorm,
+        qtl, Rgraphviz
+Suggests: RUnit, BiocGenerics, BiocStyle, genefilter, org.EcK12.eg.db,
+        rlecuyer, snow, Category, GOstats
+LazyData: yes
+URL: https://github.com/rcastelo/qpgraph
+BugReports: https://github.com/rcastelo/rcastelo/issues
+biocViews: Microarray, GeneExpression, Transcription, Pathways,
+        NetworkInference, GraphAndNetwork, GeneRegulation, Genetics,
+        GeneticVariability, SNP, Software
+git_url: https://git.bioconductor.org/packages/qpgraph
+git_branch: RELEASE_3_20
+git_last_commit: 078b5fe
+git_last_commit_date: 2024-10-29
+Repository: Bioconductor 3.20
+Date/Publication: 2024-10-29
+NeedsCompilation: yes
+Packaged: 2024-10-30 04:59:31 UTC; biocbuild
+Author: Robert Castelo [aut, cre],
+  Alberto Roverato [aut]
+Maintainer: Robert Castelo <robert.castelo@upf.edu>
+Built: R 4.4.1; x86_64-w64-mingw32; 2024-10-30 16:31:41 UTC; windows
+Archs: x64

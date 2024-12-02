@@ -1,0 +1,439 @@
+<!DOCTYPE html>
+
+<html>
+
+<head>
+
+<meta charset="utf-8" />
+<meta name="generator" content="pandoc" />
+<meta http-equiv="X-UA-Compatible" content="IE=EDGE" />
+
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+
+
+
+<title>Loop De Loop</title>
+
+<script>// Pandoc 2.9 adds attributes on both header and div. We remove the former (to
+// be compatible with the behavior of Pandoc < 2.8).
+document.addEventListener('DOMContentLoaded', function(e) {
+  var hs = document.querySelectorAll("div.section[class*='level'] > :first-child");
+  var i, h, a;
+  for (i = 0; i < hs.length; i++) {
+    h = hs[i];
+    if (!/^h[1-6]$/i.test(h.tagName)) continue;  // it should be a header h1-h6
+    a = h.attributes;
+    while (a.length > 0) h.removeAttribute(a[0].name);
+  }
+});
+</script>
+
+<style type="text/css">
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+span.underline{text-decoration: underline;}
+div.column{display: inline-block; vertical-align: top; width: 50%;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+</style>
+
+
+
+<style type="text/css">
+code {
+white-space: pre;
+}
+.sourceCode {
+overflow: visible;
+}
+</style>
+<style type="text/css" data-origin="pandoc">
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+{ counter-reset: source-line 0; }
+pre.numberSource code > span
+{ position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+{ content: counter(source-line);
+position: relative; left: -1em; text-align: right; vertical-align: baseline;
+border: none; display: inline-block;
+-webkit-touch-callout: none; -webkit-user-select: none;
+-khtml-user-select: none; -moz-user-select: none;
+-ms-user-select: none; user-select: none;
+padding: 0 4px; width: 4em;
+color: #aaaaaa;
+}
+pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa; padding-left: 4px; }
+div.sourceCode
+{ }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+code span.al { color: #ff0000; font-weight: bold; } 
+code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } 
+code span.at { color: #7d9029; } 
+code span.bn { color: #40a070; } 
+code span.bu { color: #008000; } 
+code span.cf { color: #007020; font-weight: bold; } 
+code span.ch { color: #4070a0; } 
+code span.cn { color: #880000; } 
+code span.co { color: #60a0b0; font-style: italic; } 
+code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } 
+code span.do { color: #ba2121; font-style: italic; } 
+code span.dt { color: #902000; } 
+code span.dv { color: #40a070; } 
+code span.er { color: #ff0000; font-weight: bold; } 
+code span.ex { } 
+code span.fl { color: #40a070; } 
+code span.fu { color: #06287e; } 
+code span.im { color: #008000; font-weight: bold; } 
+code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } 
+code span.kw { color: #007020; font-weight: bold; } 
+code span.op { color: #666666; } 
+code span.ot { color: #007020; } 
+code span.pp { color: #bc7a00; } 
+code span.sc { color: #4070a0; } 
+code span.ss { color: #bb6688; } 
+code span.st { color: #4070a0; } 
+code span.va { color: #19177c; } 
+code span.vs { color: #4070a0; } 
+code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } 
+</style>
+<script>
+// apply pandoc div.sourceCode style to pre.sourceCode instead
+(function() {
+  var sheets = document.styleSheets;
+  for (var i = 0; i < sheets.length; i++) {
+    if (sheets[i].ownerNode.dataset["origin"] !== "pandoc") continue;
+    try { var rules = sheets[i].cssRules; } catch (e) { continue; }
+    var j = 0;
+    while (j < rules.length) {
+      var rule = rules[j];
+      // check if there is a div.sourceCode rule
+      if (rule.type !== rule.STYLE_RULE || rule.selectorText !== "div.sourceCode") {
+        j++;
+        continue;
+      }
+      var style = rule.style.cssText;
+      // check if color or background-color is set
+      if (rule.style.color === '' && rule.style.backgroundColor === '') {
+        j++;
+        continue;
+      }
+      // replace div.sourceCode by a pre.sourceCode rule
+      sheets[i].deleteRule(j);
+      sheets[i].insertRule('pre.sourceCode{' + style + '}', j);
+    }
+  }
+})();
+</script>
+
+
+
+
+<style type="text/css">body {
+background-color: #fff;
+margin: 1em auto;
+max-width: 700px;
+overflow: visible;
+padding-left: 2em;
+padding-right: 2em;
+font-family: "Open Sans", "Helvetica Neue", Helvetica, Arial, sans-serif;
+font-size: 14px;
+line-height: 1.35;
+}
+#TOC {
+clear: both;
+margin: 0 0 10px 10px;
+padding: 4px;
+width: 400px;
+border: 1px solid #CCCCCC;
+border-radius: 5px;
+background-color: #f6f6f6;
+font-size: 13px;
+line-height: 1.3;
+}
+#TOC .toctitle {
+font-weight: bold;
+font-size: 15px;
+margin-left: 5px;
+}
+#TOC ul {
+padding-left: 40px;
+margin-left: -1.5em;
+margin-top: 5px;
+margin-bottom: 5px;
+}
+#TOC ul ul {
+margin-left: -2em;
+}
+#TOC li {
+line-height: 16px;
+}
+table {
+margin: 1em auto;
+border-width: 1px;
+border-color: #DDDDDD;
+border-style: outset;
+border-collapse: collapse;
+}
+table th {
+border-width: 2px;
+padding: 5px;
+border-style: inset;
+}
+table td {
+border-width: 1px;
+border-style: inset;
+line-height: 18px;
+padding: 5px 5px;
+}
+table, table th, table td {
+border-left-style: none;
+border-right-style: none;
+}
+table thead, table tr.even {
+background-color: #f7f7f7;
+}
+p {
+margin: 0.5em 0;
+}
+blockquote {
+background-color: #f6f6f6;
+padding: 0.25em 0.75em;
+}
+hr {
+border-style: solid;
+border: none;
+border-top: 1px solid #777;
+margin: 28px 0;
+}
+dl {
+margin-left: 0;
+}
+dl dd {
+margin-bottom: 13px;
+margin-left: 13px;
+}
+dl dt {
+font-weight: bold;
+}
+ul {
+margin-top: 0;
+}
+ul li {
+list-style: circle outside;
+}
+ul ul {
+margin-bottom: 0;
+}
+pre, code {
+background-color: #f7f7f7;
+border-radius: 3px;
+color: #333;
+white-space: pre-wrap; 
+}
+pre {
+border-radius: 3px;
+margin: 5px 0px 10px 0px;
+padding: 10px;
+}
+pre:not([class]) {
+background-color: #f7f7f7;
+}
+code {
+font-family: Consolas, Monaco, 'Courier New', monospace;
+font-size: 85%;
+}
+p > code, li > code {
+padding: 2px 0px;
+}
+div.figure {
+text-align: center;
+}
+img {
+background-color: #FFFFFF;
+padding: 2px;
+border: 1px solid #DDDDDD;
+border-radius: 3px;
+border: 1px solid #CCCCCC;
+margin: 0 5px;
+}
+h1 {
+margin-top: 0;
+font-size: 35px;
+line-height: 40px;
+}
+h2 {
+border-bottom: 4px solid #f7f7f7;
+padding-top: 10px;
+padding-bottom: 2px;
+font-size: 145%;
+}
+h3 {
+border-bottom: 2px solid #f7f7f7;
+padding-top: 10px;
+font-size: 120%;
+}
+h4 {
+border-bottom: 1px solid #f7f7f7;
+margin-left: 8px;
+font-size: 105%;
+}
+h5, h6 {
+border-bottom: 1px solid #ccc;
+font-size: 105%;
+}
+a {
+color: #0033dd;
+text-decoration: none;
+}
+a:hover {
+color: #6666ff; }
+a:visited {
+color: #800080; }
+a:visited:hover {
+color: #BB00BB; }
+a[href^="http:"] {
+text-decoration: underline; }
+a[href^="https:"] {
+text-decoration: underline; }
+
+code > span.kw { color: #555; font-weight: bold; } 
+code > span.dt { color: #902000; } 
+code > span.dv { color: #40a070; } 
+code > span.bn { color: #d14; } 
+code > span.fl { color: #d14; } 
+code > span.ch { color: #d14; } 
+code > span.st { color: #d14; } 
+code > span.co { color: #888888; font-style: italic; } 
+code > span.ot { color: #007020; } 
+code > span.al { color: #ff0000; font-weight: bold; } 
+code > span.fu { color: #900; font-weight: bold; } 
+code > span.er { color: #a61717; background-color: #e3d2d2; } 
+</style>
+
+
+
+
+</head>
+
+<body>
+
+
+
+
+<h1 class="title toc-ignore">Loop De Loop</h1>
+
+
+
+<div id="to-cycle-or-not-to-cycle" class="section level2">
+<h2>To cycle or not to cycle</h2>
+<p>The <code>ggsankeyfier</code> package requires you to specify from
+which node, to which node an edge flows. See
+<code>vignette(&quot;data_management&quot;)</code> for more technical details on
+how this works. Consequently, this allows you to let edges flow to any
+node in any stage. In most cases, Sankey or alluvial diagrams are
+essentially stage-structured <a href="https://en.wikipedia.org/wiki/Directed_acyclic_graph">directed
+acyclic graphs</a>. However, the way that <code>ggsankeyfier</code>
+organises data allows you to create stage-structured <a href="https://en.wikipedia.org/wiki/Directed_graph">directed graphs</a>.
+In other words, you can create feedback loops in your diagram. This is
+demonstrated in the present vignette.</p>
+<p>For the examples we first need to prepare a basic plot:</p>
+<div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" tabindex="-1"></a><span class="fu">library</span>(ggsankeyfier)</span>
+<span id="cb1-2"><a href="#cb1-2" tabindex="-1"></a><span class="fu">library</span>(ggplot2)</span>
+<span id="cb1-3"><a href="#cb1-3" tabindex="-1"></a><span class="fu">theme_set</span>(<span class="fu">theme_light</span>())</span>
+<span id="cb1-4"><a href="#cb1-4" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">0</span>)</span>
+<span id="cb1-5"><a href="#cb1-5" tabindex="-1"></a></span>
+<span id="cb1-6"><a href="#cb1-6" tabindex="-1"></a>pos <span class="ot">&lt;-</span> <span class="fu">position_sankey</span>(<span class="at">v_space =</span> <span class="st">&quot;auto&quot;</span>)</span>
+<span id="cb1-7"><a href="#cb1-7" tabindex="-1"></a></span>
+<span id="cb1-8"><a href="#cb1-8" tabindex="-1"></a><span class="do">## Let&#39;s subset the data, to make the plot less cluttered:</span></span>
+<span id="cb1-9"><a href="#cb1-9" tabindex="-1"></a>es_subset <span class="ot">&lt;-</span> <span class="fu">pivot_stages_longer</span>(</span>
+<span id="cb1-10"><a href="#cb1-10" tabindex="-1"></a>  <span class="fu">subset</span>(ecosystem_services, RCSES <span class="sc">&gt;</span> <span class="fl">0.02</span>),</span>
+<span id="cb1-11"><a href="#cb1-11" tabindex="-1"></a>  <span class="fu">c</span>(<span class="st">&quot;activity_realm&quot;</span>, <span class="st">&quot;biotic_realm&quot;</span>, <span class="st">&quot;service_section&quot;</span>),</span>
+<span id="cb1-12"><a href="#cb1-12" tabindex="-1"></a>  <span class="st">&quot;RCSES&quot;</span>)</span>
+<span id="cb1-13"><a href="#cb1-13" tabindex="-1"></a></span>
+<span id="cb1-14"><a href="#cb1-14" tabindex="-1"></a><span class="co"># And prepare a basis for the plot</span></span>
+<span id="cb1-15"><a href="#cb1-15" tabindex="-1"></a>p <span class="ot">&lt;-</span></span>
+<span id="cb1-16"><a href="#cb1-16" tabindex="-1"></a>  <span class="fu">ggplot</span>(es_subset, <span class="fu">aes</span>(<span class="at">x =</span> stage, <span class="at">y =</span> RCSES, <span class="at">group =</span> node,</span>
+<span id="cb1-17"><a href="#cb1-17" tabindex="-1"></a>                        <span class="at">connector =</span> connector, <span class="at">edge_id =</span> edge_id)) <span class="sc">+</span></span>
+<span id="cb1-18"><a href="#cb1-18" tabindex="-1"></a>  <span class="fu">geom_sankeynode</span>(<span class="at">position =</span> pos) <span class="sc">+</span></span>
+<span id="cb1-19"><a href="#cb1-19" tabindex="-1"></a>  <span class="fu">geom_sankeyedge</span>(<span class="at">position =</span> pos)</span></code></pre></div>
+</div>
+<div id="feedback" class="section level2">
+<h2>Feedback</h2>
+<p>In order to demonstrate a feedback loop we <code>rbind</code> a
+fictional edge to the demonstration data. Note that this feedback loop
+does not make any sense in the context of the data. It only serves as
+proof of principle. With the <code>%+%</code> operator we update the
+plot with the data that includes the feedback loop.</p>
+<div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" tabindex="-1"></a>es_subset_feedback <span class="ot">&lt;-</span></span>
+<span id="cb2-2"><a href="#cb2-2" tabindex="-1"></a>  es_subset <span class="sc">|&gt;</span></span>
+<span id="cb2-3"><a href="#cb2-3" tabindex="-1"></a>  <span class="fu">rbind</span>(</span>
+<span id="cb2-4"><a href="#cb2-4" tabindex="-1"></a>    <span class="fu">data.frame</span>(</span>
+<span id="cb2-5"><a href="#cb2-5" tabindex="-1"></a>      <span class="at">RCSES     =</span> <span class="fl">0.05</span>,</span>
+<span id="cb2-6"><a href="#cb2-6" tabindex="-1"></a>      <span class="at">edge_id   =</span> <span class="fu">max</span>(es_subset<span class="sc">$</span>edge_id) <span class="sc">+</span> <span class="dv">1</span>,</span>
+<span id="cb2-7"><a href="#cb2-7" tabindex="-1"></a>      <span class="at">connector =</span> <span class="fu">c</span>(<span class="st">&quot;from&quot;</span>, <span class="st">&quot;to&quot;</span>),</span>
+<span id="cb2-8"><a href="#cb2-8" tabindex="-1"></a>      <span class="at">node      =</span> <span class="fu">c</span>(<span class="st">&quot;Cultural&quot;</span>, <span class="st">&quot;Fish &amp; Cephalopods&quot;</span>),</span>
+<span id="cb2-9"><a href="#cb2-9" tabindex="-1"></a>      <span class="at">stage     =</span> <span class="fu">c</span>(<span class="st">&quot;service_section&quot;</span>, <span class="st">&quot;biotic_realm&quot;</span>)</span>
+<span id="cb2-10"><a href="#cb2-10" tabindex="-1"></a>    )</span>
+<span id="cb2-11"><a href="#cb2-11" tabindex="-1"></a>  )</span>
+<span id="cb2-12"><a href="#cb2-12" tabindex="-1"></a></span>
+<span id="cb2-13"><a href="#cb2-13" tabindex="-1"></a>p <span class="sc">%+%</span> es_subset_feedback</span></code></pre></div>
+<p><img src="data:image/png;base64,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" /><!-- --></p>
+</div>
+<div id="self-reference" class="section level2">
+<h2>Self reference</h2>
+<p>Edges don’t even have to flow from one stage to another regardless of
+its direction. Instead, it is also possible to let an edge flow from and
+to the same stage. In fact, you can even let an edge flow from and to
+the same node. This is illustrated in the example below, we we
+<code>rbind</code> a fictional self-referencing node. Again, in the
+context of the data, this self-reference does not make sense, but it
+serves as proof of principle.</p>
+<div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" tabindex="-1"></a>es_subset_selfref <span class="ot">&lt;-</span></span>
+<span id="cb3-2"><a href="#cb3-2" tabindex="-1"></a>  es_subset <span class="sc">|&gt;</span></span>
+<span id="cb3-3"><a href="#cb3-3" tabindex="-1"></a>  <span class="fu">rbind</span>(</span>
+<span id="cb3-4"><a href="#cb3-4" tabindex="-1"></a>    <span class="fu">data.frame</span>(</span>
+<span id="cb3-5"><a href="#cb3-5" tabindex="-1"></a>      <span class="at">RCSES     =</span> <span class="fl">0.05</span>,</span>
+<span id="cb3-6"><a href="#cb3-6" tabindex="-1"></a>      <span class="at">edge_id   =</span> <span class="fu">max</span>(es_subset<span class="sc">$</span>edge_id) <span class="sc">+</span> <span class="dv">1</span>,</span>
+<span id="cb3-7"><a href="#cb3-7" tabindex="-1"></a>      <span class="at">connector =</span> <span class="fu">c</span>(<span class="st">&quot;from&quot;</span>, <span class="st">&quot;to&quot;</span>),</span>
+<span id="cb3-8"><a href="#cb3-8" tabindex="-1"></a>      <span class="at">node      =</span> <span class="fu">c</span>(<span class="st">&quot;Cultural&quot;</span>, <span class="st">&quot;Cultural&quot;</span>),</span>
+<span id="cb3-9"><a href="#cb3-9" tabindex="-1"></a>      <span class="at">stage     =</span> <span class="fu">c</span>(<span class="st">&quot;service_section&quot;</span>, <span class="st">&quot;service_section&quot;</span>)</span>
+<span id="cb3-10"><a href="#cb3-10" tabindex="-1"></a>    )</span>
+<span id="cb3-11"><a href="#cb3-11" tabindex="-1"></a>  )</span>
+<span id="cb3-12"><a href="#cb3-12" tabindex="-1"></a></span>
+<span id="cb3-13"><a href="#cb3-13" tabindex="-1"></a>p <span class="sc">%+%</span> es_subset_selfref</span></code></pre></div>
+<p><img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAASAAAAEgCAMAAAAjXV6yAAABBVBMVEUAAAAAADoAAGYAOpAAZrY6AAA6ADo6AGY6kNtNTU1NTW5NTY5Nbo5NbqtNjqJNjshZWVlmAABmtv9uTU1uTW5uTY5ubo5ubqtujshuq+SOTU2OTW6OTY6Obk2ObquOjk2Ojo6OyP+QOgCQkGaQtpCQ27aQ2/+RkZGgoKCkpKSrbk2rbm6rbo6rjk2rq46rtY6ryKur5Mir5OSr5P+zs7O1q262ZgC2kDq22/+2//+3t7e9vb3Ijk3Ijm7I5KvI/8jI/+TI///W1tbbkDrbkJDb///e3t7kq27k5Kvk/8jk/+Tk////tmb/yI7/25D/27b/29v/5Kv//7b//8j//9v//+T///+cBXbcAAAACXBIWXMAAA7DAAAOwwHHb6hkAAAPoUlEQVR4nO3diXvcOBUA8EmP3U5L6CZtNqTbLk2AbtosbEshkNlQiEsTIAdMDv//fwqWLFvXk55kyx7L1vu+7c5hP0u/yMdYlj3LU1hjtuoCDD0SEBIJCIkEhEQCQsICdPNivn5OX53N5/MnJz2VaGBhBrp7t5ufPaUvj3eFz/80kUCBbl6e5Mst0m7uDj6KQO76p+6T9pPIIw8OtNw+z2++IzTFujaf00ZEaU8nETjQ5XoFtHz+UWhFqQWx4C2IRr0dSkAs+DaIRgJS4+7dDtuLkZXt7seKKgFVUR4HkUZUHAc9rte1BOQ4p0MkICQSEBIJCImhAGWLIr4p4ueMBT7PZIAyqqMC4UiTAMpqHQjITjQBoEzygYBsQqMHUnhgIAvRyIE0HhOQkWjcQICPEcggNGagDPIxA8FE4wXKYB8bECQ0WiCTTwKikRl9rECA0DiBLD52IF0oHqBvynD5/ZQ1B9KyDxxIKHkNZNpaaDOBPhiQmrkFUMf9LT8rwYD4B9iMb+GQkwDh2+1jBHKf1L8FAX9ZuQWZ21H9JdyA0BakJB0gkKHcEBBEhPjgQHLOoQGZiw0DaUL1F2MEshbbAKRUCPVxAJISDgjIXmgLUAblGB8Q4mMDyvQkRp9YgTAeO1CmZbEDnSILBKq5UiBcBwMq6+TikzEg62KBaq4SyMkHA8qkPGYfAci8ZKCaqwNy4wkElMlApoUD1VwZkKsPCiSF2UcGMiweqOaqgJx9UKCy+laf+IDceVCghQNQnecUKQJQzZUA+fg4AC2kNwafmFqQl48L0EJ6Ez2Qnw8CJBm4AxmyDQHIk8cRaIH6xHIc5O1jB1o0ATIvyw+ID2YpB26EAPL3sQIpDCgQdjzlBSQMZiHjfYIANfAJDWQrg1hUvwvJl9++CgHUxMcVaNE7kDAU4e7gj+/aD2axdimYg1UM+krutjD1Z8h5bMXw69Xgg1nys50Q26BG7cfagtSW0rIFSaX1aUHFq/ZADXlsQDqETSg4EN8GkRGZ8/lOK6DGPu5ASBNCgeSy+wxmydvv5pv7mCsGSPQKJAxmaQRUFagdj9iCxC2KD9BCzONyFO0IZAhPoFY4MpDTcXNTIFM1owLyMNGFJge0vx8SyFjNuIAEoX0aHkJWIHM1IwPiQvugkFnMCmSpZqxA+zwcG5EFyFbN2IAqoX1vITOQtZrRAWWajyRk1jIBIdUcBZBTIzIAYdWMDyiDgHAieCONVzNOIN0HFYKAXKoZIVAGA1VCsJR+HORYzREBWduQDORRzRiBMtinEgJ/sWl9867VHBWQuRFlkwIyrWKVkN6Eqjz9ADl2YrCKNezLsPVqvH37gzloPwbUsUGB3CPuFmRpQvtQE+q3BTlOFx6IZM1MB4qikN4hNA2gyshFSO10nQoQMSL/WIH29zNJiOeZBBC7TsEKJDehyQGV1UeFsmkCVVXGd2WVkJBnMkALdF/GGacJtDCcOJOAGNG0gPiWd2EV4tPlrOt7akBV4EJl5NMA0nyMQorPVFqQJOMkNGEgRGiSQOrKZRNSfCYNZBEaO5CcR98+24Rkn1EC1bnYGAtgB7YwE40fiOcyAEkXUYFCnQLxwSyX4oNZ+gISc1WjdGxAupDkEx6ID2ahd22vLgjuC0jKdVr6aEL7ckdPv0DyUxH4q36A5Fw1kKdQp0DyczXKFuQzmIUBNevrAfJVXT5SVB090gd1aN1H7bp9Pq+9ya83ZrNH5VthMEu+fOb/VIQ2LUjNRf7y7CutBWmXKXbVgi4Kn9u9B4VRKSS3IP6qByAtl3DXFvs6JhGF3Qbd7hUuVw83i5Z0/wslaflkluZAei7xtjZoE6qJFkF389cbm2Uryi/uHZEP5Cez9NiCgFyn5huYgEA1XGgg2ngYUNsnszQEElPUFZPyuDQhEvJNGQKsYpt0E5Tnh+Uqhs3ZDVDtIlVMzuMKRPMFAyKth26CLmabTnN2AbQAPkOATOtY1XikMrU7Djoke/jbPbIZcpkTC28geZNhAXITyoIDec6JhReQWKUwQPXEYpliBVKqFBZIFGq/myc7sGov1hOQXiMUyEVoJEBQhRyAtB2ZxUc/rxQPkAOPI5AmJE0dKZATjwsQ1ITiB3LkMd1YAAFSpo4PyJnHCUgT0rPEBeTBEwqIj9VoDjSromsgDx0jkLEPsTMg52gL5MfTCMiWZ+hAnjquQJKQNU8LIOWcdCdAnjgWIE2ocyD1nLRxzua9GvXtsnwCyAP2b2j35ILzNO7V0M5JY7RY8L88+8Cz5TRuQfY8jqV3OCcdCKiNjQ9QLYTkaQcknZMOA9TGxgpkvZtSB0ADOSfdAsh21i0A0CDOSbcCsvsE2M2v+py0L5BhdHN3QJ5zJqD4gMBuo3BAdD92u2ffRA8byHY80Rro6mF5BH1o38sPCEgTyh2eU9Yc6PCB+iI6oHpkTxdAdAWjEcuBInC329wiNEWgTPHpFIj+WKUR/MdqL0D0fW4Rar0N+swaDpeKD8gm1H43f0iPoa83kP38MIEyAQgWag9U7Ohnsxn2S2NQQNoJ7twsFADIb04s+gTiH9SL7xLon+I1iiSWz+b+z9XoD0j8gC8/PFDxa54cIl5vVFe5VmM1yBWuy+c9XicdBMhwrWNzoGIvRnZgFzN2PohfJ31JmHq8TtoDSLtuTylEQCC6d7+4/5dZtRODrrTvbayGQ68G69tQP9DKEapXgx5JF/ux+iBIunycXFWu0GLRTwvSAi5MgBbEgPhBotiCbl7saHMOASjXt8UGnlBAX/GjIGGsxvLZrj7n6oF45Y1Aep5wQHyshuQzGCCdQBYy5AkHxMdqlI+uGdZerF6MAciYpwVQb9cHtQWSlwMA2fI0BnKOVQJBy/HM41vNmIDg5chTm3t+JgCUgUiqz8SBACSZJwFpRIpPAlKJZB6j0MSA1BM/SvdGAlKE1P6fBJRJB9NaD2ICEoXAG5AnoJoIvsd/AqqEMuiBqwmoBsoAoLgHsziHkIvfYAmMKQLJueqBcDoNKLRaoB56NSxp5T4NNjLD8AR1qHekca+GO5DjdM1bkJ4Lfuw4by4u69hoVjEoF/jg+sU0gcBcymBcyQcUGi2QIZc6Wln78eXQhEYBZMqlAaka0wAy59JWMZVjCkC2XPpeDGtCowMyJMmMPzU8mhBPF+sNloATqNpfXvscEQLlIwViMxi+bQOklilGoHJiywTGPNpapQrpZYoOiE6ICJrzIE0IKFNcQGQiBMcDyMUnJiAyhYOOFcgm5PKbzqmaqwAi37rh+ABp938ByjR4oPIbdxwEyH5vAaBMQwSSPvOj8QRS794BlGmIQE1MnIHAp0UBx4hCHt9qjghooT7NR26x4YH4YBbxqRHDAtKbkPAVmCccEB/MQh7N0v+TWRoACbf5VxpTF0DCheTHj98PtQVlMpD8WbdA0mAWJjW8wSxSj88PykfddvtIg1kGuw2STt5rZ856b0GDBiKvLVcKdbkNGjSQeG2r7aa3HezFdvhDswYPVL6w3Ta5q+OgkmbIQOIVDJYmFB4ImXNAQLWP8ps+AdGQLqIyN6GpApFFCbuyBKTzFLEQgExCEwSqF6X83oCFJgYkLilTf5FNHUhZUIYALUYKpOQxLYZNbdsKLcYFBOUyn0uu5rI2ocVYgIy5jEB8XrvQIn4gay4TkDC/BAQ9IyFqICwXDCTnAJuQ8H28QA65QCAlDdCEpO/jBHLMBQDpudQmpHwdH5DHMjUgKJ/chLSvYwLyXiZ0IbldSL+Msz+g5r0arj0K9jD2f4ijWfQBLaw8rktZzcULTaLOY15Z1SbEXse7inmFTx5x356ATED8TQKChMQ3CUgHMr5LQCS0w+sEJPsAP0ASkOTT3VMRnGO4QOVyE5Ddp7ub/vvOiUXPQMKSE5DdZ8o3mnTiydNN/zEfUGjCQNDSE5BNh0QCsvvkGtEUgZASdA3Ex2qIozaGA+RQhk6B+FgNcdTGQIBcqykYBQfi10lLV0yvHMi1hjw6AuJX2vNXPmM1Ig+fsRrSqA3nFpR7jYDsJ1HQIZlQCxLnDFuefhIFBWq7DfIrTz+JggLxsRrSqI0EVAcfq9HoOMivPP0kGtSw8DwBoZGAkEhASCQgJCYKNJFoDORjObREDfIkICQSEBKdAo0hEhASCQiJBIREAkIiCNBy66Q6oSa8tE0uf1A+iZx/7JJEz+L5vTypcepQQMZ36OS58Kh21wzOE7mFLVVjoOUz+vDemxfzxx9ezJ982vq0fZ7fHbzf+nvx7te79ER2OeG3r56cFJORu6CVMxXluTv4w3y+c1n8RyY5fs0+zul0NzQfffO4OhNuz0I/Lr8tJiRn90hJqgxsNhaX4tRC+U+qBNu/548lbg5ETuKTIr7bzS/X/0Wa6D8Oik+26cuTy538snq+OH1S9DE9actmovM9Lb54yv52x+vnrJUX011Wb8rc52iWX778tPXnp9W3xYR3VUlYhmPxjDE5wX5WTy2Uv174sx2+2HarWLGs+uY55JHQxSJ3ypc335//rf7bk79NUSdSsnomUgfyX9lZQlax410y30s6bZlEaviWLB+++0CysG/JhEJJ8lycjb3Lpamr8vOFi+tcc6Bj0lTLFYlVaPs/B6xuRam/F2/BWDTeOV1dyplUIIJJgci0d1WSeiXFshSrXLkikW9p/aqS0Az1bCyTNLVY/nrhIYBuXuzyjX+l8n67WlXOXldrWFk19nevZ9JaUNHW8RZkzvLT+jn7tqwmL0kutJ4qLqWpu2lBNM3zj2QdXm59YirFJpcVq/hKnJJvW8g3OtDTaj51GyTfRA3O8tP6vwmQ8G1VEpbhWNyokFeX9dRS+YX0AVaxs/n8F692y/3E3Tu6FyAqtFhPTu5+rJdAF8Z2SOVMOtBr8m29F8tZPmkvZslyXO+XWJaqJHwvxtewXJpaKj/bi4XaBllj+atu8vYf3QCdkT9lcbQibR0bRZgsLRKl32JIJCAkEhASCQiJQQP996+rLsGwga6+erPqIiQgNAYJdPVwNpttkn8fla8f5fn1xmztt18f5bd7s9m9o/7KMkQg2nKuHm6S/19vbOb553tH1xuPitf3jm73HhTv73/prTCDBPq6bCEE6H9fyhcXpNUUUPT/VK2nGCJQfjibFe2EbYMuilVs7Q1tNIXc5xmNR72VZZBAdItz76hcxdbeEKkaqMe1i8ZAgehqRIAuCMjFWrmKFf8UL/stxxCBKEahQzY1BOTq4dobvpEuxPpUGiIQ2+yQbdEDsj1a+10hRXbzv7lX7ub7bEWDBDLFRd8boDweILJW0WOgviMWoJzs31fgEw/QqiIBIZGAkEhASCQgJBIQEgkIif8DgTwMWoW7eA4AAAAASUVORK5CYII=" /><!-- --></p>
+</div>
+
+
+
+<!-- code folding -->
+
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    script.src  = "https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML";
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+
+</body>
+</html>

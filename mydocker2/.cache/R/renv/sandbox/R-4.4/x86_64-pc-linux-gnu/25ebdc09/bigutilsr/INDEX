@@ -1,0 +1,18 @@
+LOF                     Local Outlier Factor (LOF)
+as_model_matrix         Transform a data frame
+covRob                  Deprecated
+covrob_ogk              Robust Location and Scatter Estimation -
+                        Ortogonalized Gnanadesikan-Kettenring (OGK)
+geometric_median        Geometric median
+hist_out                Outlier detection (histogram)
+knn_parallel            Find K nearest neighbours for multiple query
+                        points
+maha_trans              Transform matrix
+nclass.scottRob         Compute the Number of Classes for a Histogram
+pca_OADP_proj           OADP projection
+pca_nspike              Number of spikes in PCA
+predict.Procrustes      Predict method
+prob_dist               Probabilistic set distance
+procrustes              Procrustes transform
+rollmean                Gaussian smoothing
+tukey_mc_up             Outlier detection threshold (upper)

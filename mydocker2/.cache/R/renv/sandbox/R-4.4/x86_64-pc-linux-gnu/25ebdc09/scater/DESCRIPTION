@@ -1,0 +1,60 @@
+Package: scater
+Type: Package
+Authors@R: c(
+        person("Davis", "McCarthy", role=c("aut"), email="davis@ebi.ac.uk"),
+        person("Kieran", "Campbell", role=c("aut"), email="kieran.campbell@sjc.ox.ac.uk"),
+        person("Aaron", "Lun", role = c("aut", "ctb"), email="infinite.monkeys.with.keyboards@gmail.com"),
+        person("Quin", "Wills", role=c("aut"), email="qilin@quinwills.net"),
+        person("Vladimir", "Kiselev", role=c("ctb"), email="vk6@sanger.ac.uk"),
+        person("Felix G.M.", "Ernst", role=c("ctb"), email="felix.gm.ernst@outlook.com"),
+        person("Alan", "O'Callaghan", role=c("ctb", "cre"), email="alan.ocallaghan@outlook.com"),
+        person("Yun", "Peng", role=c("ctb"), email="yunyunp96@gmail.com"),
+        person("Leo", "Lahti", role=c("ctb"), email="leo.lahti@utu.fi", comment = c(ORCID = "0000-0001-5537-637X")),
+        person("Tuomas", "Borman", role = c("ctb"), comment = c(ORCID = "0000-0002-8563-8884"))
+    )
+Version: 1.34.0
+Date: 2024-07-18
+License: GPL-3
+Title: Single-Cell Analysis Toolkit for Gene Expression Data in R
+Description: A collection of tools for doing various analyses of
+        single-cell RNA-seq gene expression data, with a focus on
+        quality control and visualization.
+Depends: SingleCellExperiment, scuttle, ggplot2
+Imports: stats, utils, methods, Matrix, BiocGenerics, S4Vectors,
+        SummarizedExperiment, MatrixGenerics, SparseArray,
+        DelayedArray, beachmat, BiocNeighbors, BiocSingular,
+        BiocParallel, rlang, ggbeeswarm, viridis, Rtsne, RColorBrewer,
+        RcppML, uwot, pheatmap, ggrepel, ggrastr
+Suggests: BiocStyle, DelayedMatrixStats, snifter, densvis, cowplot,
+        biomaRt, knitr, scRNAseq, robustbase, rmarkdown, testthat,
+        Biobase, scattermore
+VignetteBuilder: knitr
+biocViews: ImmunoOncology, SingleCell, RNASeq, QualityControl,
+        Preprocessing, Normalization, Visualization,
+        DimensionReduction, Transcriptomics, GeneExpression,
+        Sequencing, Software, DataImport, DataRepresentation,
+        Infrastructure, Coverage
+Encoding: UTF-8
+RoxygenNote: 7.3.2
+URL: http://bioconductor.org/packages/scater/
+BugReports: https://support.bioconductor.org/
+git_url: https://git.bioconductor.org/packages/scater
+git_branch: RELEASE_3_20
+git_last_commit: 08b5dc0
+git_last_commit_date: 2024-10-29
+Repository: Bioconductor 3.20
+Date/Publication: 2024-10-29
+NeedsCompilation: no
+Packaged: 2024-10-30 05:26:03 UTC; biocbuild
+Author: Davis McCarthy [aut],
+  Kieran Campbell [aut],
+  Aaron Lun [aut, ctb],
+  Quin Wills [aut],
+  Vladimir Kiselev [ctb],
+  Felix G.M. Ernst [ctb],
+  Alan O'Callaghan [ctb, cre],
+  Yun Peng [ctb],
+  Leo Lahti [ctb] (<https://orcid.org/0000-0001-5537-637X>),
+  Tuomas Borman [ctb] (<https://orcid.org/0000-0002-8563-8884>)
+Maintainer: Alan O'Callaghan <alan.ocallaghan@outlook.com>
+Built: R 4.4.1; ; 2024-10-30 16:42:27 UTC; windows

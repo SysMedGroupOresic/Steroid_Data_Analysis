@@ -1,0 +1,3 @@
+clearDirectories        Clear expired directories
+lockDirectory           Lock and unlock directories
+touchDirectory          Touch a versioned directory

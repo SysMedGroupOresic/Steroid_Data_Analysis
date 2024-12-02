@@ -1,0 +1,727 @@
+---
+title: "Steroid Data Analysis"
+author: "Pauli Tikka"
+date: "`r Sys.Date()`"
+output: 
+ rmdformats::downcute: #note the ':' it is needed: https://stackoverflow.com/questions/43527520/r-markdown-yaml-scanner-error-mapping-values
+  self_contained: true
+  thumbnails: true
+  lightbox: true
+  gallery: false
+  highlight: tango
+  # code_folding: show
+  # fig.align = 'left'
+
+
+---
+
+# Introduction
+```{r, warning=FALSE,message=FALSE}
+
+# Welcome to the 'steroid data analysis' webpage! 
+
+# The procedures and explanations to make all the analysis and plots are in their individual chapters below. 
+# These methods could be also easily applied to other types of data sets and metabolites than 'steroids' and their respective metadata per se. 
+# In addition, there is a small 'disclaimer' also at the end of this webpage to emphasize that this site is mainly for educational purposes.
+# Please let me know if you have any questions. For that, use the 'following' email: patati at the university of Turku
+
+```
+
+
+# Loading All R Packages
+```{r, warning=FALSE,message=FALSE}
+library(scales);library("plotrix");library(Maaslin2);  library(ggtext);library(lavaan);library(psych);library("xlsx");library(lsr);library(quantreg);library("readxl")
+library(semPlot);library(mediation);require(lme4);require(reshape2);library(mlma);library(binilib);library(plyr);library("viridis");library(RColorBrewer) 
+library(magrittr); library(ggplot2);library( "censReg" );library(ggsankey);library(dplyr);library(tidyverse);library(dmetar);library(meta);library(ggforestplot); 
+## Warning, do not add: 'library(forestplot)'! It is not working with ggforestplot... (9.9.24)
+library(mdatools);library(circlize);library(igraph);library('bigsnpr');library(rcompanion);library(scRNAseq);
+library(tibble);library(stringr);library(MOFA2);library('qpgraph') 
+library("grid"); library("ggplotify");library(ggpubr);library(rstatix);library(datarium);library(RColorBrewer); library(ggh4x); library(effsize)
+library(chorddiag);library(corrplot);library(scater);library(mdatools);library(car);library(FSA);library(pathviewr);library(glmnet)
+library("lmtest");library(PerformanceAnalytics);library(psych);library("readxl");library(ggforce);library(ComplexHeatmap);library(ragg) 
+library('Hmisc');library(correlation);library(ggcorrplot);library(pheatmap);library(mgcv);library('ppcor');library(superb)
+library(rmdformats);library(prettydoc);library(hrbrthemes);library(tint);library(tufte)
+library(extrafont);library(scatterplot3d); library(rgl);library(ggsankey);library(ggsankeyfier)
+# https://require.predictiveecology.org/
+
+```
+
+
+# Setting Global Variables
+```{r, warning=FALSE,message=FALSE}
+thedate <- strftime(Sys.Date(),"%d%m%y")
+date=paste0('tikka',thedate) # Change this...
+options(scipen = 999); 
+# Just in case the 'install' functions here...
+# Basic installing commands, examples:
+# BiocManager::install("mgcv")
+# install.packages('dmetar')
+# devtools::install_github("davidsjoberg/ggforestplot") #this you have to know, check google
+## devtools::install_github("NightingaleHealth/ggforestplot"); devtools::install_github("mattflor/chorddiag")
+# remotes::install_github("MathiasHarrer/dmetar") #this you have to know, check google
+# https://stackoverflow.com/questions/32771517/package-cannot-be-unloaded-in-r-cannot-install-package
+# font_import() # This is important if you have not loaded them before
+# loadfonts(device = "win") #Same applies here.
+```
+
+
+
+# Importing Data and Metadata
+```{r, warning=FALSE,message=FALSE}
+
+#First set your data folder:
+setwd("C:/Users/patati/Desktop/TurkuOW/RWork")
+
+#And then load the primary steroid data
+NAFLD=read_excel("NAFLD_SteroidStudy.xlsx",sheet = "LFAT_steroidsDATA") # This is partly auxiliary
+oknames=colnames(NAFLD); NAFLD=data.frame(NAFLD)
+
+#The names of the steroid groups need to be imported early on:
+groups=read.csv("groups_17823.csv", header = TRUE, sep=";")
+groups=groups[,c('Group','Abbreviation')]
+groups=groups[groups[,'Abbreviation']!='F',]
+groups=groups[order(groups[,'Group']),]
+groups[,'Abbreviation'][groups[,'Abbreviation']=='17aOH-P4']='17a-OHP4'
+
+ForSteroidNames=read_excel("C:/Users/patati/Desktop/TurkuOW/RWork/NAFLD_SteroidStudy_for groups.xlsx",sheet = "Steroid name abbreviations") # This is partly auxiliary
+groups2=data.frame(ForSteroidNames)[,1:4]; g1=read.csv("C:/Users/patati/Desktop/TurkuOW/RWork/groups_17823.csv", header = TRUE, sep=";")
+groups2=cbind(g1[,'Group'], groups2[,c('Abbreviation','Abbreviation_old','Name')])
+groups2=groups2[groups2[,'Abbreviation']!='FF',]; colnames(groups2)[1]="Group";
+groups2=groups2[order(groups2[,'Group']),]
+groups2[,'Abbreviation'][groups2[,'Abbreviation']=='17aOH-P4']='17a-OHP4'
+
+#P4 was found from elsewhere to have the following characteristics:
+NAFLD[,'P4'] = as.numeric(NAFLD[,'P4'])
+NAFLD[,'P4'][is.na(NAFLD[,'P4'])] = 22557.3330346846#median(NAFLD[,'P4'], na.rm=TRUE) 
+NAFLD[,5:7][NAFLD[,5:7]==0.01]=0; colnames(NAFLD)=oknames
+MASLD=read_excel("Combined.Matrix.For.Pauli.2023.10.17.Excel.Formatv2.xlsx") # This is the main file
+oknames=colnames(MASLD); MASLD=data.frame(MASLD); colnames(MASLD)=oknames   # All kinds of tricks are needed for getting the right data format
+rownames(MASLD)=MASLD[,1]
+MASLD[,'P4'] = as.numeric(MASLD[,'P4']) #The same comment as above
+MASLD[,'P4'][is.na(MASLD[,'P4'])] = 22557.3330346846 
+eva=c('Grade(0-3)', 'Stage(0-4)','Necroinflammation')
+MASLD[,eva][MASLD[,eva]==0.01]=0; 
+td=c('11-KDHT','AN','DHT','17a-OHP5','E2','P5','DOC')
+val=c(103,252,51,200,26.5,253,10); vale=c(100,250,50,200,25,250,10)
+for (i in 1:7) {MASLD[,td][i][MASLD[,td][i]==val[i]]=vale[i]} 
+
+# These (E) are ok as per lab:
+ME=read.csv('E_tikka231023.csv',header=TRUE, sep=";")
+ME2=rownames(MASLD[MASLD[,'E']==106000,]) 
+to=ME[which(ME[,1] %in% ME2),'patient.number']
+te=ME[which(ME[,1] %in% ME2),'E']
+MASLD[as.character(to),'E']=te
+# These (11-KA4) will perhaps change in the lab (sometime after 24.10.23):
+M11=read.csv('11KA4_tikka231023.csv',header=TRUE, sep=";")
+# M11[,1][c(1:5,9)];MASLD[as.character(M11[,1][c(1:5,9)]),'11-KA4'] #These were denoted with 'big interference'
+MASLD[as.character(M11[,1][c(1:5,9)]),'11-KA4'] = NA #Alternatively: median(MASLD[!rownames(MASLD) %in% as.character(M11[,1][c(1:5,9)]),'11-KA4'])
+a=MASLD[order(MASLD[,'BMI']),'BMI']
+b=NAFLD[order(NAFLD[,'BMI']),'BMI']
+them=unique(b[! b %in% a])
+NAFLD=NAFLD[order(NAFLD[,'BMI']),] 
+NAFLD=NAFLD[NAFLD[,'BMI']!=them,]
+MASLD=MASLD[order(MASLD[,'BMI']),]
+#https://appsilon.com/imputation-in-r/ #https://www.datasciencemadesimple.com/get-minimum-value-of-a-column-in-r-2/?expand_article=1
+# New data import withouth changing the conames: https://readxl.tidyverse.org/articles/column-names.html
+Bali=data.frame(read_excel("Liver_bile_acids_PFAS.xlsx",sheet = "Liver_BA",.name_repair = "minimal")); row.names(Bali)=Bali[,1]
+Pfase=data.frame(read_excel("Liver_bile_acids_PFAS.xlsx",sheet = "PFAS_serum",.name_repair = "minimal")); rownames(Pfase)=as.vector(unlist(Pfase[,1]))
+Base=data.frame(read_excel("Liver_bile_acids_PFAS.xlsx",sheet = "Serum_BA",.name_repair = "minimal"));rownames(Base)=as.vector(unlist(Base[,1]))
+C4=data.frame(read_excel("Liver_bile_acids_PFAS.xlsx",sheet = "C4",.name_repair = "minimal")); rownames(C4)=as.vector(unlist(C4[,1]))
+Clini=data.frame(read_excel("Matching clinical data_all.xlsx",sheet = "Sheet1",.name_repair = "minimal")); rownames(Clini)=as.vector(unlist(Clini[,1]));
+#https://www.analyticsvidhya.com/blog/2021/06/hypothesis-testing-parametric-and-non-parametric-tests-in-statistics/
+MASLD[1:2,2:27] #or head(MASLD);
+
+# The below ordering needs to be changed...
+Bali=Bali[as.character(MASLD$PatientNumber),];Bali[1:3,2:10] #https://stackoverflow.com/questions/54264980/r-how-to-set-row-names-attribute-as-numeric-from-character I did otherway around
+Base=Base[as.character(MASLD$PatientNumber),];#Base[1:3,2:10]
+Clini=Clini[as.character(MASLD$PatientNumber),];#Clini[1:3,2:10] # Many of these are irrelevant here... so not opening them, they would exhaust this file
+C4=C4[as.character(MASLD$PatientNumber),];#C4[1:3,]
+Pfase=Pfase[as.character(MASLD$PatientNumber),];Pfase[1:3,2:10]
+
+# Menopause markers:
+menopause=read_excel("Putative_metabolic_markers_menopause.xlsx",sheet='menopause markers',.name_repair = "minimal"); #rownames(Clini)=as.vector(unlist(Clini[,1]));
+menopause=menopause[8:dim(menopause)[1],]; menopause=menopause[,-15]; menopause[2,2:14]=menopause[1,2:14]; menopause=data.frame(menopause); menopause[2,13:14]=c('v1','v2'); #dim(menopause)
+colnames(menopause)=c('row_names',menopause[2,2:dim(menopause)[2]]); menopause=menopause[3:dim(menopause)[1],];rownames(menopause)=as.vector(unlist(menopause[,1]));
+menopause=menopause[as.character(MASLD$PatientNumber),]
+colnames(Pfase)[colnames(Pfase)=='PFHxA.1']='PFHxA_Branched'
+Pfase=Pfase[,colnames(Pfase)!='Benzylparaben.1']
+Pfase[Pfase[,'Benzylparaben']>10,'Benzylparaben']=NA 
+
+Jeihou=data.frame(read_excel("Copy of BA_liverfat_RawData.xls",.name_repair = "minimal")); row.names(Jeihou)=Jeihou[,1];Jeihou=Jeihou[as.character(MASLD$PatientNumber),]
+u=Jeihou[Jeihou[,'GHDGA']=='<LLOQ',1]; a=u[!is.na(u)]; b=rownames(Bali[Bali[,'GHDGA']==1,]);
+uu=Jeihou[Jeihou[,'GHDGA']=='No Result',1]; aa=uu[!is.na(uu)]; 
+Bali[as.character(a),'GHDGA']=min(Bali[,'GHDGA'],na.rm=TRUE)/2
+heps=Bali[Bali[,'GHDGA']==1,1] 
+Bali[as.character(heps),'GHDGA']=NA
+#https://www.datasciencemadesimple.com/get-minimum-value-of-a-column-in-r-2/?expand_article=1
+mat=Bali[,c('TbMCA','ToMCA','TDCA','TDHCA','TLCA')]
+mat[!mat>1]=10000
+mat[mat==2]=10000 #Colmins did not work so I used (i.e. colmins ei toiminut ja käytin):
+hip=do.call(pmin, lapply(1:nrow(mat), function(i)mat[i,])) #https://stackoverflow.com/questions/13676878/fastest-way-to-get-min-from-every-column-in-a-matrix
+hou=c('TbMCA','ToMCA','TDCA','TDHCA','TLCA')
+for (i in 1:5) {Bali[Bali[,hou[i]]==1,hou[i]]=hip[i]}
+for (i in 1:5) {Bali[Bali[,hou[i]]==2,hou[i]]=hip[i]}
+
+# An imputation for the missing values:
+C4[is.na(C4[,2]),2]=median(C4[!is.na(C4[,2]),2]) #assuming that these were not below quantitation and replacing with median
+#https://www.geeksforgeeks.org/performing-logarithmic-computations-in-r-programming-log-log10-log1p-and-log2-functions/
+#https://stackoverflow.com/questions/50476717/i-want-to-align-match-two-unequal-columns
+
+#Matching two unequal columns.. match the names of one original column (dat2) to ones that are missing (dat1 with to other) #Not sure if this should be this difficult...
+tv=cbind(MASLD[,1],NAFLD[,2:7],Clini[,'HOMA.IR'],MASLD[,colnames(NAFLD[,8:27])],Bali[,2:dim(Bali)[2]], C4[,2:dim(C4)[2]],Base[,2:dim(Base)[2]],Pfase[,(2:(dim(Pfase)[2]))], MASLD[,'PFAS']);
+colnames(tv)[colnames(tv)=='C4[, 2:dim(C4)[2]]']='C4';colnames(tv)[colnames(tv)=='Clini[, \"HOMA.IR\"]']='HOMA-IR'
+colnames(tv)[colnames(tv)=='MASLD[, \"PFAS\"]']='PFAS';
+colnames(tv)[colnames(tv)=="MASLD[, 1]" ]='PatientNumber';#colnames(tv)#
+rownames(tv)=unlist(Bali[,1]); 
+hep=colnames(tv)[!colnames(tv) %in% c( "Benzylparaben" ,"Methylparaben")] 
+
+# Not sure when it is the best time to take not needed variables away, perhaps at the very end?
+tv=tv[,hep]
+# Here I add the lipids. In the future, I need to divide all the groups in their own components e.g. dataframe called 'lipids' so that adding them will be more straightforward:
+tv=cbind(tv,MASLD[,(dim(MASLD)[2]-13):dim(MASLD)[2]]) 
+# hupo=match(   colnames(tv)[colnames(tv) %in% groups2[,3]], groups2[,3] ) # do ni; https://www.geeksforgeeks.org/how-to-find-index-of-element-in-vector-in-r/
+# tvauxe=tv
+# colnames(tv)[colnames(tv) %in% groups2[,3]]=groups2[hupo,2]
+
+
+# The basic preprocessing is just the below lines:
+tve=tv[,2:dim(tv)[2]]; tve[tve == 0] <- NA; #Almost all variables are here
+tv_half <- tve %>% mutate(replace(., is.na(.), min(., na.rm = T)/2)) #https://mdatools.com/docs/preprocessing--autoscaling.html
+tv_half_log2 <- log2(tv_half);
+tv_auto <- prep.autoscale(as.matrix(tv_half_log2), center = TRUE, scale = TRUE);  #https://svkucheryavski.gitbooks.io/mdatools/content/preprocessing/text.html
+tv_all=cbind(tv[,1],tv_auto); 
+
+# Changing the column names needs to have separate variables for each type of variable (contaminant, steroid, etc.)
+x1=colnames(tv_all[,c(1:8)]); v2=dim(NAFLD)[2]+1
+x2=colnames(tv_all[,9:v2]);v3=(dim(Bali)[2]+v2);x3=colnames(tv_all[,(v2+1):(v3)]);v4=(dim(Base)[2])+v3
+x4=colnames(tv_all[,(v3+1):(v4-1)]);x5=colnames(tv_all[,(v4):(dim(tv_all)[2])]); 
+x3 <- paste(x3, "_L", sep="") #https://stackoverflow.com/questions/6984796/how-to-paste-a-string-on-each-element-of-a-vector-of-strings-using-apply-in-r
+x4=gsub("(-[0-9]*)*.1", "", x4) #https://stackoverflow.com/questions/18997297/remove-ending-of-string-with-gsub
+x4 <- paste(x4, "_S", sep="")# https://rdrr.io/bioc/qpgraph/man/qpNrr.html
+x5a=x5[1:9]
+x6=x5[10:length(x5)] #Dividing to lipids
+x5=x5a  #Making sure that PFAS are separate
+nm = c(x1,x2,x3,x4,x5,x6); nm=c('PatientNumber','Gender','AGE','BMI','Steatosis Grade','Fibrosis Stage','Necroinflammation','HOMA-IR',nm[9:length(nm)])
+colnames(tv_all)=nm; #tv_all[1:5,1:30]; #NAFLD[1:2,1:28];
+colnames(tv_all)[colnames(tv_all)=='MASLD[, \"PFAS\"]']='PFAS';
+# This (deletion) is good to do after all the previous:
+x5=x5[x5!='PFAS'];x5=x5[x5!='Perfluorodecyl.ethanoic.acid']; x6=x6[x6!='Total_TG'] # x1;x2;x3;x4;x5;
+tv_all=tv_all[,!colnames(tv_all) %in% c('Total_TG','PFAS',"Perfluorodecyl.ethanoic.acid")]
+
+# In case you would need just the logged values:
+tv_half_log22=cbind(tv[,1],tv_half_log2);
+x1=colnames(tv_half_log22[,c(1:8)]); v2=dim(NAFLD)[2]+1
+x2=colnames(tv_half_log22[,9:v2]);v3=(dim(Bali)[2]+v2);
+x3=colnames(tv_half_log22[,(v2+1):(v3)]);v4=(dim(Base)[2])+v3
+x3=x3[c(length(x3),1:(length(x3)-1))]
+x4=colnames(tv_half_log22[,(v3+1):(v4-1)]);
+x5=colnames(tv_half_log22[,(v4):(dim(tv_half_log22)[2])]);
+x3 <- paste(x3, "_L", sep="") 
+#https://stackoverflow.com/questions/6984796/how-to-paste-a-string-on-each-element-of-a-vector-of-strings-using-apply-in-r
+x4=gsub("(-[0-9]*)*.1", "", x4) #https://stackoverflow.com/questions/18997297/remove-ending-of-string-with-gsub
+x4 <- paste(x4, "_S", sep="")# https://rdrr.io/bioc/qpgraph/man/qpNrr.html
+x5a=x5[1:9]
+x6=x5[10:length(x5)] #dividing to lipids
+x5=x5a  #making sure that PFAS are separate
+nm = c(x1,x2,x3,x4,x5,x6); nm=c('PatientNumber','Gender','AGE','BMI','Steatosis Grade','Fibrosis Stage','Necroinflammation','HOMA-IR',nm[9:length(nm)])
+colnames(tv_half_log22)=nm; #tv_half_log22[1:5,1:30]; #NAFLD[1:2,1:28];
+colnames(tv_half_log22)[colnames(tv_half_log22)=='MASLD[, \"PFAS\"]']='PFAS';
+# This (deletion) is good to do after all the previous:
+x5=x5[x5!='PFAS'];x5=x5[x5!='Perfluorodecyl.ethanoic.acid']; x6=x6[x6!='Total_TG'] # x1;x2;x3;x4;x5;
+tv_half_log22=tv_half_log22[,!colnames(tv_half_log22) %in% c('Total_TG','PFAS',"Perfluorodecyl.ethanoic.acid")]
+
+# This needs to be done early on:
+colnames(tv)[colnames(tv)=='17aOH-P4']='17a-OHP4'
+colnames(tv_half_log22)[colnames(tv_half_log22)=='17aOH-P4']='17a-OHP4'
+colnames(tv_all)[colnames(tv_all)=='17aOH-P4']='17a-OHP4'
+
+tv_all=tv_all[,!colnames(tv_all) %in% c('Total_TG','PFAS','Perfluorodecyl.ethanoic.acid')]
+tv_all=tv_all[,!colnames(tv_all) %in% x4]
+
+# In case you would need nonscaled covariates and scaled/logged all other variables:
+tv_covscl=tv_all
+tv_covNS=cbind(tv[,1:8],tv_all[,9:dim(tv_all)[2]])
+tv_LOG_covscl=tv_half_log22
+tv_LOG_covNS=cbind(tv[,1:8],tv_half_log22[,9:dim(tv_half_log22)[2]])
+colnames(tv_covNS)[1:8]=colnames(tv_all)[1:8]
+colnames(tv_LOG_covNS)[1:8]=colnames(tv_all)[1:8]
+# This is needed occasionally:
+tv_c=tv_covscl 
+# https://stackoverflow.com/questions/6984796/how-to-paste-a-string-on-each-element-of-a-vector-of-strings-using-apply-in-r
+# https://stackoverflow.com/questions/18997297/remove-ending-of-string-with-gsub # https://rdrr.io/bioc/qpgraph/man/qpNrr.html
+
+hupo=match(   colnames(tv_c)[colnames(tv_c) %in% groups2[,3]], groups2[,3] ) 
+# do ni; https://www.geeksforgeeks.org/how-to-find-index-of-element-in-vector-in-r/
+tvauxe=tv_c
+colnames(tv_c)[colnames(tv_c) %in% groups2[,3]]=groups2[hupo,2]
+
+# This needs to be done also soon, to gather all the treatment etc. variable names separately...: 
+Treatment=colnames(tv_all)[52:58];
+Mediator=colnames(tv_all)[9:28];
+Outcome=colnames(tv_all)[c(29:51,59:71)]; ##https://sparkbyexamples.com/r-programming/r-remove-from-vector-with-examples/
+
+Outcome=Outcome[!Outcome %in% c('Total_TG','PFAS','Perfluorodecyl.ethanoic.acid')]
+Outcome=Outcome[! Outcome %in% x4] #https://sparkbyexamples.com/r-programming/r-remove-from-vector-with-examples/
+Mediator[Mediator=="17aOH-P4"]="17a-OHP4"
+Treatment=Treatment[!Treatment %in% c('Perfluorodecyl.ethanoic.acid')]
+
+# tvauxe2=tv_LOG_covscl
+# hupo=match(   colnames(tv_LOG_covscl)[colnames(tv_LOG_covscl) %in% groups2[,3]], groups2[,3] ) 
+# colnames(tv_LOG_covscl)[colnames(tv_LOG_covscl) %in% groups2[,3]]=groups2[hupo,2]
+
+# save.image('forACMES_thereal.RData')
+
+```
+
+
+
+
+
+
+
+
+
+
+# Making Heatmaps for Indirect and Direct Effects
+```{r, warning=FALSE,message=FALSE,fig.width=10.0,fig.align="left"}
+# setwd("C:/Users/patati/Desktop/TurkuOW/RWork/tests6/tests_basic/") #check this if needed...
+library(readxl)
+all_all=read_xlsx(path = "C:/Users/patati/Desktop/TurkuOW/RWork/tests6/tests_basic/100basic All tikka3624 .xlsx") # #_1
+# all_all=read_xlsx(path = "C:/Users/patati/Desktop/TurkuOW/RWork/hypo_basic/100 hypo_b_no_not sick All tikka221024 .xlsx") # #_2 :)
+all_all=as.data.frame(all_all); all_all=all_all[!is.na(all_all[,1]),];rownames(all_all)=all_all[,1]; all_all=all_all[,2:dim(all_all)[2]]; all_all=all_all[rev(order(all_all[,1])),]
+all_all=all_all; #all_all=all_all[all_all[,1]>0,]
+#https://stats.stackexchange.com/questions/282155/causal-mediation-analysis-negative-indirect-and-total-effect-positive-direct
+#https://www.researchgate.net/post/How_can_I_interpret_a_negative_indirect_effect_for_significant_mediation
+#https://stackoverflow.com/questions/31518150/gsub-in-r-is-not-replacing-dot replacing dot
+groups[,'Abbreviation'][groups[,'Abbreviation']=='17aOH-P4']='17a-OHP4'
+
+# u3=all_all
+# c1=c() #
+# ACMEMedian=c();ACMEpval=c();ACMEVar=c()
+# ADEMedian=c();ADEpval=c();ADEVar=c()
+# c1= u3 #[u3[,'ADE'] < ADEMedian  & DV<ADEVar,] #& u3[,'z0.p']<ADEpval
+# # ACMEMedian=min(c1[,'ACME'])
+# c1=c1[rev(order(c1[,'ACME'])),];
+# # c1=c1[ ((c1[,'ACME']-c1[,'ADE']) > 0), ] #
+# c1=c1[c1[,'d0.p']<0.49, ] #0.35 (but not 0.3) ok for steroids vs ends, with 0.3 I get less columns than needed... biggersets more maybe needed
+# # c1=c1[c1[,1]>0.0,]
+# dim(c1)
+# c1= c1[sample(1:nrow(c1)), ]
+# rt2=c1[complete.cases(c1), ]
+# # rt2=all_all
+# # rt2=rt2[complete.cases(rt2), ]
+# 
+# 
+# hoi=c(); hoi=scan(text=rownames(rt2), what="")#scan(text=rownames(rt2), what="")
+# hoi=matrix(hoi, ncol = 3,  byrow = TRUE) #or 3
+# colnames(hoi)=c('Contaminants','Steroids','Bile Acids or Lipids')#,'Gender') ,'Desig.')
+# hoi[,c(2)]  <- gsub("\\.", "-",  hoi[,c(2)]  ) #:)
+# hoi[,'Steroids' ][hoi[,'Steroids' ]=='17aOH-P4']='17a-OHP4'
+
+#Switch = 0: PFAS vs steroids; switch=1: PFAS vs BAs and lipids, switch=2: steroids vs BAs and lipids (0-2 with both ACME and ADE (z='dir'))
+houdees=function(hoi, rt2, switch,mn,z,corr,date) {
+  indir=c(); dir=c(); ip=c();rn=c();rn2=c()
+  Outcome=colnames(tv_covNS)[c(29:51,59:71)]; #The final dataframe is shorter or the like so there were less variables here...
+  Treatment=colnames(tv_covNS)[52:58];
+  ##https://sparkbyexamples.com/r-programming/r-remove-from-vector-with-examples/
+
+  #direct...
+  if (switch==1) {
+    Mediator_ok=Outcome[Outcome %in% names(table(hoi[1:dim(hoi)[1],c(3)]))]
+    for (i in 1:7) {for (j in 1:length(Mediator_ok)) {
+      if (z=='dir') {
+      indir=append(indir,rt2[which(hoi[,1]==Treatment[i] & hoi[,3]==Mediator_ok[j])[1],c(5)]) #or c(1) hoi 1 or 5 (5 is orig)
+      ip=append(ip,rt2[which(hoi[,1]==Treatment[i] & hoi[,3]==Mediator_ok[j])[1],c(6)])} else {
+      indir=append(indir,rt2[which(hoi[,1]==Treatment[i] & hoi[,3]==Mediator_ok[j])[1],c(1)]) #or c(1) hoi 1 or 5 (5 is orig)
+      ip=append(ip,rt2[which(hoi[,1]==Treatment[i] & hoi[,3]==Mediator_ok[j])[1],c(2)])}
+      rn=append(rn,hoi[,3][which(hoi[,1]==Treatment[i] & hoi[,3]==Mediator_ok[j])[1]]) #change this...
+      rn2=append(rn2,hoi[,1][which(hoi[,1]==Treatment[i] & hoi[,3]==Mediator_ok[j])[1]])
+      
+      Matrix <- matrix(0, nrow = length(Treatment), ncol = length(Mediator_ok))
+      myData <- data.frame(matrix = Matrix)
+      colnames(myData) <- Mediator_ok; rownames(myData) <- Treatment
+      
+      
+    }}} else if (switch==0) {
+      
+      # indir:
+      Mediator_ok=colnames(tv_all)[9:28][colnames(tv_all)[9:28] %in% names(table(hoi[1:dim(hoi)[1],c(2)]))]
+      for (i in 1:7) {for (j in 1:length(Mediator_ok)) {
+        if (z=='dir') {indir=append(indir,rt2[which(hoi[,1]==Treatment[i] & hoi[,2]==Mediator_ok[j])[1],c(5)]) #or c(1) hoi 1
+        ip=append(ip,rt2[which(hoi[,1]==Treatment[i] & hoi[,2]==Mediator_ok[j])[1],c(6)])} else {
+                indir=append(indir,rt2[which(hoi[,1]==Treatment[i] & hoi[,2]==Mediator_ok[j])[1],c(1)]) #or c(1) hoi 1
+        ip=append(ip,rt2[which(hoi[,1]==Treatment[i] & hoi[,2]==Mediator_ok[j])[1],c(2)])}
+        rn=append(rn,hoi[,2][which(hoi[,1]==Treatment[i] & hoi[,2]==Mediator_ok[j])[1]]) #change this...
+        rn2=append(rn2,hoi[,1][which(hoi[,1]==Treatment[i] & hoi[,2]==Mediator_ok[j])[1]])
+        
+      Matrix <- matrix(0, nrow = length(Treatment), ncol = length(Mediator_ok))
+      myData <- data.frame(matrix = Matrix)
+      colnames(myData) <- Mediator_ok; rownames(myData) <- Treatment
+        
+        
+      }}} else if (switch==2) {
+        Treatment=colnames(tv_all)[9:28]; # These names are a bit mixed, by the idea is ok.
+        Mediator_ok=Outcome[Outcome %in% names(table(hoi[1:dim(hoi)[1],c(3)]))]
+        # df = data.frame(matrix("", nrow = length(Treatment), ncol = length(Mediator_ok))) 
+        
+    for (i in 1:length(Treatment)) {for (j in 1:length(Mediator_ok)) {
+      if (z=='dir') {
+      indir=append(indir,rt2[which(hoi[,2]==Treatment[i] & hoi[,3]==Mediator_ok[j])[1],c(5)]) #or c(1) hoi 1
+      ip=append(ip,rt2[which(hoi[,2]==Treatment[i] & hoi[,3]==Mediator_ok[j])[1],c(6)])} else  {
+      indir=append(indir,rt2[which(hoi[,2]==Treatment[i] & hoi[,3]==Mediator_ok[j])[1],c(1)]) #or c(1) hoi 1
+      ip=append(ip,rt2[which(hoi[,2]==Treatment[i] & hoi[,3]==Mediator_ok[j])[1],c(2)])}
+
+      rn=append(rn,hoi[,3][which(hoi[,2]==Treatment[i] & hoi[,3]==Mediator_ok[j])[1]]) #change this...
+      rn2=append(rn2,hoi[,2][which(hoi[,2]==Treatment[i] & hoi[,3]==Mediator_ok[j])[1]])
+      Matrix <- matrix(0, nrow = length(Treatment), ncol = length(Mediator_ok))
+      myData <- data.frame(matrix = Matrix)
+      colnames(myData) <- Mediator_ok; rownames(myData) <- Treatment
+      
+      
+      }}} # You need three of these, yes :)
+  
+  tot=cbind(rn2,rn,indir) #or indir or dir
+  tot=tot[!is.na(tot[,1]),]
+  tot=as.data.frame(tot)#
+  
+  # uu=data.frame();hou=c()
+  # for (i in 1:length(Treatment)) {hou=names( table(tot[tot[,1]==Treatment[i],2])[table(tot[tot[,1]==Treatment[i],2])>0]);#print(hou)
+  # for (j in 1:length(hou)) {uu=rbind(uu, max(tot[tot[,1]==Treatment[i] & tot[,2]==hou[j],3]))}} #
+  # rr=data.frame()
+  # for (i in 1:length(Treatment)) {hou=names( table(tot[tot[,1]==Treatment[i],2])[table(tot[tot[,1]==Treatment[i],2])>0]);#print(hou)
+  # for (j in 1:length(hou)) {rr=rbind(rr, rownames(tot[tot[,3] == max(tot[tot[,1]==Treatment[i] & tot[,2]==hou[j],3]),]))}} #
+  # uim=cbind(uu,rr)
+  # tot=tot[uim[,2],]
+  
+  tot[,3]=as.numeric(tot[,3])
+  
+  library(reshape2)
+  jops=dcast(tot, rn2~rn, value.var='indir')
+  jops[is.na(jops)]=0
+  rownames(jops)=jops[,1]
+  jops=jops[,2:dim(jops)[2]]
+  jops=as.data.frame(jops)
+  jopsr=matrix(as.numeric(unlist(jops)),nrow=dim(jops)[1],ncol=dim(jops)[2])
+  colnames(jopsr)=colnames(jops);rownames(jopsr)=rownames(jops)
+  
+  # print(dim(jopsr)[1] == dim(myData)[1]);print(dim(jopsr)[2] == dim(myData)[2])
+  
+  if (sum(!rownames(myData) %in% rownames(jopsr))>0) {
+  to_df=rownames(myData)[!rownames(myData) %in% rownames(jopsr)]
+  jopsr=rbind(jopsr,myData[to_df,]); jopsr=jopsr[rownames(myData),]}
+  if (sum(!colnames(myData) %in% colnames(jopsr))>0) {
+  to_df=colnames(myData)[!colnames(myData) %in% colnames(jopsr)]
+  jopsr=cbind(jopsr,myData[,to_df]); jopsr=jopsr[,colnames(myData)]}
+  # 
+
+  # if (switch==1) {
+  #   #for direct:
+  #   jopsr=jopsr[,Outcome[Outcome %in% colnames(jopsr)]] #c
+  # } else if (switch==0 ) {
+  #   #for indirect:
+  #   ums=groups[order(groups[,'Group']),'Abbreviation']
+  #   jopsr=jopsr[,ums[ums %in% colnames(jopsr)]] 
+  # }
+
+  tot=cbind(rn2,rn,ip)
+  tot=tot[!is.na(tot[,1]),]
+  tot=as.data.frame(tot)
+  # tot=tot[uim[,2],]
+  
+  tot[,3]=as.numeric(tot[,3])
+  
+  library(reshape2)
+  jopsa=dcast(tot, rn2~rn, value.var='ip')
+  jopsa[is.na(jopsa)]=0
+  rownames(jopsa)=jopsa[,1]
+  jopsa=jopsa[,2:dim(jopsa)[2]]
+  jopsra=matrix(as.numeric(unlist(jopsa)),nrow=dim(jopsa)[1],ncol=dim(jopsa)[2])
+  colnames(jopsra)=colnames(jopsa);rownames(jopsra)=rownames(jopsa)
+  colnames(jopsra)=colnames(jopsa);rownames(jopsra)=rownames(jopsa)
+  
+  if (sum(!rownames(myData) %in% rownames(jopsra))>0) {
+  to_df=rownames(myData)[!rownames(myData) %in% rownames(jopsra)]
+  jopsra=rbind(jopsra,myData[to_df,]); jopsra=jopsra[rownames(myData),]}
+  if (sum(!colnames(myData) %in% colnames(jopsra))>0) {
+  to_df=colnames(myData)[!colnames(myData) %in% colnames(jopsra)]
+  jopsra=cbind(jopsra,myData[,to_df]); jopsra=jopsra[,colnames(myData)]}
+ 
+
+  # df
+
+  
+  if (switch==1) {
+    #for direct:
+    # jopsra=jopsra[,Outcome[Outcome %in% colnames(jopsra)]];
+    # jopsr=jopsr[,Outcome[Outcome %in% colnames(jopsr)]] 
+    # jopsra=jopsra[groups[,'Abbreviation'][groups[,'Abbreviation'] %in% rownames(jopsra)],]
+    # jopsr=jopsr[groups[,'Abbreviation'][groups[,'Abbreviation'] %in% rownames(jopsr)],]
+    
+    
+  } else if (switch==0) {
+    #for indirect
+    jopsra=jopsra[,groups[,'Abbreviation'][groups[,'Abbreviation'] %in% colnames(jopsra)]]
+    # jopsra=jopsra[,groups[,'Abbreviation'][groups[,'Abbreviation'] %in% colnames(jopsra)]]
+    #groups[,'Abbreviation'][groups[,'Abbreviation'] %in% colnames(jopsra)]
+    # jopsra=jopsra[,ums[ums %in% colnames(jopsr)]] 
+    jopsr=jopsr[,groups[,'Abbreviation'][groups[,'Abbreviation'] %in% colnames(jopsr)]] 
+  } else if (switch==2) {
+    jopsra=jopsra[groups[,'Abbreviation'],]
+    jopsr=jopsr[groups[,'Abbreviation'],]
+    # #groups[,'Abbreviation'][groups[,'Abbreviation'] %in% colnames(jopsra)]
+    # ums=groups[,'Abbreviation']
+    # jopsra=jopsra[ums,];
+    # jopsr=jopsr[ums,]
+    } 
+  
+  setwd("C:/Users/patati/Desktop/TurkuOW/RWork/") #check this if needed...
+  hip1='transpose';pch.cex=2; #width = 5000;height=2000 width = 2500;height=4000 width = 4000;height=2500;
+  ho=paste('PFAS vs. bas and lipids_ for the hypo_basic_colors_stea', switch)
+  
+  if (dim(jopsr)[1]==7) {width = 4000;height=1500} else if (dim(jopsr)[1]==20) {width = 4000;height=2500} else if (dim(jopsr)[1]==36) {width = 2500;height=5000}
+  
+  resulta1=jopsr
+  p.mat.a1=jopsra
+  #https://www.rdocumentation.org/packages/corrplot/versions/0.92/topics/corrplot
+  #https://cran.r-project.org/web/packages/corrplot/vignettes/corrplot-intro.html
+  #https://statisticsglobe.com/change-font-size-corrplot-r
+  #order can be: alphabet, hclust, original #https://stackoverflow.com/questions/51115495/how-to-keep-order-of-the-correlation-plot-labels-as-same-in-the-datafile
+
+  # if (switch==1) {rbo=rev(COL2('RdBu')[25:(length(COL2('RdBu'))-25)]) } else if (switch==0  | switch==2) {rbo=rev(COL2('RdBu')[25:100]) } 
+  # This has been driven:
+  
+  # resulta1=resulta1[,colnames(resulta2)] #In case you need the column names elsewhere
+  
+  # for (i in 1:dim(resulta1)[1]) {for (j in 1:dim(resulta1)[2]) {if (resulta1[i,j]==0) {p.mat.a1[i,j]=0.5}}}
+  
+  # p.mat.a1$column <- unlist(p.mat.a1$column)
+  # resulta1$column <- unlist(resulta1$column)
+  # resulta1 <- as.matrix(resulta1); resulta1 <- as.matrix(p.mat.a1)
+
+  
+  # resulta1 <- as.matrix(m1);p.mat.a1 <- as.matrix(m4)
+  # resulta1 <- as.matrix(the_real);p.mat.a1 <- as.matrix(the_real2)
+  # rbo=rev(COL2('RdBu')[25:(length(COL2('RdBu'))-25)])
+
+  # With the neg. you do not put these:
+  if (dim(resulta1)[2]==36) {
+  Outcome=colnames(tv_covNS)[c(29:51,59:71)];
+  Outcome=Outcome[c(1,23,2:22,24:length(Outcome))]
+  resulta1=resulta1[,Outcome[Outcome %in% colnames(resulta1) ]];p.mat.a1=p.mat.a1[,Outcome[Outcome %in% colnames(p.mat.a1) ]] }
+  
+  for (i in 1:dim(resulta1)[1]) {for (j in 1:dim(resulta1)[2]) {if (resulta1[i,j]==0) {p.mat.a1[i,j]=0.5}}} 
+  
+  # resulta1 <- t(resulta1);
+  # p.mat.a1 <- t(p.mat.a1)
+  
+  # ou=round(min(c(abs(max(resulta1)),abs(min(resulta1)))),2)
+  # op=ou-0.01
+  
+  # resulta1[resulta1 > 0.4] = 0.4
+  # resulta1[resulta1 < -0.4] = - 0.4
+  hist(as.numeric(unlist(resulta1)),breaks=30,ylim=c(0.0,40))  #xlim=c(0.04,0.4),
+  resulta1[resulta1 > 1]  = 1
+  resulta1[resulta1 < -1] = -1 #col.lim=c(-0.4,0.4))
+ 
+  path="C:/Users/patati/Documents/GitHub/new/"; setwd(path) #check this if needed...
+  jpeg(paste("Heatmap of high ACMEs_mmaaaee",date, mn,".jpg"), width = width, height = height, quality = 100,pointsize = 14, res=300);# par( ps=ps)# par(cex.lab=90) 22 18
+  # col = brewer.pal(n = 9, name = "YlOrRd")
+  order="original"; range='orig';corre='no_renormaa'; type='full'; method='color';ga='All';gf='Female';gm='Male' #color square
+  cl.offset=20;cl.length=12;cl.cex = 1.25;pch.cex=1.25;pch=2;cl.pos = 'r'; #cl.offset=2;cl.length=5;cl.cex = 1.3;pch.cex=1.95;pch=14;
+  
+  col=colorRampPalette(c('blue', 'white','orange'), alpha = TRUE)(150)
+  if (mn=='idirpos') {col=colorRampPalette(c( 'white','orange'), alpha = TRUE)(150)} else if (mn=='idirneg') 
+    {col=colorRampPalette(c('blue', 'white'), alpha = TRUE)(150)} else {col=col}
+
+  
+
+  # if (corr==TRUE) {if (min(as.matrix(resulta1))< -1  | max(as.matrix(resulta1))> 1) {resulta1=rango(resulta1,-1,1)}} else if (min(as.matrix(resulta1)) >= 0)  {resulta1=rango(resulta1,-1,1)} #
+  # resulta1=rango(resulta1,-1,1)
+  # if (min(as.matrix(resulta1)) >= 0  | max(as.matrix(resulta1)) <= 0) {resulta1=rango(resulta1,-1,1)}
+
+  corrplot(as.matrix(resulta1), type = type, order = order,method=method, p.mat=as.matrix(p.mat.a1), tl.col = "black", #sum(COL2('RdBu')=="#FF7417")
+           cl.cex = cl.cex, pch.cex=pch.cex, pch.col='black',pch=pch,#pitikö vain pch lisätä pch väriin väriin... mystistä...'#FEE12B'
+           sig.level = c(.05,0.1),cl.pos = cl.pos, insig = "label_sig", cl.offset=cl.offset,cl.length=cl.length, #.001, .05, .2
+           tl.srt = 90, diag = TRUE,col=col,is.corr = corr) #only in age...0.001, #rev(COL2('RdBu')[25:(length(COL2('RdBu'))-25)]) col.lim=c(-1,1)
+  #non were significant in neg... but after mody yes!
+
+  dev.off()
+  
+  return(list(resulta1,p.mat.a1))
+  }
+
+# Switch = 0: PFAS vs steroids; switch=1: PFAS vs BAs and lipids, 
+# switch=2: steroids vs BAs and lipids (0-2 with both ACME and ADE (z='dir'))
+# corr=TRUE;z='idir'
+# uliulie2=houdees(hoi, switch=1,mn='indiruush',z,corr,date); dim(uliulie2[[1]]) # Indirect v1 effect
+
+# #Let's get this comparable done:
+# # First the 'matrisse'
+# u3=all_all; c1=c(); mn='basicas' #
+# c1= u3 #[u3[,'ADE'] < ADEMedian  & DV<ADEVar,] #& u3[,'z0.p']<ADEpval
+# # c1 = c1[ ((c1[,'ACME']-c1[,'ADE']) > 0), ] #
+# c1 = c1[c1[,'d0.p']<0.49, ];
+# c1= c1[sample(1:nrow(c1)), ];
+# # c1=c1[rev(order(c1[,'ACME'])),];
+# # c1=c1[c1[,'ACME'] >= 0,] # -0.01,]#quantile(c1[,'ACME'])[2]
+# rt2=c1[complete.cases(c1), ] #0.49 is optimal p value cutoff to get dim(mat[[2]])[2] as 36
+# # rt2[1,]=rt2[1,]
+# hoi = c(); hoi=scan(text=rownames(rt2), what="")#scan(text=rownames(rt2), what="")
+# hoi = matrix(hoi, ncol = 3,  byrow = TRUE); colnames(hoi)=c('Contaminants','Steroids','Bile Acids or Lipids')#,'Gender') ,'Desig.')
+# hoi[,c(2)]  <- gsub("\\.", "-",  hoi[,c(2)]  ); hoi[,'Steroids' ][hoi[,'Steroids' ]=='17aOH-P4']='17a-OHP4'
+# mn=paste0(z,'s&bas')
+# corr=FALSE;z='dir'; switch=0;
+# mat=houdees(hoi, rt2, switch,mn,z,corr,date);dim(mat[[2]])[2] # Indirect effect, kasvata... dim(mat[[2]])[2] == 36
+
+corr=FALSE;z='idir'; switch=2;
+
+u3=all_all;
+c1=c() #
+c1= u3 #[u3[,'ADE'] < ADEMedian  & DV<ADEVar,] #& u3[,'z0.p']<ADEpval
+# c1=c1[rev(order(c1[,'ACME'])),];
+# c1= c1[sample(1:nrow(c1)), ];
+# c1=c1[ ((c1[,'ADE']-c1[,'ACME']) > 0), ] #
+c1=c1[c1[,'d0.p'] < 0.45, ] #0.98/0.81/0.45... but gives 33 columns so use the other then..
+c3=c1[order(c1[,'ACME']),]; #let us start with the above optima... 643/or similar is dim(c1)[1] so need higher p to get all; (dim(c1)[1]-1)
+c3=c1[c1[,'ACME'] < 0,] # -0.01,]#quantile(c1[,'ACME'])[2]
+# c3= c3[sample(1:nrow(c3)), ];
+c1=c3;
+rt2=c1[complete.cases(c1), ]
+# rt2[,1]=10*rt2[,1]
+hoi=c(); hoi=scan(text=rownames(rt2), what="")#scan(text=rownames(rt2), what="")
+hoi=matrix(hoi, ncol = 3,  byrow = TRUE); colnames(hoi)=c('Contaminants','Steroids','Bile Acids or Lipids')#,'Gender') ,'Desig.')
+hoi[,c(2)]  <- gsub("\\.", "-",  hoi[,c(2)]  ); hoi[,'Steroids' ][hoi[,'Steroids' ]=='17aOH-P4']='17a-OHP4'
+# mat_neg=list(c(1,2),c(3,4))
+mn=paste0(z,'neg')
+mat_neg=houdees(hoi, rt2, switch,mn,z,corr,date); 
+dim(mat_neg[[2]])[2]  #kasvata n, jotta dim(mat_pos[[2]])[2] yhtäkuin kuin length(c(x3,x6)), i.e. 36
+
+u3=all_all; c1=c(); #mn='posae'
+c1= u3 #[u3[,'ADE'] < ADEMedian  & DV<ADEVar,] #& u3[,'z0.p']<ADEpval
+c1=c1[rev(order(c1[,'ACME'])),];
+# c1=c1[ ((c1[,'ACME']-c1[,'ADE']) > 0), ] #
+c1=c1[c1[,'d0.p']<0.5, ] # Let me uset the same optimal value as above
+c2=c1[rev(order(c1[,'ACME'])),]; #350 is optimal as per hand driven optimization 280
+c2=c2[c1[,'ACME'] > 0,] #c2[c1[,'ACME']>0.01,]#quantile(c1[,'ACME'])[3]
+c1=c2; # c1= c1[sample(1:nrow(c1)), ];
+rt2=c1[complete.cases(c1), ] # rt2[1,]=rt2[1,]
+hoi=c(); hoi=scan(text=rownames(rt2), what="")#scan(text=rownames(rt2), what="")
+hoi=matrix(hoi, ncol = 3,  byrow = TRUE); colnames(hoi)=c('Contaminants','Steroids','Bile Acids or Lipids')#,'Gender') ,'Desig.')
+hoi[,c(2)]  <- gsub("\\.", "-",  hoi[,c(2)]  ); hoi[,'Steroids' ][hoi[,'Steroids' ]=='17aOH-P4']='17a-OHP4'
+mn=paste0(z,'pos')
+mat_pos=houdees(hoi, rt2, switch,mn,z,corr,date);dim(mat_pos[[2]])[2] #kasvata n, jotta dim(mat_pos[[2]])[2] yhtäkuin kuin length(c(x3,x6)), i.e. 36
+
+# mg=mat_pos[[1]]
+# ma=mat_neg[[1]]
+# totu = mg < 0.19 #median(as.numeric(unlist(mat_pos[[1]]))[as.numeric(unlist(mat_pos[[1]]))>0.01])
+# rpl=ma[totu]
+# mg[totu]=rpl
+# mgg=mat_pos[[2]]
+# maa=mat_neg[[2]]
+# rpl2=maa[totu]
+# mgg[totu]=rpl2
+
+# Eli nollat ja liian lähellä negatiiviset nollat on tässä tulkittu positiivisiksi ACME:iksi, johtuen myös mediaanien erosta (neg puoli vs pos puoli)
+mg=mat_pos[[1]]
+ma=mat_neg[[1]]
+totu = ma > -0.09 #median(as.numeric(unlist(mat_neg[[1]]))[as.numeric(unlist(mat_neg[[1]])) < -0.01]) #tässä tätä mediaanieroa, vrt. yllä oleva
+rpl=mg[totu]
+ma[totu]=rpl
+
+mgg=mat_pos[[2]]
+maa=mat_neg[[2]]
+rpl2=mgg[totu]
+maa[totu]=rpl2
+
+# the_real=c();the_real <- matrix(0, nrow = dim(mat[[1]])[1], ncol = dim(mat[[1]])[2]); the_real <- data.frame( the_real)
+# colnames(the_real) <- colnames(mat[[1]]); rownames(the_real) <- rownames(mat[[1]])
+# the_real2=c();the_real2 <- matrix(0, nrow = dim(mat[[1]])[1], ncol = dim(mat[[1]])[2]); the_real2 <- data.frame(the_real2)
+# colnames(the_real2) <- colnames(mat[[1]]); rownames(the_real2) <- rownames(mat[[1]])
+# m1=mat[[1]]
+# m2=mat_pos[[1]]
+# m3=mat_neg[[1]]
+# m4=mat[[2]]
+# m5=mat_pos[[2]]
+# m6=mat_neg[[2]]
+# # m3=m3[,Outcome[Outcome %in% colnames(m3) ]]; m6=m6[,Outcome[Outcome %in% colnames(m6) ]] 
+# for (i in rownames(m2)) {for (j in colnames(m2)) {if (m2[i,j]==0) {the_real[i,j]=m1[i,j];the_real2[i,j]=m4[i,j]}}}
+# for (i in rownames(m3)) {for (j in colnames(m3)) {if (m3[i,j]==0) {the_real[i,j]=m1[i,j];the_real2[i,j]=m4[i,j]}}}
+# for (i in rownames(m2)) {for (j in colnames(m2)) {if (m5[i,j]<0.1) {the_real[i,j]=m2[i,j];the_real2[i,j]=m5[i,j]}}}
+# for (i in rownames(m3)) {for (j in colnames(m3)) {if (m6[i,j]<0.1) {the_real[i,j]=m3[i,j];the_real2[i,j]=m6[i,j]}}}
+resulta1_big_id=ma
+p.mat.a1_big_id=maa
+# resulta1_big_id=mg
+# p.mat.a1_big_id=mgg
+# resulta1_ade1=the_real
+# p.mat.a1_ade1=the_real2
+# resulta1_ade2=the_real
+# p.mat.a1_ade2=the_real2
+resulta1 <- as.matrix(resulta1_big_id);p.mat.a1 <- as.matrix(p.mat.a1_big_id)
+# resulta1=resulta1*10
+
+# With the neg. you do not put these:
+if (dim(resulta1)[2]==36) {
+Outcome=colnames(tv_covNS)[c(29:51,59:71)];
+Outcome=Outcome[c(1,23,2:22,24:length(Outcome))]
+resulta1=resulta1[,Outcome[Outcome %in% colnames(resulta1) ]];p.mat.a1=p.mat.a1[,Outcome[Outcome %in% colnames(p.mat.a1) ]] }
+for (i in 1:dim(resulta1)[1]) {for (j in 1:dim(resulta1)[2]) {if (resulta1[i,j]==0) {p.mat.a1[i,j]=0.5}}}
+# resulta1 <- t(resulta1);
+# p.mat.a1 <- t(p.mat.a1)
+
+# hist(as.numeric(unlist(resulta1)),breaks=30,ylim=c(0.0,40))  #xlim=c(0.04,0.4),
+# 
+# heps=abs(round((min(resulta1)-0.1),1))
+# heps2=abs(round((min(resulta1)+0.01),2))
+# resulta1[resulta1 > heps] = heps
+# resulta1[resulta1 < -heps2] = -heps #so this extends the minimum value to the (max) min limit so as to get the true blue to be seen, at least once
+
+#Alternatively:
+heps=abs(round((min(resulta1)),1))
+heps2=abs(round((min(resulta1)+0.01),2))
+resulta1[resulta1 > heps] = heps
+resulta1[resulta1 < -heps2] = -heps #so this extends the minimum value to the (max) min limit so as to get the true blue to be seen, at least once
+# resulta1[resulta1 > 1]  = 1
+# resulta1[resulta1 < -1] = -1 #col.lim=c(-0.4,0.4))
+
+
+path="C:/Users/patati/Documents/GitHub/new/"; setwd(path) #check this if needed...
+if (dim(resulta1)[1]==7) {width = 4000;height=1500} else if (dim(resulta1)[1]==20) {width = 4000;height=2500} else if (dim(resulta1)[1]==36) {width = 2500;height=5000}
+
+jpeg(paste("Heatmap of high ACMEeahy",date, z,".jpg"), width = width, height = height, quality = 100,pointsize = 14, res=300);# par( ps=ps)# par(cex.lab=90) 22 18
+# col = brewer.pal(n = 9, name = "YlOrRd")
+col=colorRampPalette(c('blue', 'white','orange'), alpha = TRUE)(150)
+
+order="original"; range='orig';corre='no_renormaa'; type='full'; method='color';ga='All';gf='Female';gm='Male' #color square
+cl.offset=25;cl.length=13;cl.cex = 1.1;pch.cex=1.95;pch=3;cl.pos = 'r'; #cl.offset=2;cl.length=5;cl.cex = 1.3;pch.cex=1.95;pch=14;
+
+# if (switch==1) {rbo=rev(COL2('RdBu')[25:(length(COL2('RdBu'))-25)]) } else if (switch==0  | switch==2) {rbo=rev(COL2('RdBu')[25:100])}
+
+# col=colorRampPalette(c( 'white','orange'), alpha = TRUE)(150)
+# resulta1=rango(resulta1,-1,1)
+# if (min(as.matrix(resulta1))< -1  | max(as.matrix(resulta1))> 1) {resulta1=rango(resulta1,-1,1)}
+
+corrplot(resulta1, type = type, order = order,method=method, p.mat=p.mat.a1, tl.col = "black", #sum(COL2('RdBu')=="#FF7417")
+         cl.cex = cl.cex, pch.cex=pch.cex, pch.col='black',pch=pch,#pitikö vain pch lisätä pch väriin väriin... mystistä...'#FEE12B'
+         sig.level = c(.05),cl.pos = cl.pos, insig = "label_sig", cl.offset=cl.offset,cl.length=cl.length,
+         tl.srt = 90, diag = TRUE,col=col,is.corr = FALSE,col.lim=c(-heps,heps)) #only in age...0.001, -2,2 #rev(COL2('RdBu')[25:(length(COL2('RdBu'))-25)]) col.lim=c(min(resulta1),max(resulta1))
+# col.lim=c(-1,1)
+#non were significant in neg... but after mody yes!
+
+dev.off() #
+
+
+# sum(resulta1<0)
+# [1] 159 (or 85 or 106) / 147 (149) 75
+# sum(resulta1>0)
+# [1] 132 (or 154 or 149) / 185 (179) 93
+
+# save.image('forACMES_thereal.RData')
+# hist(as.numeric(unlist(mat_neg[[1]])),breaks=30,ylim=c(0.0,40))  #xlim=c(0.04,0.4),
+# hist(as.numeric(unlist(resulta1)),breaks=30,ylim=c(0.0,40))  #xlim=c(0.04,0.4),  
+
+  
+
+```
+
+
+

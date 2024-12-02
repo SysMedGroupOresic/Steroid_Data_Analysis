@@ -1,0 +1,78 @@
+as_viewr                Convert data from another format into a viewr
+                        object
+bind_viewr_objects      Bind viewr objects
+calc_min_dist_box       Calculate minimum distance to lateral and end
+                        walls in a box-shaped experimental tunnel
+calc_min_dist_v         Calculate minimum distance to lateral and end
+                        walls in a V-shaped experimental tunnel
+clean_by_span           Remove file_sub_traj entries that do not span
+                        the full region of interest
+clean_viewr             All-in-one function to clean imported objects
+clean_viewr_batch       Batch clean viewr files
+deg_2_rad               Convert degrees to radians
+exclude_by_velocity     Remove trajectories entirely, based on velocity
+                        thresholds
+fill_traj_gaps          Interpolate gaps within trajectories
+find_curve_elbow        Find the "elbow" of a curve.
+gather_tunnel_data      Gather data columns into key-value pairs
+get_2d_angle            Compute an angle in 2D space
+get_3d_angle            Compute an angle in 3D space
+get_3d_cross_prod       Compute the cross product of two 3D vectors
+get_dist_point_line     Compute distance between a point and a line
+get_full_trajectories   Retain trajectories that span a selected region
+                        of interest
+get_header_viewr        Extract header info from imported viewr object
+get_sf                  Estimate the spatial frequency of visual
+                        stimuli from the subject's perspective in an
+                        experimental tunnel.
+get_traj_velocities     Recompute trajectory-specific velocities
+get_velocity            Get instantaneous velocity for subjects
+get_vis_angle           Estimate visual angles from a subject's
+                        perspective in an experimental tunnel
+import_and_clean_batch
+                        Batch import and clean files
+import_and_clean_viewr
+                        Import + clean_viewr()
+import_batch            Batch import of files for either Motive or
+                        Flydra (but not a mix of both)
+insert_treatments       Inserts treatment and experiment information
+plot_by_subject         Plot trajectories and density plots of position
+                        by subject
+plot_viewr_trajectories
+                        Plot each trajectory within a viewr object
+quick_separate_trajectories
+                        Quick version of separate_trajectories()
+rad_2_deg               Convert radians to degrees
+read_flydra_mat         Import data from a MAT file exported from
+                        Flydra software
+read_motive_csv         Import data from a CSV exported from
+                        Optitrack's Motive software
+redefine_tunnel_center
+                        "Center" the tunnel data, i.e. translation but
+                        no rotation
+relabel_viewr_axes      Relabel the dimensions as length, width, and
+                        height
+remove_duplicate_frames
+                        Remove any duplicates or aliased frames within
+                        trajectories
+remove_vel_anomalies    Remove any rows which show sharp shifts in
+                        velocity that are likely due to tracking errors
+rename_viewr_characters
+                        Rename subjects in the data via pattern
+                        detection
+rescale_tunnel_data     Rescale position data within a 'viewr' object
+rm_by_trajnum           Remove subjects by trajectory number
+rotate_tunnel           Rotate a tunnel so that perches are
+                        approximately aligned
+section_tunnel_by       Bin data along a specified axis
+select_x_percent        Select a region of interest within the tunnel
+separate_trajectories   Separate rows of data into separately labeled
+                        trajectories.
+set_traj_frametime      Redefine frames and time stamps on a
+                        per-trajectory basis
+standardize_tunnel      Rotate and center a tunnel based on landmarks
+trim_tunnel_outliers    Trim out artifacts and other outliers from the
+                        extremes of the tunnel
+visualize_frame_gap_choice
+                        Visualize the consequence of using various
+                        max_frame_gap values

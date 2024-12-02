@@ -1,0 +1,36 @@
+Package: chorddiag
+Title: Interactive Chord Diagrams
+Version: 0.1.3
+Authors@R: c(
+    person("Matthias", "Flor", email = "matthias.c.flor@gmail.com", role = c("aut", "cre")),
+    person("Elizabeth", "Tang", email = "eliz.thf@gmail.com", role = "ctb"),
+    person("Edwin", "de Jonge", email = "edwindjonge@gmail.com", role = "ctb"))
+Description: Interactive Chord Diagrams via the D3 JavaScript library
+    Based on http://bl.ocks.org/mbostock/4062006 with some modifications
+    (fading) and additions (tooltips, bipartite diagram type).
+URL: https://github.com/mattflor/chorddiag/
+BugReports: https://github.com/mattflor/chorddiag/issues
+Depends: R (>= 3.2.0)
+License: GPL (>= 3)
+Imports: htmlwidgets (>= 0.4), RColorBrewer (>= 1.1-2)
+Suggests: dplyr, knitr, shiny, tibble
+VignetteBuilder: knitr
+RoxygenNote: 7.1.1
+Encoding: UTF-8
+RemoteType: github
+RemoteHost: api.github.com
+RemoteRepo: chorddiag
+RemoteUsername: mattflor
+RemoteRef: HEAD
+RemoteSha: 1688d72cd93071abb373e054190363bdfb3af2af
+GithubRepo: chorddiag
+GithubUsername: mattflor
+GithubRef: HEAD
+GithubSHA1: 1688d72cd93071abb373e054190363bdfb3af2af
+NeedsCompilation: no
+Packaged: 2023-08-18 09:09:38 UTC; pauli
+Author: Matthias Flor [aut, cre],
+  Elizabeth Tang [ctb],
+  Edwin de Jonge [ctb]
+Maintainer: Matthias Flor <matthias.c.flor@gmail.com>
+Built: R 4.3.1; ; 2023-08-18 09:09:39 UTC; windows

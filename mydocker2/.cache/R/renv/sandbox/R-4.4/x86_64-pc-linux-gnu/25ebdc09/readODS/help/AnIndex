@@ -1,0 +1,9 @@
+readODS-package	readODS-package
+list_fods_sheets	list_ods_sheets
+list_ods_sheets	list_ods_sheets
+ods_sheets	list_ods_sheets
+readODS	readODS-package
+read_fods	read_ods
+read_ods	read_ods
+write_fods	write_ods
+write_ods	write_ods

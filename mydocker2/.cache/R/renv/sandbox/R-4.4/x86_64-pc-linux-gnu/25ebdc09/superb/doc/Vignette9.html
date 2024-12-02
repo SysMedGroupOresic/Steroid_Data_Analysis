@@ -1,0 +1,624 @@
+<!DOCTYPE html>
+
+<html>
+
+<head>
+
+<meta charset="utf-8" />
+<meta name="generator" content="pandoc" />
+<meta http-equiv="X-UA-Compatible" content="IE=EDGE" />
+
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+
+
+
+<title>Plotting Cohen’s d with superb</title>
+
+<script>// Pandoc 2.9 adds attributes on both header and div. We remove the former (to
+// be compatible with the behavior of Pandoc < 2.8).
+document.addEventListener('DOMContentLoaded', function(e) {
+  var hs = document.querySelectorAll("div.section[class*='level'] > :first-child");
+  var i, h, a;
+  for (i = 0; i < hs.length; i++) {
+    h = hs[i];
+    if (!/^h[1-6]$/i.test(h.tagName)) continue;  // it should be a header h1-h6
+    a = h.attributes;
+    while (a.length > 0) h.removeAttribute(a[0].name);
+  }
+});
+</script>
+
+<style type="text/css">
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+span.underline{text-decoration: underline;}
+div.column{display: inline-block; vertical-align: top; width: 50%;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+</style>
+
+
+
+<style type="text/css">
+code {
+white-space: pre;
+}
+.sourceCode {
+overflow: visible;
+}
+</style>
+<style type="text/css" data-origin="pandoc">
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { display: inline-block; text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+{ counter-reset: source-line 0; }
+pre.numberSource code > span
+{ position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+{ content: counter(source-line);
+position: relative; left: -1em; text-align: right; vertical-align: baseline;
+border: none; display: inline-block;
+-webkit-touch-callout: none; -webkit-user-select: none;
+-khtml-user-select: none; -moz-user-select: none;
+-ms-user-select: none; user-select: none;
+padding: 0 4px; width: 4em;
+color: #aaaaaa;
+}
+pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa; padding-left: 4px; }
+div.sourceCode
+{ }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+code span.al { color: #ff0000; font-weight: bold; } 
+code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } 
+code span.at { color: #7d9029; } 
+code span.bn { color: #40a070; } 
+code span.bu { color: #008000; } 
+code span.cf { color: #007020; font-weight: bold; } 
+code span.ch { color: #4070a0; } 
+code span.cn { color: #880000; } 
+code span.co { color: #60a0b0; font-style: italic; } 
+code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } 
+code span.do { color: #ba2121; font-style: italic; } 
+code span.dt { color: #902000; } 
+code span.dv { color: #40a070; } 
+code span.er { color: #ff0000; font-weight: bold; } 
+code span.ex { } 
+code span.fl { color: #40a070; } 
+code span.fu { color: #06287e; } 
+code span.im { color: #008000; font-weight: bold; } 
+code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } 
+code span.kw { color: #007020; font-weight: bold; } 
+code span.op { color: #666666; } 
+code span.ot { color: #007020; } 
+code span.pp { color: #bc7a00; } 
+code span.sc { color: #4070a0; } 
+code span.ss { color: #bb6688; } 
+code span.st { color: #4070a0; } 
+code span.va { color: #19177c; } 
+code span.vs { color: #4070a0; } 
+code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } 
+</style>
+<script>
+// apply pandoc div.sourceCode style to pre.sourceCode instead
+(function() {
+  var sheets = document.styleSheets;
+  for (var i = 0; i < sheets.length; i++) {
+    if (sheets[i].ownerNode.dataset["origin"] !== "pandoc") continue;
+    try { var rules = sheets[i].cssRules; } catch (e) { continue; }
+    var j = 0;
+    while (j < rules.length) {
+      var rule = rules[j];
+      // check if there is a div.sourceCode rule
+      if (rule.type !== rule.STYLE_RULE || rule.selectorText !== "div.sourceCode") {
+        j++;
+        continue;
+      }
+      var style = rule.style.cssText;
+      // check if color or background-color is set
+      if (rule.style.color === '' && rule.style.backgroundColor === '') {
+        j++;
+        continue;
+      }
+      // replace div.sourceCode by a pre.sourceCode rule
+      sheets[i].deleteRule(j);
+      sheets[i].insertRule('pre.sourceCode{' + style + '}', j);
+    }
+  }
+})();
+</script>
+
+
+
+<style type="text/css">
+
+div.csl-bib-body { }
+div.csl-entry {
+clear: both;
+margin-bottom: 0em;
+}
+.hanging div.csl-entry {
+margin-left:2em;
+text-indent:-2em;
+}
+div.csl-left-margin {
+min-width:2em;
+float:left;
+}
+div.csl-right-inline {
+margin-left:2em;
+padding-left:1em;
+}
+div.csl-indent {
+margin-left: 2em;
+}
+</style>
+
+<style type="text/css">body {
+background-color: #fff;
+margin: 1em auto;
+max-width: 700px;
+overflow: visible;
+padding-left: 2em;
+padding-right: 2em;
+font-family: "Open Sans", "Helvetica Neue", Helvetica, Arial, sans-serif;
+font-size: 14px;
+line-height: 1.35;
+}
+#TOC {
+clear: both;
+margin: 0 0 10px 10px;
+padding: 4px;
+width: 400px;
+border: 1px solid #CCCCCC;
+border-radius: 5px;
+background-color: #f6f6f6;
+font-size: 13px;
+line-height: 1.3;
+}
+#TOC .toctitle {
+font-weight: bold;
+font-size: 15px;
+margin-left: 5px;
+}
+#TOC ul {
+padding-left: 40px;
+margin-left: -1.5em;
+margin-top: 5px;
+margin-bottom: 5px;
+}
+#TOC ul ul {
+margin-left: -2em;
+}
+#TOC li {
+line-height: 16px;
+}
+table {
+margin: 1em auto;
+border-width: 1px;
+border-color: #DDDDDD;
+border-style: outset;
+border-collapse: collapse;
+}
+table th {
+border-width: 2px;
+padding: 5px;
+border-style: inset;
+}
+table td {
+border-width: 1px;
+border-style: inset;
+line-height: 18px;
+padding: 5px 5px;
+}
+table, table th, table td {
+border-left-style: none;
+border-right-style: none;
+}
+table thead, table tr.even {
+background-color: #f7f7f7;
+}
+p {
+margin: 0.5em 0;
+}
+blockquote {
+background-color: #f6f6f6;
+padding: 0.25em 0.75em;
+}
+hr {
+border-style: solid;
+border: none;
+border-top: 1px solid #777;
+margin: 28px 0;
+}
+dl {
+margin-left: 0;
+}
+dl dd {
+margin-bottom: 13px;
+margin-left: 13px;
+}
+dl dt {
+font-weight: bold;
+}
+ul {
+margin-top: 0;
+}
+ul li {
+list-style: circle outside;
+}
+ul ul {
+margin-bottom: 0;
+}
+pre, code {
+background-color: #f7f7f7;
+border-radius: 3px;
+color: #333;
+white-space: pre-wrap; 
+}
+pre {
+border-radius: 3px;
+margin: 5px 0px 10px 0px;
+padding: 10px;
+}
+pre:not([class]) {
+background-color: #f7f7f7;
+}
+code {
+font-family: Consolas, Monaco, 'Courier New', monospace;
+font-size: 85%;
+}
+p > code, li > code {
+padding: 2px 0px;
+}
+div.figure {
+text-align: center;
+}
+img {
+background-color: #FFFFFF;
+padding: 2px;
+border: 1px solid #DDDDDD;
+border-radius: 3px;
+border: 1px solid #CCCCCC;
+margin: 0 5px;
+}
+h1 {
+margin-top: 0;
+font-size: 35px;
+line-height: 40px;
+}
+h2 {
+border-bottom: 4px solid #f7f7f7;
+padding-top: 10px;
+padding-bottom: 2px;
+font-size: 145%;
+}
+h3 {
+border-bottom: 2px solid #f7f7f7;
+padding-top: 10px;
+font-size: 120%;
+}
+h4 {
+border-bottom: 1px solid #f7f7f7;
+margin-left: 8px;
+font-size: 105%;
+}
+h5, h6 {
+border-bottom: 1px solid #ccc;
+font-size: 105%;
+}
+a {
+color: #0033dd;
+text-decoration: none;
+}
+a:hover {
+color: #6666ff; }
+a:visited {
+color: #800080; }
+a:visited:hover {
+color: #BB00BB; }
+a[href^="http:"] {
+text-decoration: underline; }
+a[href^="https:"] {
+text-decoration: underline; }
+
+code > span.kw { color: #555; font-weight: bold; } 
+code > span.dt { color: #902000; } 
+code > span.dv { color: #40a070; } 
+code > span.bn { color: #d14; } 
+code > span.fl { color: #d14; } 
+code > span.ch { color: #d14; } 
+code > span.st { color: #d14; } 
+code > span.co { color: #888888; font-style: italic; } 
+code > span.ot { color: #007020; } 
+code > span.al { color: #ff0000; font-weight: bold; } 
+code > span.fu { color: #900; font-weight: bold; } 
+code > span.er { color: #a61717; background-color: #e3d2d2; } 
+</style>
+
+
+
+
+</head>
+
+<body>
+
+
+
+
+<h1 class="title toc-ignore">Plotting Cohen’s d with
+<code>superb</code></h1>
+
+
+
+<p>In this vignette, we show how the Cohen’s <span class="math inline">\(d_p\)</span> can be illustrated. See <span class="citation">Goulet-Pelletier &amp; Cousineau (2018)</span>; <span class="citation">Cousineau &amp; Goulet-Pelletier (2020)</span> for
+comprehensive reviews.</p>
+<div id="what-is-the-cohens-d_p" class="section level2">
+<h2>What is the Cohen’s <span class="math inline">\(d_p\)</span>?</h2>
+<p>The Cohen’s <span class="math inline">\(d_p\)</span>, also known as
+the <em>standardized mean difference</em> (smd), is a standardized
+measure of effect size for pairwise conditions. It is standardized using
+the standard deviation, so that it ressemble a <em>z</em> scores. Often,
+the sign of the Cohen’s <span class="math inline">\(d_p\)</span> is
+removed, but it could be positive or negative; it is not bounded but
+usually, it is smaller than 1.</p>
+<p>As an example, a Cohen’s <span class="math inline">\(d_p\)</span> of
+0.5 indicates that the two group’s means are separated by 0.5 standard
+deviations. If you illustrate the two populations with normal,
+bell-shape, curves, then their mode would be visibly separated,
+indicating a sizeable difference between the two populations. Cohen
+would call this a medium effect (although in my opinion, this is already
+a large effect; any non-trivially small samples would find this
+difference significant). With a Cohen’s <span class="math inline">\(d_p\)</span> of 0.25, it is harder to see a
+difference between the two populations.</p>
+<p>This descriptive statistic is computed from two groups (or two
+repeated measures) with</p>
+<p><span class="math display">\[
+d_p = \frac{\vert \; M_1 - M_2 \; \vert}{S_p}
+\]</span></p>
+<p>where <span class="math inline">\(S_p\)</span> is the <em>pooled
+standard deviation</em> across the two group’s standard deviations.</p>
+<p>Illustrating this measure with a plot is difficult as it is a
+pairwise statistic. For example, if there is 5 groups, that represents
+15 <em>pairs</em> of groups and consequently, 15 Cohen’s <span class="math inline">\(d_p\)</span>.</p>
+<p>Here, we propose an alternative representation through an indirect
+statistic, using <span class="math inline">\(d_1\)</span> <span class="citation">(Goulet-Pelletier &amp; Cousineau, 2018)</span>. It is
+given by</p>
+<p><span class="math display">\[
+d_1 = \frac{\vert \; M_1 - B \; \vert}{S_1}
+\]</span></p>
+<p>where <span class="math inline">\(S_1\)</span> is the standard
+deviation in the group (here labeled “1”). The quantity <span class="math inline">\(B\)</span> is a baseline measure. It can be any
+value based on prior knowledge of the measure (for example, if the
+measures are IQ, then <span class="math inline">\(B\)</span> would be
+set to 100). Alternatively, it can also be the <strong>grand
+mean</strong> across all the conditions. This is the solution we adopt
+herein.</p>
+<p>The statistic <span class="math inline">\(d_1\)</span> is a
+univariate measure, i.e., it is based on a single group’s data. Hence,
+in a plot, you could illustrate one <span class="math inline">\(d_1\)</span> per group.</p>
+<p>Why is it interesting? The point is that the difference between two
+<span class="math inline">\(d_1\)</span> is the Cohen’s <span class="math inline">\(d_p\)</span>! Likewise, the difference-adjusted
+confidence interval of <span class="math inline">\(d_1\)</span> is the
+same as the confidence interval of a Cohen’s <span class="math inline">\(d_p\)</span>. Hence, in a single plot, it is
+possible to derive all the Cohen’s <span class="math inline">\(d_p\)</span> and their significance.</p>
+</div>
+<div id="plotting-d_1-with-its-confidence-interval" class="section level2">
+<h2>Plotting <span class="math inline">\(d_1\)</span> with its
+confidence interval</h2>
+<p>Let’s define this statistic and its confidence interval
+estimator:</p>
+<div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" tabindex="-1"></a><span class="fu">library</span>(sadists) <span class="co"># for computing confidence intervals of Cohen&#39;s d</span></span></code></pre></div>
+<pre><code>## Warning: package &#39;sadists&#39; was built under R version 4.3.2</code></pre>
+<div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" tabindex="-1"></a><span class="fu">library</span>(superb)</span>
+<span id="cb3-2"><a href="#cb3-2" tabindex="-1"></a></span>
+<span id="cb3-3"><a href="#cb3-3" tabindex="-1"></a>d1 <span class="ot">&lt;-</span> <span class="cf">function</span>(X) {</span>
+<span id="cb3-4"><a href="#cb3-4" tabindex="-1"></a>        <span class="co"># the global variable GM.d1 is obtained from the initializer</span></span>
+<span id="cb3-5"><a href="#cb3-5" tabindex="-1"></a>        <span class="fu">mean</span>(X <span class="sc">-</span> GM.d1) <span class="sc">/</span> <span class="fu">sd</span>(X) </span>
+<span id="cb3-6"><a href="#cb3-6" tabindex="-1"></a>    } </span>
+<span id="cb3-7"><a href="#cb3-7" tabindex="-1"></a></span>
+<span id="cb3-8"><a href="#cb3-8" tabindex="-1"></a>CI.d1 <span class="ot">&lt;-</span> <span class="cf">function</span>(X, <span class="at">gamma =</span> .<span class="dv">95</span>) {</span>
+<span id="cb3-9"><a href="#cb3-9" tabindex="-1"></a>    n    <span class="ot">&lt;-</span> <span class="fu">length</span>(X)</span>
+<span id="cb3-10"><a href="#cb3-10" tabindex="-1"></a>    dlow <span class="ot">&lt;-</span> <span class="fu">qlambdap</span>(<span class="dv">1</span><span class="sc">/</span><span class="dv">2</span><span class="sc">-</span>gamma<span class="sc">/</span><span class="dv">2</span>, <span class="at">df =</span> n<span class="dv">-1</span>, <span class="at">t =</span> <span class="fu">d1</span>(X) <span class="sc">*</span> <span class="fu">sqrt</span>(n) ) </span>
+<span id="cb3-11"><a href="#cb3-11" tabindex="-1"></a>    dhig <span class="ot">&lt;-</span> <span class="fu">qlambdap</span>(<span class="dv">1</span><span class="sc">/</span><span class="dv">2</span><span class="sc">+</span>gamma<span class="sc">/</span><span class="dv">2</span>, <span class="at">df =</span> n<span class="dv">-1</span>, <span class="at">t =</span> <span class="fu">d1</span>(X) <span class="sc">*</span> <span class="fu">sqrt</span>(n) ) </span>
+<span id="cb3-12"><a href="#cb3-12" tabindex="-1"></a>    <span class="fu">c</span>(dlow, dhig) <span class="sc">/</span> <span class="fu">sqrt</span>(n)</span>
+<span id="cb3-13"><a href="#cb3-13" tabindex="-1"></a>}</span></code></pre></div>
+<p>In that function, we have the variable <code>GM.d1</code> which
+represents the grand mean over all the condition. We see later how this
+variable is initialized.</p>
+<p>In what follow, I use a randomly-generated data with
+<code>GRD()</code> simulating three dosage levels in a between-group
+design. The three groups have different means of 50, 51.2 and 52.4 which
+should translate into observed <span class="math inline">\(d_p\)</span>
+of about 0.12 (between group 1 and group 2 as well as between group 2
+and group 3) as the standard deviation in the population is 10:</p>
+<div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" tabindex="-1"></a><span class="co"># let&#39;s generate random data with true Cohen&#39;s dp </span></span>
+<span id="cb4-2"><a href="#cb4-2" tabindex="-1"></a><span class="co"># of 0.12 (groups 1 and 2) and 0.24 (groups 1 and 3)</span></span>
+<span id="cb4-3"><a href="#cb4-3" tabindex="-1"></a>dta <span class="ot">&lt;-</span> <span class="fu">GRD</span>( <span class="at">BSFactors =</span> <span class="st">&quot;Dose(3)&quot;</span>, </span>
+<span id="cb4-4"><a href="#cb4-4" tabindex="-1"></a>    <span class="at">RenameDV          =</span> <span class="st">&quot;score&quot;</span>,</span>
+<span id="cb4-5"><a href="#cb4-5" tabindex="-1"></a>    <span class="at">Effects           =</span> <span class="fu">list</span>(<span class="st">&quot;Dose&quot;</span> <span class="ot">=</span> <span class="fu">custom</span>(<span class="dv">0</span>, <span class="fl">1.2</span>, <span class="fl">2.4</span>)), </span>
+<span id="cb4-6"><a href="#cb4-6" tabindex="-1"></a>    <span class="at">SubjectsPerGroup  =</span> <span class="dv">500</span>, </span>
+<span id="cb4-7"><a href="#cb4-7" tabindex="-1"></a>    <span class="at">Population        =</span> <span class="fu">list</span>( <span class="at">mean =</span> <span class="dv">50</span>, <span class="at">stddev =</span> <span class="dv">10</span>)</span>
+<span id="cb4-8"><a href="#cb4-8" tabindex="-1"></a>)</span></code></pre></div>
+<p>If we set manually <code>GM.d1</code> to the grand mean, we are ready
+to make a plot. Alternatively, we can create an
+<strong>initializer</strong> that will be run by
+<code>superbPlot()</code> automatically. Here it is:</p>
+<div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" tabindex="-1"></a><span class="co"># the exact formulas for Cohen&#39;s d1 and dp. Only d1 is used in the plot</span></span>
+<span id="cb5-2"><a href="#cb5-2" tabindex="-1"></a>init.d1 <span class="ot">&lt;-</span> <span class="cf">function</span>(df) { </span>
+<span id="cb5-3"><a href="#cb5-3" tabindex="-1"></a>        GM.d1 <span class="ot">&lt;&lt;-</span> <span class="fu">mean</span>(df<span class="sc">$</span>DV) <span class="co"># will make d1 relative to the grand mean</span></span>
+<span id="cb5-4"><a href="#cb5-4" tabindex="-1"></a>}</span></code></pre></div>
+<p>It will be run from the <code>rawData</code> data frame (generated by
+<code>superbPlot()</code>; check <code>superbData()</code> if you want
+to access that data frame) in which the measures are collated in the
+column <code>DV</code>.</p>
+<p>Now let’s make the plot, feeding <code>d1</code> as the statistic
+function:</p>
+<div class="sourceCode" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" tabindex="-1"></a><span class="co"># show a plot with Cohen&#39;s d1 and difference-adjusted confidence intervals of d1</span></span>
+<span id="cb6-2"><a href="#cb6-2" tabindex="-1"></a><span class="fu">superb</span>(</span>
+<span id="cb6-3"><a href="#cb6-3" tabindex="-1"></a>    score <span class="sc">~</span> Dose,</span>
+<span id="cb6-4"><a href="#cb6-4" tabindex="-1"></a>    dta, </span>
+<span id="cb6-5"><a href="#cb6-5" tabindex="-1"></a>    <span class="at">statistic   =</span> <span class="st">&quot;d1&quot;</span>,  <span class="at">errorbar  =</span> <span class="st">&quot;CI&quot;</span>, </span>
+<span id="cb6-6"><a href="#cb6-6" tabindex="-1"></a>    <span class="at">gamma       =</span> <span class="fl">0.95</span>, </span>
+<span id="cb6-7"><a href="#cb6-7" tabindex="-1"></a>    <span class="at">plotStyle   =</span> <span class="st">&quot;line&quot;</span>,</span>
+<span id="cb6-8"><a href="#cb6-8" tabindex="-1"></a>    <span class="at">adjustments =</span> <span class="fu">list</span>(<span class="at">purpose=</span><span class="st">&quot;difference&quot;</span>)</span>
+<span id="cb6-9"><a href="#cb6-9" tabindex="-1"></a>) <span class="sc">+</span> <span class="fu">theme_light</span>(<span class="at">base_size =</span> <span class="dv">10</span>) <span class="sc">+</span> </span>
+<span id="cb6-10"><a href="#cb6-10" tabindex="-1"></a><span class="fu">coord_cartesian</span>( <span class="at">ylim =</span> <span class="fu">c</span>(<span class="sc">-</span><span class="fl">0.3</span>,<span class="sc">+</span><span class="fl">0.45</span>) ) <span class="sc">+</span></span>
+<span id="cb6-11"><a href="#cb6-11" tabindex="-1"></a><span class="fu">labs</span>(<span class="at">title =</span> <span class="st">&quot;d_1 with difference-adjusted 95% confidence intervals of d_1&quot;</span>,</span>
+<span id="cb6-12"><a href="#cb6-12" tabindex="-1"></a>     <span class="at">y     =</span> <span class="st">&quot;d_1 relative to grand mean&quot;</span>) </span></code></pre></div>
+<pre><code>## superb::FYI: Running initializer init.d1</code></pre>
+<div class="float">
+<img role="img" aria-label="Figure 1. d_1 scores along with 95% confidence interval." src="data:image/png;base64,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" alt="Figure 1. d_1 scores along with 95% confidence interval." />
+<div class="figcaption"><strong>Figure 1</strong>. d_1 scores along with
+95% confidence interval.</div>
+</div>
+<p>The difference between two <span class="math inline">\(d_1\)</span>
+is the Cohen’s <span class="math inline">\(d_p\)</span> and the
+difference-adjusted confidence intervals are adequate to compare two
+<span class="math inline">\(d_p\)</span>. For example, the <span class="math inline">\(d_1\)</span> of the first group is not
+<strong>included</strong> in the third group’s <span class="math inline">\(d_1\)</span> which indicates that the Cohen’s
+<span class="math inline">\(d_p\)</span> is significantly different from
+zero.</p>
+<p>Note that in the above, the initializer was detected and run
+automatically. You can check that the initializer is detectable with</p>
+<div class="sourceCode" id="cb8"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" tabindex="-1"></a>superb<span class="sc">:::</span><span class="fu">has.init.function</span>(<span class="st">&quot;d1&quot;</span>)</span></code></pre></div>
+<pre><code>## [1] TRUE</code></pre>
+</div>
+<div id="checking-the-results" class="section level2">
+<h2>Checking the results</h2>
+<p>To check the above, we could implement the formulas for the Cohen’s
+<span class="math inline">\(d_p\)</span> <span class="citation">(Cousineau &amp; Goulet-Pelletier, 2020)</span>:</p>
+<div class="sourceCode" id="cb10"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" tabindex="-1"></a>dp <span class="ot">&lt;-</span> <span class="cf">function</span>(X, Y) {</span>
+<span id="cb10-2"><a href="#cb10-2" tabindex="-1"></a>        <span class="fu">mean</span>(X <span class="sc">-</span> Y) <span class="sc">/</span> <span class="fu">sqrt</span>((<span class="fu">length</span>(X)<span class="sc">*</span><span class="fu">var</span>(X) <span class="sc">+</span> <span class="fu">length</span>(Y)<span class="sc">*</span><span class="fu">var</span>(Y))<span class="sc">/</span>(<span class="fu">length</span>(X)<span class="sc">+</span><span class="fu">length</span>(Y)<span class="sc">-</span><span class="dv">2</span>))</span>
+<span id="cb10-3"><a href="#cb10-3" tabindex="-1"></a>    } </span>
+<span id="cb10-4"><a href="#cb10-4" tabindex="-1"></a>CI.dp <span class="ot">&lt;-</span> <span class="cf">function</span>(X, Y, <span class="at">gamma =</span> .<span class="dv">95</span>) {</span>
+<span id="cb10-5"><a href="#cb10-5" tabindex="-1"></a>    n1 <span class="ot">=</span> <span class="fu">length</span>(X)</span>
+<span id="cb10-6"><a href="#cb10-6" tabindex="-1"></a>    n2 <span class="ot">=</span> <span class="fu">length</span>(Y)</span>
+<span id="cb10-7"><a href="#cb10-7" tabindex="-1"></a>    n <span class="ot">=</span> <span class="fu">hmean</span>(<span class="fu">c</span>(n1, n2))</span>
+<span id="cb10-8"><a href="#cb10-8" tabindex="-1"></a>    dlow <span class="ot">&lt;-</span> <span class="fu">qlambdap</span>(<span class="dv">1</span><span class="sc">/</span><span class="dv">2</span><span class="sc">-</span>gamma<span class="sc">/</span><span class="dv">2</span>, <span class="at">df =</span> n1<span class="sc">+</span>n2<span class="dv">-2</span>, <span class="at">t =</span> <span class="fu">dp</span>(X, Y) <span class="sc">*</span> <span class="fu">sqrt</span>(n<span class="sc">/</span><span class="dv">2</span>) ) </span>
+<span id="cb10-9"><a href="#cb10-9" tabindex="-1"></a>    dhig <span class="ot">&lt;-</span> <span class="fu">qlambdap</span>(<span class="dv">1</span><span class="sc">/</span><span class="dv">2</span><span class="sc">+</span>gamma<span class="sc">/</span><span class="dv">2</span>, <span class="at">df =</span> n1<span class="sc">+</span>n2<span class="dv">-2</span>, <span class="at">t =</span> <span class="fu">dp</span>(X, Y) <span class="sc">*</span> <span class="fu">sqrt</span>(n<span class="sc">/</span><span class="dv">2</span>) ) </span>
+<span id="cb10-10"><a href="#cb10-10" tabindex="-1"></a>    <span class="fu">c</span>(dlow, dhig) <span class="sc">/</span> <span class="fu">sqrt</span>(n<span class="sc">/</span><span class="dv">2</span>)</span>
+<span id="cb10-11"><a href="#cb10-11" tabindex="-1"></a>}</span></code></pre></div>
+<p>Let’s extract the group’s data for intermediate computations:</p>
+<div class="sourceCode" id="cb11"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" tabindex="-1"></a>grp1 <span class="ot">&lt;-</span> dta<span class="sc">$</span>score[dta<span class="sc">$</span>Dose<span class="sc">==</span><span class="dv">1</span>]</span>
+<span id="cb11-2"><a href="#cb11-2" tabindex="-1"></a>grp2 <span class="ot">&lt;-</span> dta<span class="sc">$</span>score[dta<span class="sc">$</span>Dose<span class="sc">==</span><span class="dv">2</span>]</span>
+<span id="cb11-3"><a href="#cb11-3" tabindex="-1"></a>grp3 <span class="ot">&lt;-</span> dta<span class="sc">$</span>score[dta<span class="sc">$</span>Dose<span class="sc">==</span><span class="dv">3</span>]</span></code></pre></div>
+<p>so that we can easily compute all three pairwise statistics:</p>
+<div class="sourceCode" id="cb12"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" tabindex="-1"></a>dp12 <span class="ot">&lt;-</span> <span class="fu">round</span>(<span class="fu">dp</span>(grp2, grp1), <span class="dv">3</span>)</span>
+<span id="cb12-2"><a href="#cb12-2" tabindex="-1"></a>dp13 <span class="ot">&lt;-</span> <span class="fu">round</span>(<span class="fu">dp</span>(grp3, grp1), <span class="dv">3</span>)</span>
+<span id="cb12-3"><a href="#cb12-3" tabindex="-1"></a>dp23 <span class="ot">&lt;-</span> <span class="fu">round</span>(<span class="fu">dp</span>(grp3, grp2), <span class="dv">3</span>)</span>
+<span id="cb12-4"><a href="#cb12-4" tabindex="-1"></a><span class="fu">c</span>(dp12, dp13, dp23)</span></code></pre></div>
+<pre><code>## [1] 0.110 0.268 0.156</code></pre>
+<p>… and their 95% confidence intervals:</p>
+<div class="sourceCode" id="cb14"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1" tabindex="-1"></a>cidp12 <span class="ot">=</span> <span class="fu">round</span>(<span class="fu">CI.dp</span>(grp2, grp1, <span class="fl">0.95</span>), <span class="dv">3</span>)</span>
+<span id="cb14-2"><a href="#cb14-2" tabindex="-1"></a>cidp13 <span class="ot">=</span> <span class="fu">round</span>(<span class="fu">CI.dp</span>(grp3, grp1, <span class="fl">0.95</span> ), <span class="dv">3</span>)</span>
+<span id="cb14-3"><a href="#cb14-3" tabindex="-1"></a>cidp23 <span class="ot">=</span> <span class="fu">round</span>(<span class="fu">CI.dp</span>(grp3, grp2, <span class="fl">0.95</span> ), <span class="dv">3</span>)</span>
+<span id="cb14-4"><a href="#cb14-4" tabindex="-1"></a><span class="fu">c</span>(cidp12,cidp13,cidp23)</span></code></pre></div>
+<pre><code>## [1] -0.014  0.234  0.144  0.393  0.031  0.280</code></pre>
+<p>Let’s put these numbers on the plot for easier examination using the
+graphic directives <code>showSignificance()</code>:</p>
+<div class="sourceCode" id="cb16"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1" tabindex="-1"></a><span class="fu">superb</span>(</span>
+<span id="cb16-2"><a href="#cb16-2" tabindex="-1"></a>    score <span class="sc">~</span> Dose,</span>
+<span id="cb16-3"><a href="#cb16-3" tabindex="-1"></a>    dta, </span>
+<span id="cb16-4"><a href="#cb16-4" tabindex="-1"></a>    <span class="at">statistic =</span> <span class="st">&quot;d1&quot;</span>,  <span class="at">errorbar  =</span> <span class="st">&quot;CI&quot;</span>, <span class="at">gamma     =</span> <span class="fl">0.95</span>, </span>
+<span id="cb16-5"><a href="#cb16-5" tabindex="-1"></a>    <span class="at">plotStyle =</span> <span class="st">&quot;line&quot;</span>,</span>
+<span id="cb16-6"><a href="#cb16-6" tabindex="-1"></a>    <span class="at">adjustments =</span> <span class="fu">list</span>(<span class="at">purpose=</span><span class="st">&quot;difference&quot;</span>)</span>
+<span id="cb16-7"><a href="#cb16-7" tabindex="-1"></a>) <span class="sc">+</span> <span class="fu">theme_light</span>(<span class="at">base_size =</span> <span class="dv">10</span>) <span class="sc">+</span></span>
+<span id="cb16-8"><a href="#cb16-8" tabindex="-1"></a><span class="fu">coord_cartesian</span>( <span class="at">ylim =</span> <span class="fu">c</span>(<span class="sc">-</span><span class="fl">0.3</span>,<span class="sc">+</span><span class="fl">0.45</span>) ) <span class="sc">+</span></span>
+<span id="cb16-9"><a href="#cb16-9" tabindex="-1"></a><span class="fu">labs</span>(<span class="at">title   =</span> <span class="st">&quot;d_1 with difference-adjusted 95% confidence intervals of d_1&quot;</span>,</span>
+<span id="cb16-10"><a href="#cb16-10" tabindex="-1"></a>     <span class="at">caption =</span> <span class="fu">paste</span>(<span class="st">&quot;Note: Cohen&#39;s d_p and its confidence interval computed with the </span><span class="sc">\n</span><span class="st">&quot;</span>,</span>
+<span id="cb16-11"><a href="#cb16-11" tabindex="-1"></a>                     <span class="st">&quot;true formula (Cousineau &amp; Goulet-Pelletier, 2020)&quot;</span>),      </span>
+<span id="cb16-12"><a href="#cb16-12" tabindex="-1"></a>     <span class="at">y       =</span> <span class="st">&quot;d_1 relative to grand mean&quot;</span>) <span class="sc">+</span>  </span>
+<span id="cb16-13"><a href="#cb16-13" tabindex="-1"></a><span class="fu">showSignificance</span>(<span class="fu">c</span>(<span class="dv">1</span>,<span class="dv">2</span>), <span class="fl">0.3</span>, <span class="sc">-</span><span class="fl">0.01</span>,</span>
+<span id="cb16-14"><a href="#cb16-14" tabindex="-1"></a>    <span class="fu">paste</span>(<span class="st">&quot;dp = &quot;</span>,dp12, <span class="fu">ifelse</span>(<span class="fu">sign</span>(cidp12[<span class="dv">1</span>])<span class="sc">==</span><span class="fu">sign</span>(cidp12[<span class="dv">2</span>]),<span class="st">&quot;, p &lt; .05&quot;</span>,<span class="st">&quot;, p &gt; .05&quot;</span>)) ) <span class="sc">+</span> </span>
+<span id="cb16-15"><a href="#cb16-15" tabindex="-1"></a><span class="fu">showSignificance</span>(<span class="fu">c</span>(<span class="dv">1</span>,<span class="dv">3</span>), <span class="fl">0.4</span>, <span class="sc">-</span><span class="fl">0.01</span>,</span>
+<span id="cb16-16"><a href="#cb16-16" tabindex="-1"></a>    <span class="fu">paste</span>(<span class="st">&quot;dp = &quot;</span>,dp13, <span class="fu">ifelse</span>(<span class="fu">sign</span>(cidp13[<span class="dv">1</span>])<span class="sc">==</span><span class="fu">sign</span>(cidp13[<span class="dv">2</span>]),<span class="st">&quot;, p &lt; .05&quot;</span>,<span class="st">&quot;, p &gt; .05&quot;</span>))) <span class="sc">+</span> </span>
+<span id="cb16-17"><a href="#cb16-17" tabindex="-1"></a><span class="fu">showSignificance</span>(<span class="fu">c</span>(<span class="dv">2</span>,<span class="dv">3</span>), <span class="sc">-</span><span class="fl">0.25</span>, <span class="sc">+</span><span class="fl">0.01</span>,</span>
+<span id="cb16-18"><a href="#cb16-18" tabindex="-1"></a>    <span class="fu">paste</span>(<span class="st">&quot;dp = &quot;</span>,dp23, <span class="fu">ifelse</span>(<span class="fu">sign</span>(cidp23[<span class="dv">1</span>])<span class="sc">==</span><span class="fu">sign</span>(cidp23[<span class="dv">2</span>]),<span class="st">&quot;, p &lt; .05&quot;</span>,<span class="st">&quot;, p &gt; .05&quot;</span>))) </span></code></pre></div>
+<div class="float">
+<img role="img" aria-label="Figure 2. d_1 scores along with 95% confidence interval." src="data:image/png;base64,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" alt="Figure 2. d_1 scores along with 95% confidence interval." />
+<div class="figcaption"><strong>Figure 2</strong>. d_1 scores along with
+95% confidence interval.</div>
+</div>
+<p>In the above, we used the fact that if both limits of the confidence
+interval are of the same sign, then they are on the same side with
+respect to zero, and therefore, excludes zero at a significance level of
+at least 5% (for 95% confidence intervals).</p>
+<p>Let’s examine how good the difference-adjusted CI of <span class="math inline">\(d_1\)</span> are compared to the CI of <span class="math inline">\(d_p\)</span>. The following function (a) get the
+length of the Cohen’s <span class="math inline">\(d_p\)</span> interval;
+(b) average (in the square sense, see <a href="https://dcousin3.github.io/superb/articles/Vignette7.html">here</a>)
+the two difference-adjusted confidence intervals of <span class="math inline">\(d_1\)</span>:</p>
+<div class="sourceCode" id="cb17"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb17-1"><a href="#cb17-1" tabindex="-1"></a>compareCIlength <span class="ot">&lt;-</span> <span class="cf">function</span>(g1, g2) {</span>
+<span id="cb17-2"><a href="#cb17-2" tabindex="-1"></a>    <span class="co"># compute the Cohen&#39;s dp confidence interval length</span></span>
+<span id="cb17-3"><a href="#cb17-3" tabindex="-1"></a>    cilength.dp <span class="ot">=</span> <span class="fu">round</span>(<span class="fu">CI.dp</span>(g1, g2)[<span class="dv">2</span>]<span class="sc">-</span><span class="fu">CI.dp</span>(g1, g2)[<span class="dv">1</span>], <span class="dv">3</span>)</span>
+<span id="cb17-4"><a href="#cb17-4" tabindex="-1"></a></span>
+<span id="cb17-5"><a href="#cb17-5" tabindex="-1"></a>    <span class="co"># compute two d1 CI length, difference-adjusted</span></span>
+<span id="cb17-6"><a href="#cb17-6" tabindex="-1"></a>    len1    <span class="ot">=</span> <span class="fu">sqrt</span>(<span class="dv">2</span>)<span class="sc">*</span>(<span class="fu">CI.d1</span>(grp1)[<span class="dv">2</span>] <span class="sc">-</span> <span class="fu">CI.d1</span>(grp1)[<span class="dv">1</span>])</span>
+<span id="cb17-7"><a href="#cb17-7" tabindex="-1"></a>    len2    <span class="ot">=</span> <span class="fu">sqrt</span>(<span class="dv">2</span>)<span class="sc">*</span>(<span class="fu">CI.d1</span>(grp2)[<span class="dv">2</span>] <span class="sc">-</span> <span class="fu">CI.d1</span>(grp2)[<span class="dv">1</span>])</span>
+<span id="cb17-8"><a href="#cb17-8" tabindex="-1"></a>    <span class="co"># average in the square sense the two d1 CI lengths</span></span>
+<span id="cb17-9"><a href="#cb17-9" tabindex="-1"></a>    cilength.d1 <span class="ot">=</span> <span class="fu">round</span>(<span class="fu">sqrt</span>((len1<span class="sc">^</span><span class="dv">2</span> <span class="sc">+</span> len2<span class="sc">^</span><span class="dv">2</span>)<span class="sc">/</span><span class="dv">2</span>), <span class="dv">3</span>)</span>
+<span id="cb17-10"><a href="#cb17-10" tabindex="-1"></a></span>
+<span id="cb17-11"><a href="#cb17-11" tabindex="-1"></a>    <span class="fu">data.frame</span>( <span class="at">dp.length =</span> cilength.dp, <span class="at">d1.average.length =</span> cilength.d1)</span>
+<span id="cb17-12"><a href="#cb17-12" tabindex="-1"></a>}</span>
+<span id="cb17-13"><a href="#cb17-13" tabindex="-1"></a></span>
+<span id="cb17-14"><a href="#cb17-14" tabindex="-1"></a><span class="fu">compareCIlength</span>(grp1,grp2)</span></code></pre></div>
+<pre><code>##   dp.length d1.average.length
+## 1     0.248             0.248</code></pre>
+<div class="sourceCode" id="cb19"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb19-1"><a href="#cb19-1" tabindex="-1"></a><span class="fu">compareCIlength</span>(grp1,grp3)</span></code></pre></div>
+<pre><code>##   dp.length d1.average.length
+## 1     0.249             0.248</code></pre>
+<div class="sourceCode" id="cb21"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb21-1"><a href="#cb21-1" tabindex="-1"></a><span class="fu">compareCIlength</span>(grp2,grp3)</span></code></pre></div>
+<pre><code>##   dp.length d1.average.length
+## 1     0.248             0.248</code></pre>
+<p>As seen, there is no difference until the third decimal. The small
+difference comes from the fact that the degrees of freedom are
+separated, not pooled.</p>
+</div>
+<div id="references" class="section level1 unnumbered">
+<h1 class="unnumbered">References</h1>
+<div id="refs" class="references csl-bib-body hanging-indent" entry-spacing="0" line-spacing="2">
+<div id="ref-cg20" class="csl-entry">
+Cousineau, D., &amp; Goulet-Pelletier, J.-C. (2020). <em>A review of
+five techniques to derive confidence intervals with a special attention
+to the <span>C</span>ohen’s dp in the between-group design</em>.
+PsyArXiv. <a href="https://doi.org/10.31234/osf.io/s2597">https://doi.org/10.31234/osf.io/s2597</a>
+</div>
+<div id="ref-gc18" class="csl-entry">
+Goulet-Pelletier, J.-C., &amp; Cousineau, D. (2018). A review of effect
+sizes and their confidence intervals, <span>P</span>art <span>I</span>:
+The <span>C</span>ohen’s d family. <em>The Quantitative Methods for
+Psychology</em>, <em>14</em>(4), 242–265. <a href="https://doi.org/10.20982/tqmp.14.4.p242">https://doi.org/10.20982/tqmp.14.4.p242</a>
+</div>
+</div>
+</div>
+
+
+
+<!-- code folding -->
+
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    script.src  = "https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML";
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+
+</body>
+</html>

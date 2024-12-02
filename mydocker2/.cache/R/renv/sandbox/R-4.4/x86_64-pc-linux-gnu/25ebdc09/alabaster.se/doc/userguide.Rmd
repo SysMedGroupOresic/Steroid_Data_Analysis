@@ -1,0 +1,73 @@
+---
+title: Saving `SummarizedExperiment`s to artifacts and back again
+author:
+- name: Aaron Lun
+  email: infinite.monkeys.with.keyboards@gmail.com
+package: alabaster.se
+date: "Revised: September 22, 2022"
+output:
+  BiocStyle::html_document
+vignette: >
+  %\VignetteIndexEntry{Saving and loading SummarizedExperiments}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, echo=FALSE}
+library(BiocStyle)
+self <- Biocpkg("alabaster.se")
+knitr::opts_chunk$set(error=FALSE, warning=FALSE, message=FALSE)
+```
+
+# Overview 
+
+The `r self` package implements methods to save `SummarizedExperiment` objects to file artifacts and load them back into R.
+Check out the `r Biocpkg("alabaster.base")` for more details on the motivation and concepts of the **alabaster** framework.
+
+# Quick start
+
+Given a `(Ranged)SummarizedExperiment`, we can use `saveObject()` to save it inside a staging directory:
+
+```{r}
+# Example taken from ?SummarizedExperiment
+library(SummarizedExperiment)
+nrows <- 200
+ncols <- 6
+counts <- matrix(rpois(nrows * ncols, 10), nrows, ncols)
+rowRanges <- GRanges(
+    rep(c("chr1", "chr2"), c(50, 150)),
+    IRanges(floor(runif(200, 1e5, 1e6)), width=100),
+    strand=sample(c("+", "-"), 200, TRUE)
+)
+colData <- DataFrame(
+    Treatment=rep(c("ChIP", "Input"), 3), 
+    row.names=LETTERS[1:6]
+)
+rse <- SummarizedExperiment(
+    assays=SimpleList(counts=counts),
+    rowRanges=rowRanges, 
+    colData=colData
+)
+rownames(rse) <- sprintf("GENE_%03d", 1:200)
+rse
+
+library(alabaster.se)
+tmp <- tempfile()
+saveObject(rse, tmp)
+
+list.files(tmp, recursive=TRUE)
+```
+
+We can then load it back into the session with `readObject()`.
+
+```{r}
+roundtrip <- readObject(tmp)
+roundtrip
+```
+
+# Session information {-}
+
+```{r}
+sessionInfo()
+```
+

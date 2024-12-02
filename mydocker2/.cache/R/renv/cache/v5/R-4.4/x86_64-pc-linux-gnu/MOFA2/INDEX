@@ -1,0 +1,135 @@
+%>%                     Re-exporting the pipe operator See
+                        'magrittr::%>%' for details.
+MOFA                    Class to store a mofa model
+add_mofa_factors_to_seurat
+                        Function to add the MOFA representation onto a
+                        Seurat object
+calculate_contribution_scores
+                        Calculate contribution scores for each view in
+                        each sample
+calculate_variance_explained
+                        Calculate variance explained by the model
+calculate_variance_explained_per_sample
+                        Calculate variance explained by the MOFA
+                        factors for each sample
+cluster_samples         K-means clustering on samples based on latent
+                        factors
+compare_elbo            Compare different trained 'MOFA' objects in
+                        terms of the final value of the ELBO statistics
+                        and number of inferred factors
+compare_factors         Plot the correlation of factors between
+                        different models
+correlate_factors_with_covariates
+                        Plot correlation of factors with external
+                        covariates
+covariates_names        covariates_names: set and retrieve covariate
+                        names
+create_mofa             create a MOFA object
+create_mofa_from_MultiAssayExperiment
+                        create a MOFA object from a
+                        MultiAssayExperiment object
+create_mofa_from_Seurat
+                        create a MOFA object from a Seurat object
+create_mofa_from_SingleCellExperiment
+                        create a MOFA object from a
+                        SingleCellExperiment object
+create_mofa_from_df     create a MOFA object from a data.frame object
+create_mofa_from_matrix
+                        create a MOFA object from a a list of matrices
+factors_names           factors_names: set and retrieve factor names
+features_metadata       features_metadata: set and retrieve feature
+                        metadata
+features_names          features_names: set and retrieve feature names
+get_covariates          Get sample covariates
+get_data                Get data
+get_default_data_options
+                        Get default data options
+get_default_mefisto_options
+                        Get default options for MEFISTO covariates
+get_default_model_options
+                        Get default model options
+get_default_stochastic_options
+                        Get default stochastic options
+get_default_training_options
+                        Get default training options
+get_dimensions          Get dimensions
+get_elbo                Get ELBO
+get_expectations        Get expectations
+get_factors             Get factors
+get_group_kernel        Get group covariance matrix
+get_imputed_data        Get imputed data
+get_interpolated_factors
+                        Get interpolated factor values
+get_lengthscales        Get lengthscales
+get_scales              Get scales
+get_variance_explained
+                        Get variance explained values
+get_weights             Get weights
+groups_names            groups_names: set and retrieve group names
+impute                  Impute missing values from a fitted MOFA
+interpolate_factors     Interpolate factors in MEFISTO based on new
+                        covariate values
+load_model              Load a trained MOFA
+make_example_data       Simulate a data set using the generative model
+                        of MOFA
+plot_alignment          Plot covariate alignment acorss groups
+plot_ascii_data         Visualize the structure of the data in the
+                        terminal
+plot_data_heatmap       Plot heatmap of relevant features
+plot_data_overview      Overview of the input data
+plot_data_scatter       Scatterplots of feature values against latent
+                        factors
+plot_data_vs_cov        Scatterplots of feature values against sample
+                        covariates
+plot_dimred             Plot dimensionality reduction based on MOFA
+                        factors
+plot_enrichment         Plot output of gene set Enrichment Analysis
+plot_enrichment_detailed
+                        Plot detailed output of the Feature Set
+                        Enrichment Analysis
+plot_enrichment_heatmap
+                        Heatmap of Feature Set Enrichment Analysis
+                        results
+plot_factor             Beeswarm plot of factor values
+plot_factor_cor         Plot correlation matrix between latent factors
+plot_factors            Scatterplots of two factor values
+plot_factors_vs_cov     Scatterplots of a factor's values againt the
+                        sample covariates
+plot_group_kernel       Heatmap plot showing the group-group
+                        correlations per factor
+plot_interpolation_vs_covariate
+                        Plot interpolated factors versus covariate
+                        (1-dimensional)
+plot_sharedness         Barplot showing the sharedness per factor
+plot_smoothness         Barplot showing the smoothness per factor
+plot_top_weights        Plot top weights
+plot_variance_explained
+                        Plot variance explained by the model
+plot_variance_explained_by_covariates
+                        Plot variance explained by the smooth
+                        components of the model
+plot_variance_explained_per_feature
+                        Plot variance explained by the model for a set
+                        of features Returns a tile plot with a group on
+                        the X axis and a feature along the Y axis
+plot_weights            Plot distribution of feature weights (weights)
+plot_weights_heatmap    Plot heatmap of the weights
+plot_weights_scatter    Scatterplots of weights
+predict                 Do predictions using a fitted MOFA
+prepare_mofa            Prepare a MOFA for training
+run_enrichment          Run feature set Enrichment Analysis
+run_mofa                Train a MOFA model
+run_tsne                Run t-SNE on the MOFA factors
+run_umap                Run UMAP on the MOFA factors
+samples_metadata        samples_metadata: retrieve sample metadata
+samples_names           samples_names: set and retrieve sample names
+select_model            Select a model from a list of trained 'MOFA'
+                        objects based on the best ELBO value
+set_covariates          Add covariates to a MOFA model
+subset_factors          Subset factors
+subset_features         Subset features
+subset_groups           Subset groups
+subset_samples          Subset samples
+subset_views            Subset views
+summarise_factors       Summarise factor values using external groups
+views_names             views_names: set and retrieve view names

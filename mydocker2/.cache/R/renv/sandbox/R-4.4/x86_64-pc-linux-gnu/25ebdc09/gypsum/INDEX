@@ -1,0 +1,43 @@
+abortUpload             Abort an upload
+accessToken             Get and set GitHub access tokens
+approveProbation        Approve a probational upload
+cacheDirectory          Cache directory
+cloneVersion            Clone a version's directory structure
+completeUpload          Complete an upload
+createProject           Create a new project
+fetchLatest             Fetch the latest version
+fetchManifest           Fetch version manifest
+fetchMetadataDatabase   Fetch a metadata database
+fetchMetadataSchema     Fetch a metadata schema
+fetchPermissions        Fetch project permissions
+fetchQuota              Fetch project quota details
+fetchSummary            Fetch version summary
+fetchUsage              Fetch project usage details
+formatObjectMetadata    Format object-related metadata
+listAssets              List assets
+listFiles               List files for a version
+listProjects            List all projects
+listVersions            List asset versions
+prepareDirectoryUpload
+                        Prepare to upload a directory
+publicS3Config          Public S3 configuration
+refreshLatest           Refresh the latest version
+refreshUsage            Refresh the quota usage
+rejectProbation         Reject a probational upload
+removeAsset             Remove an asset
+removeProject           Remove a project
+removeVersion           Remove a version of an asset
+resolveLinks            Resolve links in the cache directory
+restUrl                 URL for the REST API
+saveFile                Save a file from a version of a project asset
+saveVersion             Save all files for a version of a project asset
+searchMetadata          Search the metadata database
+setPermissions          Set project permissions
+setQuota                Set project quota
+startUpload             Start an upload
+translateTextQuery      Translate a plain-text query to a
+                        gypsum.search.clause
+unlockProject           Unlock a project
+uploadDirectory         Upload a directory to the gypsum backend
+uploadFiles             Upload files for a versioned asset
+validateMetadata        Validate metadata against a JSON schema

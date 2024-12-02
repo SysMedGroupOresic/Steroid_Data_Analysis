@@ -1,0 +1,410 @@
+{
+    "$id": "hdf5_data_frame/v1.json",
+    "$schema": "http://json-schema.org/draft-07/schema",
+    "_attributes": {
+        "format": "application/x-hdf5",
+        "restore": {
+            "R": "alabaster.base::loadDataFrame",
+            "python": "dolomite_base.load_hdf5_data_frame"
+        }
+    },
+    "additionalProperties": false,
+    "description": "A data frame object stored inside a group of a HDF5 file (see [here](https://github.com/ArtifactDB/takane/blob/master/docs/specifications/hdf5_data_frame/v1.md) for a detailed specification). Atomic columns are stored as one-dimensional datasets of the same length in the `data` subgroup, named by their positional 0-based index in the data frame. Column names are stored in `column_names`, a 1-dimensional string dataset of length equal to the number of columns. Row names, if present, are stored in a `row_names` dataset of the same length at the number of rows. For non-atomic columns, the corresponding dataset is omitted and the actual contents are obtained from other files; a pointer to the resource should be stored in the corresponding entry of the `data_frame.columns` property.\n\nDerived from `data_frame/v1.json`: virtual data frame object stored in a yet-to-be-defined file format. Columns with simple types are stored directly in the file. For columns with non-obvious types (e.g., nested data frames), their contents should be stored in other files, and a pointer to a resource should be stored in the corresponding entry of `columns` (a placeholder column may be created in the file, depending on the format).",
+    "properties": {
+        "$schema": {
+            "description": "The schema to use.",
+            "type": "string"
+        },
+        "data_frame": {
+            "additionalProperties": false,
+            "allOf": [
+                {
+                    "if": {
+                        "properties": {
+                            "version": {
+                                "const": 1
+                            }
+                        }
+                    },
+                    "then": {
+                        "properties": {
+                            "columns": {
+                                "items": {
+                                    "allOf": [
+                                        {
+                                            "not": {
+                                                "required": [
+                                                    "format"
+                                                ]
+                                            }
+                                        },
+                                        {
+                                            "not": {
+                                                "required": [
+                                                    "ordered"
+                                                ]
+                                            }
+                                        }
+                                    ]
+                                }
+                            }
+                        }
+                    }
+                },
+                {
+                    "if": {
+                        "properties": {
+                            "version": {
+                                "minimum": 2
+                            }
+                        },
+                        "required": [
+                            "version"
+                        ]
+                    },
+                    "then": {
+                        "properties": {
+                            "columns": {
+                                "items": {
+                                    "allOf": [
+                                        {
+                                            "not": {
+                                                "properties": {
+                                                    "type": {
+                                                        "enum": [
+                                                            "ordered",
+                                                            "date-time",
+                                                            "date"
+                                                        ]
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    ]
+                                }
+                            }
+                        }
+                    }
+                }
+            ],
+            "properties": {
+                "column_data": {
+                    "description": "Location of additional metadata for each column, stored as another `data_frame`. Omitted if no additional per-column metadata is present.",
+                    "properties": {
+                        "resource": {
+                            "_children": {
+                                "contains": [
+                                    "data_frame"
+                                ]
+                            },
+                            "properties": {
+                                "path": {
+                                    "description": "Relative path of the resource from the root of the project directory.",
+                                    "type": "string"
+                                },
+                                "type": {
+                                    "description": "Type of file. Local files should be present in the same project directory.",
+                                    "enum": [
+                                        "local"
+                                    ],
+                                    "type": "string"
+                                }
+                            },
+                            "required": [
+                                "type",
+                                "path"
+                            ],
+                            "type": "object"
+                        }
+                    },
+                    "required": [
+                        "resource"
+                    ],
+                    "type": "object"
+                },
+                "columns": {
+                    "description": "Information about the columnar fields in the data frame. This should be in the same order as the columns in the on-disk representation.",
+                    "items": {
+                        "additionalProperties": false,
+                        "allOf": [
+                            {
+                                "if": {
+                                    "not": {
+                                        "properties": {
+                                            "type": {
+                                                "const": "string"
+                                            }
+                                        }
+                                    }
+                                },
+                                "then": {
+                                    "not": {
+                                        "required": [
+                                            "format"
+                                        ]
+                                    }
+                                }
+                            },
+                            {
+                                "if": {
+                                    "not": {
+                                        "properties": {
+                                            "type": {
+                                                "enum": [
+                                                    "factor",
+                                                    "ordered"
+                                                ]
+                                            }
+                                        }
+                                    }
+                                },
+                                "then": {
+                                    "not": {
+                                        "required": [
+                                            "levels"
+                                        ]
+                                    }
+                                }
+                            },
+                            {
+                                "if": {
+                                    "not": {
+                                        "properties": {
+                                            "type": {
+                                                "const": "factor"
+                                            }
+                                        }
+                                    }
+                                },
+                                "then": {
+                                    "not": {
+                                        "required": [
+                                            "ordered"
+                                        ]
+                                    }
+                                }
+                            },
+                            {
+                                "else": {
+                                    "not": {
+                                        "required": [
+                                            "resource"
+                                        ]
+                                    }
+                                },
+                                "if": {
+                                    "properties": {
+                                        "type": {
+                                            "const": "other"
+                                        }
+                                    }
+                                },
+                                "then": {
+                                    "required": [
+                                        "resource"
+                                    ]
+                                }
+                            }
+                        ],
+                        "properties": {
+                            "format": {
+                                "description": "Formatting constraints for string types.\n\n- Dates are strings consisting of integers and dashes, following the `YYYY-MM-DD` format.\n- Date-times are strings following RFC 3339 Section 5.6, i.e., the Internet Date/Time format.",
+                                "enum": [
+                                    "date",
+                                    "date-time"
+                                ],
+                                "type": "string"
+                            },
+                            "levels": {
+                                "description": "Levels for a categorical factor, used by file formats that cannot store the levels internally (e.g., CSVs). This property points to a separate resource containing the levels as a vector of unique non-missing strings.For ordered factors, the order is respected in the saved vector.\n\n Older instances (`version = 1`) store the levels in a 1-column data frame;this column can simply be treated as the vector of strings.\n\n For file formats that are capable of storing the levels internally (e.g., HDF5), this property is not required and may be ignored.",
+                                "properties": {
+                                    "resource": {
+                                        "_children": {
+                                            "contains": [
+                                                "data_frame",
+                                                "atomic_vector"
+                                            ]
+                                        },
+                                        "properties": {
+                                            "path": {
+                                                "description": "Relative path of the resource from the root of the project directory.",
+                                                "type": "string"
+                                            },
+                                            "type": {
+                                                "description": "Type of file. Local files should be present in the same project directory.",
+                                                "enum": [
+                                                    "local"
+                                                ],
+                                                "type": "string"
+                                            }
+                                        },
+                                        "required": [
+                                            "type",
+                                            "path"
+                                        ],
+                                        "type": "object"
+                                    }
+                                },
+                                "required": [
+                                    "resource"
+                                ],
+                                "type": "object"
+                            },
+                            "name": {
+                                "description": "Name of the column. Each column must have a non-empty name. Column names should not be duplicated within `columns`.",
+                                "minLength": 1,
+                                "type": "string"
+                            },
+                            "ordered": {
+                                "default": false,
+                                "description": "Whether to assume that the levels are ordered.",
+                                "type": "boolean"
+                            },
+                            "resource": {
+                                "properties": {
+                                    "path": {
+                                        "description": "Relative path of the resource from the root of the project directory.",
+                                        "type": "string"
+                                    },
+                                    "type": {
+                                        "description": "Type of file. Local files should be present in the same project directory.",
+                                        "enum": [
+                                            "local"
+                                        ],
+                                        "type": "string"
+                                    }
+                                },
+                                "required": [
+                                    "type",
+                                    "path"
+                                ],
+                                "type": "object"
+                            },
+                            "type": {
+                                "description": "Type of the column.\n\n- Integers, (floating-point) numbers and booleans are their usual selves.\n- Strings have an optional `format` property that restrict their contents, e.g., for dates or times.\n   This is only available in `version >= 2`. - The `factor` type is represented as an integer, to be used as a 1-based index into a vector of string levels.  This type has an additional `levels` property specifying the levels, as well as an `ordered` property indicating whether they are ordered.\n   - Older instances (`data_frame.version = 1`) store `factor` and `ordered` types as strings instead of integers.     All such strings are guaranteed to belong to the string levels in `levels`.    This representation is deprecated and the integer representation should be used in `version > 2`.\n - The `ordered` type is a deprecated alias for the `factor` type with the `ordered` property set to `true`;  the latter should be used in `version >= 2`.\n - The `date` type is a soft-deprecated alias for the `string` type with `format` property set to `date`;  the latter should be used in `version >= 2`.\n - The `date-time` type is a soft-deprecated alias for the `string` type with `format` property set to `date-time`;  the latter should be used in `version >= 2`.\n- Columns listed as `other` are assumed to be non-simple and should contain a `resource` property pointing to column's contents.",
+                                "enum": [
+                                    "integer",
+                                    "number",
+                                    "string",
+                                    "factor",
+                                    "ordered",
+                                    "boolean",
+                                    "date",
+                                    "date-time",
+                                    "other"
+                                ],
+                                "type": "string"
+                            }
+                        },
+                        "required": [
+                            "name",
+                            "type"
+                        ],
+                        "type": "object"
+                    },
+                    "type": "array"
+                },
+                "dimensions": {
+                    "description": "Dimensions of a two-dimensional object.",
+                    "items": {
+                        "type": "integer"
+                    },
+                    "maxItems": 2,
+                    "minItems": 2,
+                    "type": "array"
+                },
+                "other_data": {
+                    "description": "Location of additional metadata for this object, typically stored as a list. Omitted if no other metadata is present.",
+                    "properties": {
+                        "resource": {
+                            "_children": {
+                                "contains": [
+                                    "basic_list"
+                                ]
+                            },
+                            "properties": {
+                                "path": {
+                                    "description": "Relative path of the resource from the root of the project directory.",
+                                    "type": "string"
+                                },
+                                "type": {
+                                    "description": "Type of file. Local files should be present in the same project directory.",
+                                    "enum": [
+                                        "local"
+                                    ],
+                                    "type": "string"
+                                }
+                            },
+                            "required": [
+                                "type",
+                                "path"
+                            ],
+                            "type": "object"
+                        }
+                    },
+                    "required": [
+                        "resource"
+                    ],
+                    "type": "object"
+                },
+                "row_names": {
+                    "default": false,
+                    "description": "Whether the data frame has row names. If `true`, these are stored in the first column of the CSV.",
+                    "type": "boolean"
+                },
+                "version": {
+                    "default": 1,
+                    "description": "Minor version of this format.",
+                    "maximum": 2,
+                    "type": "integer"
+                }
+            },
+            "required": [
+                "columns",
+                "dimensions"
+            ],
+            "type": "object"
+        },
+        "hdf5_data_frame": {
+            "additionalProperties": false,
+            "properties": {
+                "group": {
+                    "description": "Name of the group inside the HDF5 file that contains the contents of the data frame.",
+                    "type": "string"
+                },
+                "version": {
+                    "default": 1,
+                    "description": "Minor version of this format. Only used for older `hdf5_data_frame` instances, and is ignored if a version number attribute is present in the HDF5 group named by `group`.",
+                    "maximum": 3,
+                    "type": "integer"
+                }
+            },
+            "required": [
+                "group"
+            ],
+            "type": "object"
+        },
+        "is_child": {
+            "default": false,
+            "description": "Is this a child document, only to be interpreted in the context of the parent document from which it is linked? This may have implications for search and metadata requirements.",
+            "type": "boolean"
+        },
+        "md5sum": {
+            "description": "MD5 checksum for the file.",
+            "type": "string"
+        },
+        "path": {
+            "description": "Path to the file in the project directory.",
+            "type": "string"
+        }
+    },
+    "required": [
+        "$schema",
+        "data_frame",
+        "hdf5_data_frame",
+        "md5sum",
+        "path"
+    ],
+    "title": "HDF5 Data Frame",
+    "type": "object"
+}

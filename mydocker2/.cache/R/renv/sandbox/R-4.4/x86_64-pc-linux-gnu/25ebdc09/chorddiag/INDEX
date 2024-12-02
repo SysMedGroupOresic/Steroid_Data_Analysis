@@ -1,0 +1,5 @@
+chorddiag               Create a D3 Chord Diagram
+chorddiag-package       chorddiag: A package for creating interactive
+                        chord diagrams
+chorddiagOutput         Widget output function for use in Shiny
+renderChorddiag         Widget render function for use in Shiny

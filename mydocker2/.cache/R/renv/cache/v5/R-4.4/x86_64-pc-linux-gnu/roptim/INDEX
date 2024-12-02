@@ -1,0 +1,19 @@
+example1_rosen_bfgs     Example 1: Minimize Rosenbrock function using
+                        BFGS
+example1_rosen_grad_hess_check
+                        Example 1: Gradient/Hessian checks for the
+                        implemented C++ class of Rosenbrock function
+example1_rosen_nograd_bfgs
+                        Example 1: Minimize Rosenbrock function (with
+                        numerical gradient) using BFGS
+example1_rosen_other_methods
+                        Example 1: Minimize Rosenbrock function using
+                        other methods
+example2_tsp_sann       Example 2: Solve Travelling Salesman Problem
+                        (TSP) using SANN
+example3_flb_25_dims_box_con
+                        Example 3: Minimize a function using L-BFGS-B
+                        with 25-dimensional box constrained
+example4_wild_fun       Example 4: Minimize a "wild" function using
+                        SANN and BFGS
+roptim                  roptim

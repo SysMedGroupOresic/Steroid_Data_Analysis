@@ -1,0 +1,16 @@
+mlma-package	mlma-package
+boot.mlma	boot.mlma
+data.org	data.org
+joint.effect	joint.effect
+mlma	mlma
+plot.mlma	plot.mlma
+plot.mlma.boot	plot.mlma.boot
+print.joint.effect	joint.effect
+print.mlma	print.mlma
+print.mlma.boot	print.mlma.boot
+print.summary.mlma	summary.mlma
+print.summary.mlma.boot	summary.mlma.boot
+sim.111	sim.111
+sim.211	sim.211
+summary.mlma	summary.mlma
+summary.mlma.boot	summary.mlma.boot

@@ -1,0 +1,76 @@
+Package: ggforestplot
+Type: Package
+Title: Forestplots of Measures of Effects and Their Confidence
+        Intervals
+Version: 0.1.0
+Authors@R: c(
+    person(
+        "Ilari", "Scheinin", email = "ilari.scheinin@nightingalehealth.com",
+        role = c("aut"), comment = c(ORCID = "0000-0002-4696-9066")
+    ),
+    person(
+        "Maria", "Kalimeri", email = "maria.kalimeri@nightingalehealth.com",
+        role = c("aut", "cre"), comment = c(ORCID = "0000-0002-6569-7553")
+    ),
+    person(
+        "Vilma", "Jagerroos", email = "vilma.jagerroos@nightingalehealth.com",
+        role = c("aut")
+    ),
+    person(
+        "Juuso", "Parkkinen", email = "juuso.parkkinen@nightingalehealth.com",
+        role = c("aut"), comment = c(ORCID = "0000-0002-7818-5901")
+    ),
+    person(
+        "Emmi", "Tikkanen", email = "emmi.tikkanen@nightingalehealth.com",
+        role = c("aut"), comment = c(ORCID = "0000-0003-1634-4134")
+    ),
+    person(
+        "Peter", "Würtz", email = "peter.wurtz@nightingalehealth.com",
+        role = c("aut"), comment = c(ORCID = "0000-0002-5832-0221")
+    ),
+    person(
+        "Antti", "Kangas", email = "antti.kangas@nightingalehealth.com",
+        role = c("aut"), comment = c(ORCID = "0000-0001-7492-1732")
+    ),
+    person(
+        "Nightingale Health Ltd.", email = "contact@nightingalehealth.com", 
+    role = c("cph", "fnd")))
+Description: A collection of functions, based on ggplot2, to plot forestplots 
+    of measures of effects, e.g. linear associations, with their confidence 
+    intervals. 
+Depends: R (>= 3.5.0)
+Imports: broom, dplyr (>= 0.8.0), generics, ggforce, ggplot2,
+        ggplotify, ggstance, grid, gridExtra, lazyeval, magrittr,
+        patchwork, purrr, rlang, scales, stringr, survival, tibble,
+        tidyr (>= 1.0.0), tidyselect
+Suggests: knitr, readr, rmarkdown, tidyverse, testthat, vdiffr
+License: MIT + file LICENSE
+BugReports: https://github.com/nightingalehealth/ggforestplot/issues
+URL: https://nightingalehealth.github.io/ggforestplot/index.html,
+        https://github.com/nightingalehealth/ggforestplot
+Encoding: UTF-8
+LazyData: true
+RoxygenNote: 7.0.2
+VignetteBuilder: knitr
+RemoteType: github
+RemoteHost: api.github.com
+RemoteRepo: ggforestplot
+RemoteUsername: NightingaleHealth
+RemoteRef: HEAD
+RemoteSha: 547617e63fa481a5f28ffc56c07d46be4af688b2
+GithubRepo: ggforestplot
+GithubUsername: NightingaleHealth
+GithubRef: HEAD
+GithubSHA1: 547617e63fa481a5f28ffc56c07d46be4af688b2
+NeedsCompilation: no
+Packaged: 2024-11-27 10:25:22 UTC; patati
+Author: Ilari Scheinin [aut] (<https://orcid.org/0000-0002-4696-9066>),
+  Maria Kalimeri [aut, cre] (<https://orcid.org/0000-0002-6569-7553>),
+  Vilma Jagerroos [aut],
+  Juuso Parkkinen [aut] (<https://orcid.org/0000-0002-7818-5901>),
+  Emmi Tikkanen [aut] (<https://orcid.org/0000-0003-1634-4134>),
+  Peter Würtz [aut] (<https://orcid.org/0000-0002-5832-0221>),
+  Antti Kangas [aut] (<https://orcid.org/0000-0001-7492-1732>),
+  Nightingale Health Ltd. [cph, fnd]
+Maintainer: Maria Kalimeri <maria.kalimeri@nightingalehealth.com>
+Built: R 4.4.1; ; 2024-11-27 10:25:24 UTC; windows

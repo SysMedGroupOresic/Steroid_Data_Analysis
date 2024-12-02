@@ -1,0 +1,8 @@
+big_fread1              Read large text file
+big_fread2              Read large text file
+cbind_df                Merge data frames
+fread2                  Read text file(s)
+fwrite2                 Write a data frame to a text file
+nlines                  Number of lines
+rbind_df                Merge data frames
+split_file              Split file every nlines

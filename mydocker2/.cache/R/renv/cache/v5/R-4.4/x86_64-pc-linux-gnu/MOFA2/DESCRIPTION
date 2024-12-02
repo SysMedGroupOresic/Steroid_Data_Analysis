@@ -1,0 +1,52 @@
+Package: MOFA2
+Type: Package
+Title: Multi-Omics Factor Analysis v2
+Version: 1.16.0
+Maintainer: Ricard Argelaguet <ricard.argelaguet@gmail.com>
+Authors@R: c(person("Ricard", "Argelaguet", role = c("aut", "cre"),
+                     email = "ricard.argelaguet@gmail.com",
+                     comment = c(ORCID = "http://orcid.org/0000-0003-3199-3722")),
+              person("Damien", "Arnol", role = "aut",
+                     email = "damien.arnol@gmail.com",
+                     comment = c(ORCID = "http://orcid.org/0000-0003-2462-534X")),
+              person("Danila", "Bredikhin", role = "aut",
+                     email = "danila.bredikhin@embl.de",
+                     comment = c(ORCID = "https://orcid.org/0000-0001-8089-6983")),                     
+              person("Britta", "Velten", role = "aut",
+              		email = "britta.velten@gmail.com",
+              		comment = c(ORCID = "http://orcid.org/0000-0002-8397-3515"))
+              )
+Date: 2023-01-12
+License: file LICENSE
+Description: The MOFA2 package contains a collection of tools for training and analysing multi-omic factor analysis (MOFA). MOFA is a probabilistic factor model that aims to identify principal axes of variation from data sets that can comprise multiple omic layers and/or groups of samples. Additional time or space information on the samples can be incorporated using the MEFISTO framework, which is part of MOFA2. Downstream analysis functions to inspect molecular features underlying each factor, vizualisation, imputation etc are available.
+Encoding: UTF-8
+Depends: R (>= 4.0)
+Imports: rhdf5, dplyr, tidyr, reshape2, pheatmap, ggplot2, methods,
+        RColorBrewer, cowplot, ggrepel, reticulate, HDF5Array,
+        grDevices, stats, magrittr, forcats, utils, corrplot,
+        DelayedArray, Rtsne, uwot, basilisk, stringi
+Suggests: knitr, testthat, Seurat, SeuratObject, ggpubr, foreach,
+        psych, MultiAssayExperiment, SummarizedExperiment,
+        SingleCellExperiment, ggrastr, mvtnorm, GGally, rmarkdown,
+        data.table, tidyverse, BiocStyle, Matrix, markdown
+biocViews: DimensionReduction, Bayesian, Visualization
+URL: https://biofam.github.io/MOFA2/index.html
+BugReports: https://github.com/bioFAM/MOFA2
+VignetteBuilder: knitr
+StagedInstall: no
+NeedsCompilation: yes
+RoxygenNote: 7.2.3
+SystemRequirements: Python (>=3), numpy, pandas, h5py, scipy, argparse,
+        sklearn, mofapy2
+git_url: https://git.bioconductor.org/packages/MOFA2
+git_branch: RELEASE_3_20
+git_last_commit: deed7fb
+git_last_commit_date: 2024-10-29
+Repository: Bioconductor 3.20
+Date/Publication: 2024-10-29
+Packaged: 2024-10-30 04:07:34 UTC; biocbuild
+Author: Ricard Argelaguet [aut, cre] (<https://orcid.org/0000-0003-3199-3722>),
+  Damien Arnol [aut] (<https://orcid.org/0000-0003-2462-534X>),
+  Danila Bredikhin [aut] (<https://orcid.org/0000-0001-8089-6983>),
+  Britta Velten [aut] (<https://orcid.org/0000-0002-8397-3515>)
+Built: R 4.4.1; ; 2024-10-30 16:17:25 UTC; windows

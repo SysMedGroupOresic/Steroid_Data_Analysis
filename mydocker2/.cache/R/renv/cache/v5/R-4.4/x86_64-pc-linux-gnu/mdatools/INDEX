@@ -1,0 +1,504 @@
+as.matrix.classres      as.matrix method for classification results
+as.matrix.ldecomp       as.matrix method for ldecomp object
+as.matrix.plsdares      as.matrix method for PLS-DA results
+as.matrix.plsres        as.matrix method for PLS results
+as.matrix.regcoeffs     as.matrix method for regression coefficients
+                        class
+as.matrix.regres        as.matrix method for regression results
+as.matrix.simcamres     as.matrix method for SIMCAM results
+as.matrix.simcares      as.matrix method for SIMCA classification
+                        results
+capitalize              Capitalize text or vector with text values
+carbs                   Raman spectra of carbonhydrates
+categorize              Categorize PCA results
+categorize.pca          Categorize PCA results based on orthogonal and
+                        score distances.
+categorize.pls          Categorize data rows based on PLS results and
+                        critical limits for total distance.
+chisq.crit              Calculates critical limits for distance values
+                        using Chi-square distribution
+chisq.prob              Calculate probabilities for distance values
+                        using Chi-square distribution
+classify.plsda          PLS-DA classification
+classify.simca          SIMCA classification
+classmodel.processRefValues
+                        Check reference class values and convert it to
+                        a factor if necessary
+classres                Results of classification
+classres.getPerformance
+                        Calculation of classification performance
+                        parameters
+confint.regcoeffs       Confidence intervals for regression
+                        coefficients
+constraint              Class for MCR-ALS constraint
+constraintAngle         Method for angle constraint
+constraintClosure       Method for closure constraint
+constraintNonNegativity
+                        Method for non-negativity constraint
+constraintNorm          Method for normalization constraint
+constraintUnimod        Method for unimodality constraint
+constraints.list        Shows information about all implemented
+                        constraints
+crossval                Generate sequence of indices for
+                        cross-validation
+crossval.getParams      Define parameters based on 'cv' value
+crossval.regmodel       Cross-validation of a regression model
+crossval.simca          Cross-validation of a SIMCA model
+crossval.str            String with description of cross-validation
+                        method
+dd.crit                 Calculates critical limits for distance values
+                        using Data Driven moments approach
+ddmoments.param         Calculates critical limits for distance values
+                        using Data Driven moments approach
+ddrobust.param          Calculates critical limits for distance values
+                        using Data Driven robust approach
+ellipse                 Create ellipse on the current plot
+employ.constraint       Applies constraint to a dataset
+employ.prep             Applies a list with preprocessing methods to a
+                        dataset
+fprintf                 Imitation of fprinf() function
+getCalibrationData      Calibration data
+getCalibrationData.pca
+                        Returns matrix with original calibration data
+getCalibrationData.simcam
+                        Get calibration data
+getConfidenceEllipse    Compute confidence ellipse for a set of points
+getConfusionMatrix      Confusion matrix for classification results
+getConfusionMatrix.classres
+                        Confusion matrix for classification results
+getConvexHull           Compute coordinates of a closed convex hull for
+                        data points
+getDataLabels           Create a vector with labels for plot series
+getImplementedConstraints
+                        Shows a list with implemented constraints
+getImplementedPrepMethods
+                        Shows a list with implemented preprocessing
+                        methods
+getLabelsAsIndices      Create labels as column or row indices
+getLabelsAsValues       Create labels from data values
+getMainTitle            Get main title
+getPlotColors           Define colors for plot series
+getProbabilities        Get class belonging probability
+getProbabilities.pca    Probabilities for residual distances
+getProbabilities.simca
+                        Probabilities of class belonging for PCA/SIMCA
+                        results
+getPureVariables        Identifies pure variables
+getRegcoeffs            Get regression coefficients
+getRegcoeffs.regmodel   Regression coefficients for PLS model'
+getRes                  Return list with valid results
+getSelectedComponents   Get selected components
+getSelectivityRatio     Selectivity ratio
+getSelectivityRatio.pls
+                        Selectivity ratio for PLS model
+getVIPScores            VIP scores
+getVIPScores.pls        VIP scores for PLS model
+getVariance.mcr         Compute explained variance for MCR case
+hotelling.crit          Calculate critical limits for distance values
+                        using Hotelling T2 distribution
+hotelling.prob          Calculate probabilities for distance values and
+                        given parameters using Hotelling T2
+                        distribution
+imshow                  show image data as an image
+ipls                    Variable selection with interval PLS
+ipls.backward           Runs the backward iPLS algorithm
+ipls.forward            Runs the forward iPLS algorithm
+jm.crit                 Calculate critical limits for distance values
+                        using Jackson-Mudholkar approach
+jm.prob                 Calculate probabilities for distance values and
+                        given parameters using Hotelling T2
+                        distribution
+ldecomp                 Class for storing and visualising linear
+                        decomposition of dataset (X = TP' + E)
+ldecomp.getDistances    Compute score and residual distances
+ldecomp.getLimParams    Compute parameters for critical limits based on
+                        calibration results
+ldecomp.getLimitsCoordinates
+                        Compute coordinates of lines or curves with
+                        critical limits
+ldecomp.getQLimits      Compute critical limits for orthogonal
+                        distances (Q)
+ldecomp.getT2Limits     Compute critical limits for score distances
+                        (T2)
+ldecomp.getVariances    Compute explained variance
+ldecomp.plotResiduals   Residuals distance plot for a set of ldecomp
+                        objects
+mcr                     General class for Multivariate Curve Resolution
+                        model
+mcrals                  Multivariate curve resolution using Alternating
+                        Least Squares
+mcrals.cal              Identifies pure variables
+mcrals.fcnnls           Fast combinatorial non-negative least squares
+mcrals.nnls             Non-negative least squares
+mcrals.ols              Ordinary least squares
+mcrpure                 Multivariate curve resolution based on pure
+                        variables
+mda.cbind               A wrapper for cbind() method with proper set of
+                        attributes
+mda.data2im             Convert data matrix to an image
+mda.df2mat              Convert data frame to a matrix
+mda.exclcols            Exclude/hide columns in a dataset
+mda.exclrows            Exclude/hide rows in a dataset
+mda.getattr             Get data attributes
+mda.getexclind          Get indices of excluded rows or columns
+mda.im2data             Convert image to data matrix
+mda.inclcols            Include/unhide the excluded columns
+mda.inclrows            include/unhide the excluded rows
+mda.purge               Removes excluded (hidden) rows and colmns from
+                        data
+mda.purgeCols           Removes excluded (hidden) colmns from data
+mda.purgeRows           Removes excluded (hidden) rows from data
+mda.rbind               A wrapper for rbind() method with proper set of
+                        attributes
+mda.setattr             Set data attributes
+mda.setimbg             Remove background pixels from image data
+mda.show                Wrapper for show() method
+mda.subset              A wrapper for subset() method with proper set
+                        of attributed
+mda.t                   A wrapper for t() method with proper set of
+                        attributes
+mdaplot                 Plotting function for a single set of objects
+mdaplot.areColors       Check color values
+mdaplot.formatValues    Format vector with numeric values
+mdaplot.getColors       Color values for plot elements
+mdaplot.getXAxisLim     Calculate limits for x-axis.
+mdaplot.getXTickLabels
+                        Prepare xticklabels for plot
+mdaplot.getXTicks       Prepare xticks for plot
+mdaplot.getYAxisLim     Calculate limits for y-axis.
+mdaplot.getYTickLabels
+                        Prepare yticklabels for plot
+mdaplot.getYTicks       Prepare yticks for plot
+mdaplot.plotAxes        Create axes plane
+mdaplot.prepareColors   Prepare colors based on palette and opacity
+                        value
+mdaplot.showColorbar    Plot colorbar
+mdaplot.showLines       Plot lines
+mdaplotg                Plotting function for several plot series
+mdaplotg.getLegend      Create and return vector with legend values
+mdaplotg.getXLim        Compute x-axis limits for mdaplotg
+mdaplotg.getYLim        Compute y-axis limits for mdaplotg
+mdaplotg.prepareData    Prepare data for mdaplotg
+mdaplotg.processParam   Check mdaplotg parameters and replicate them if
+                        necessary
+mdaplotg.showLegend     Show legend for mdaplotg
+mdaplotyy               Create line plot with double y-axis
+mdatools                Package for Multivariate Data Analysis
+                        (Chemometrics)
+pca                     Principal Component Analysis
+pca.cal                 PCA model calibration
+pca.getB                Low-dimensional approximation of data matrix X
+pca.mvreplace           Replace missing values in data
+pca.nipals              NIPALS based PCA algorithm
+pca.run                 Runs one of the selected PCA methods
+pca.svd                 Singular Values Decomposition based PCA
+                        algorithm
+pcares                  Results of PCA decomposition
+pellets                 Image data
+people                  People data
+pinv                    Pseudo-inverse matrix
+plot.classres           Plot function for classification results
+plot.ipls               Overview plot for iPLS results
+plot.mcr                Plot summary for MCR model
+plot.pca                Model overview plot for PCA
+plot.pcares             Plot method for PCA results object
+plot.pls                Model overview plot for PLS
+plot.plsda              Model overview plot for PLS-DA
+plot.plsdares           Overview plot for PLS-DA results
+plot.plsres             Overview plot for PLS results
+plot.randtest           Plot for randomization test results
+plot.regcoeffs          Regression coefficients plot
+plot.regres             Plot method for regression results
+plot.simca              Model overview plot for SIMCA
+plot.simcam             Model overview plot for SIMCAM
+plot.simcamres          Model overview plot for SIMCAM results
+plotBars                Show plot series as bars
+plotBiplot              Biplot
+plotBiplot.pca          PCA biplot
+plotConfidenceEllipse   Add confidence ellipse for groups of points on
+                        scatter plot
+plotContributions       Plot resolved contributions
+plotContributions.mcr   Show plot with resolved contributions
+plotConvexHull          Add convex hull for groups of points on scatter
+                        plot
+plotCooman              Cooman's plot
+plotCooman.simcam       Cooman's plot for SIMCAM model
+plotCooman.simcamres    Cooman's plot for SIMCAM results
+plotCorr                Correlation plot
+plotCorr.randtest       Correlation plot for randomization test results
+plotCumVariance         Variance plot
+plotCumVariance.ldecomp
+                        Cumulative explained variance plot
+plotCumVariance.mcr     Show plot with cumulative explained variance
+plotCumVariance.pca     Cumulative explained variance plot for PCA
+                        model
+plotDensity             Show plot series as density plot (using hex
+                        binning)
+plotDiscriminationPower
+                        Discrimination power plot
+plotDiscriminationPower.simcam
+                        Discrimination power plot for SIMCAM model
+plotDistDoF             Degrees of freedom plot for both distances
+plotErrorbars           Show plot series as error bars
+plotExtreme             Shows extreme plot for SIMCA model
+plotExtreme.pca         Extreme plot
+plotHist                Statistic histogram
+plotHist.randtest       Histogram plot for randomization test results
+plotHotellingEllipse    Hotelling ellipse
+plotLines               Show plot series as set of lines
+plotLoadings            Loadings plot
+plotLoadings.pca        Loadings plot for PCA model
+plotMisclassified       Misclassification ratio plot
+plotMisclassified.classmodel
+                        Misclassified ratio plot for classification
+                        model
+plotMisclassified.classres
+                        Misclassified ratio plot for classification
+                        results
+plotModelDistance       Model distance plot
+plotModelDistance.simcam
+                        Model distance plot for SIMCAM model
+plotModellingPower      Modelling power plot
+plotPerformance         Classification performance plot
+plotPerformance.classmodel
+                        Performance plot for classification model
+plotPerformance.classres
+                        Performance plot for classification results
+plotPointsShape         Add confidence ellipse or convex hull for group
+                        of points
+plotPredictions         Predictions plot
+plotPredictions.classmodel
+                        Predictions plot for classification model
+plotPredictions.classres
+                        Prediction plot for classification results
+plotPredictions.regmodel
+                        Predictions plot for regression model
+plotPredictions.regres
+                        Predictions plot for regression results
+plotPredictions.simcam
+                        Predictions plot for SIMCAM model
+plotPredictions.simcamres
+                        Prediction plot for SIMCAM results
+plotProbabilities       Plot for class belonging probability
+plotProbabilities.classres
+                        Plot for class belonging probability
+plotPurity              Plot purity values
+plotPurity.mcrpure      Purity values plot
+plotPuritySpectra       Plot purity spectra
+plotPuritySpectra.mcrpure
+                        Purity spectra plot
+plotQDoF                Degrees of freedom plot for orthogonal distance
+                        (Nh)
+plotRMSE                RMSE plot
+plotRMSE.ipls           RMSE development plot
+plotRMSE.regmodel       RMSE plot for regression model
+plotRMSE.regres         RMSE plot for regression results
+plotRMSERatio           Plot for ratio RMSEC/RMSECV vs RMSECV
+plotRMSERatio.regmodel
+                        RMSECV/RMSEC ratio plot for regression model
+plotRegcoeffs           Regression coefficients plot
+plotRegcoeffs.regmodel
+                        Regression coefficient plot for regression
+                        model
+plotRegressionLine      Add regression line for data points
+plotResiduals           Residuals plot
+plotResiduals.ldecomp   Residual distance plot
+plotResiduals.pca       Residuals distance plot for PCA model
+plotResiduals.regres    Residuals plot for regression results
+plotScatter             Show plot series as set of points
+plotScores              Scores plot
+plotScores.ldecomp      Scores plot
+plotScores.pca          Scores plot for PCA model
+plotSelection           Selected intervals plot
+plotSelection.ipls      iPLS performance plot
+plotSelectivityRatio    Selectivity ratio plot
+plotSelectivityRatio.pls
+                        Selectivity ratio plot for PLS model
+plotSensitivity         Sensitivity plot
+plotSensitivity.classmodel
+                        Sensitivity plot for classification model
+plotSensitivity.classres
+                        Sensitivity plot for classification results
+plotSpecificity         Specificity plot
+plotSpecificity.classmodel
+                        Specificity plot for classification model
+plotSpecificity.classres
+                        Specificity plot for classification results
+plotSpectra             Plot resolved spectra
+plotSpectra.mcr         Show plot with resolved spectra
+plotT2DoF               Degrees of freedom plot for score distance (Nh)
+plotVIPScores           VIP scores plot
+plotVIPScores.pls       VIP scores plot for PLS model
+plotVariance            Variance plot
+plotVariance.ldecomp    Explained variance plot
+plotVariance.mcr        Show plot with explained variance
+plotVariance.pca        Explained variance plot for PCA model
+plotVariance.pls        Variance plot for PLS
+plotVariance.plsres     Explained X variance plot for PLS results
+plotWeights             Plot for PLS weights
+plotWeights.pls         X loadings plot for PLS
+plotXCumVariance        X cumulative variance plot
+plotXCumVariance.pls    Cumulative explained X variance plot for PLS
+plotXCumVariance.plsres
+                        Explained cumulative X variance plot for PLS
+                        results
+plotXLoadings           X loadings plot
+plotXLoadings.pls       X loadings plot for PLS
+plotXResiduals          X residuals plot
+plotXResiduals.pls      Residual distance plot for decomposition of X
+                        data
+plotXResiduals.plsres   X residuals plot for PLS results
+plotXScores             X scores plot
+plotXScores.pls         X scores plot for PLS
+plotXScores.plsres      X scores plot for PLS results
+plotXVariance           X variance plot
+plotXVariance.pls       Explained X variance plot for PLS
+plotXVariance.plsres    Explained X variance plot for PLS results
+plotXYLoadings          X loadings plot
+plotXYLoadings.pls      XY loadings plot for PLS
+plotXYResiduals         Plot for XY-residuals
+plotXYResiduals.pls     Residual XY-distance plot
+plotXYResiduals.plsres
+                        Residual distance plot
+plotXYScores            XY scores plot
+plotXYScores.pls        XY scores plot for PLS
+plotXYScores.plsres     XY scores plot for PLS results
+plotYCumVariance        Y cumulative variance plot
+plotYCumVariance.pls    Cumulative explained Y variance plot for PLS
+plotYCumVariance.plsres
+                        Explained cumulative Y variance plot for PLS
+                        results
+plotYResiduals          Y residuals plot
+plotYResiduals.plsres   Y residuals plot for PLS results
+plotYResiduals.regmodel
+                        Y residuals plot for regression model
+plotYVariance           Y variance plot
+plotYVariance.pls       Explained Y variance plot for PLS
+plotYVariance.plsres    Explained Y variance plot for PLS results
+plotseries              Create plot series object based on data, plot
+                        type and parameters
+pls                     Partial Least Squares regression
+pls.cal                 PLS model calibration
+pls.getLimitsCoordinates
+                        Compute coordinates of lines or curves with
+                        critical limits
+pls.getZLimits          Compute critical limits for orthogonal
+                        distances (Q)
+pls.getpredictions      Compute predictions for response values
+pls.getxdecomp          Compute object with decomposition of x-values
+pls.getxscores          Compute matrix with X-scores
+pls.getydecomp          Compute object with decomposition of y-values
+pls.getyscores          Compute and orthogonalize matrix with Y-scores
+pls.run                 Runs selected PLS algorithm
+pls.simpls              SIMPLS algorithm
+pls.simplsold           SIMPLS algorithm (old implementation)
+plsda                   Partial Least Squares Discriminant Analysis
+plsdares                PLS-DA results
+plsres                  PLS results
+predict.mcrals          MCR ALS predictions
+predict.mcrpure         MCR predictions
+predict.pca             PCA predictions
+predict.pls             PLS predictions
+predict.plsda           PLS-DA predictions
+predict.simca           SIMCA predictions
+predict.simcam          SIMCA multiple classes predictions
+prep                    Class for preprocessing object
+prep.alsbasecorr        Baseline correction using asymetric least
+                        squares
+prep.autoscale          Autoscale values
+prep.generic            Generic function for preprocessing
+prep.list               Shows information about all implemented
+                        preprocessing methods.
+prep.msc                Multiplicative Scatter Correction
+                        transformation
+prep.norm               Normalization
+prep.ref2km             Kubelka-Munk transformation
+prep.savgol             Savytzky-Golay filter
+prep.snv                Standard Normal Variate transformation
+prep.transform          Transformation
+prep.varsel             Variable selection
+prepCalData             Prepares calibration data
+preparePlotData         Take dataset and prepare them for plot
+print.classres          Print information about classification result
+                        object
+print.ipls              Print method for iPLS
+print.ldecomp           Print method for linear decomposition
+print.mcrals            Print method for mcrpure object
+print.mcrpure           Print method for mcrpure object
+print.pca               Print method for PCA model object
+print.pcares            Print method for PCA results object
+print.pls               Print method for PLS model object
+print.plsda             Print method for PLS-DA model object
+print.plsdares          Print method for PLS-DA results object
+print.plsres            print method for PLS results object
+print.randtest          Print method for randtest object
+print.regcoeffs         print method for regression coefficients class
+print.regmodel          Print method for PLS model object
+print.regres            print method for regression results object
+print.simca             Print method for SIMCA model object
+print.simcam            Print method for SIMCAM model object
+print.simcamres         Print method for SIMCAM results object
+print.simcares          Print method for SIMCA results object
+randtest                Randomization test for PLS regression
+regcoeffs               Regression coefficients
+regcoeffs.getStats      Distribution statistics for regression
+                        coeffificents
+regres                  Regression results
+regres.bias             Prediction bias
+regres.err              Error of prediction
+regres.r2               Determination coefficient
+regres.rmse             RMSE
+regres.slope            Slope
+regress.addattrs        Add names and attributes to matrix with
+                        statistics
+repmat                  Replicate matric x
+selectCompNum           Select optimal number of components for a model
+selectCompNum.pca       Select optimal number of components for PCA
+                        model
+selectCompNum.pls       Select optimal number of components for PLS
+                        model
+selratio                Selectivity ratio calculation
+setDistanceLimits       Set residual distance limits
+setDistanceLimits.pca   Compute and set statistical limits for Q and T2
+                        residual distances.
+setDistanceLimits.pls   Compute and set statistical limits for residual
+                        distances.
+showDistanceLimits      Show residual distance limits
+showLabels              Show labels on plot
+showPredictions         Predictions
+showPredictions.classres
+                        Show predicted class values
+simca                   SIMCA one-class classification
+simcam                  SIMCA multiclass classification
+simcam.getPerformanceStats
+                        Performance statistics for SIMCAM model
+simcamres               Results of SIMCA multiclass classification
+simcares                Results of SIMCA one-class classification
+simdata                 Spectral data of polyaromatic hydrocarbons
+                        mixing
+splitExcludedData       Split the excluded part of data
+splitPlotData           Split dataset to x and y values depending on
+                        plot type
+summary.classres        Summary statistics about classification result
+                        object
+summary.ipls            Summary for iPLS results
+summary.ldecomp         Summary statistics for linear decomposition
+summary.mcrals          Summary method for mcrals object
+summary.mcrpure         Summary method for mcrpure object
+summary.pca             Summary method for PCA model object
+summary.pcares          Summary method for PCA results object
+summary.pls             Summary method for PLS model object
+summary.plsda           Summary method for PLS-DA model object
+summary.plsdares        Summary method for PLS-DA results object
+summary.plsres          summary method for PLS results object
+summary.randtest        Summary method for randtest object
+summary.regcoeffs       Summary method for regcoeffs object
+summary.regmodel        Summary method for regression model object
+summary.regres          summary method for regression results object
+summary.simca           Summary method for SIMCA model object
+summary.simcam          Summary method for SIMCAM model object
+summary.simcamres       Summary method for SIMCAM results object
+summary.simcares        Summary method for SIMCA results object
+unmix.mcrpure           Unmix spectral data using pure variables
+                        estimated before
+vipscores               VIP scores for PLS model

@@ -1,0 +1,53 @@
+EcoliOxygen             Preprocessed microarray oxygen deprivation data
+                        and filtered RegulonDB data
+HMgmm-class             Homogeneous mixed graphical Markov model
+SsdMatrix-class         Sum of squares and deviations Matrices
+UGgmm-class             Undirected Gaussian graphical Markov model
+eQTLcross-class         eQTL experimental cross model class
+eQTLnetwork-class       eQTL network model class
+eQTLnetworkEstimate     Estimation of a eQTL network from genetical
+                        genomics data
+eQTLnetworkEstimationParam-class
+                        eQTL network parameter model class
+filterCollinearities    Filter collinearities
+graphParam-class        Graph parameter classes
+qpAllCItests            Tests of conditional independence
+qpAnyGraph              A graph
+qpAvgNrr                Average non-rejection rate estimation
+qpBoundary              Maximum boundary size of the resulting
+                        qp-graphs
+qpCItest                Conditional independence test
+qpClique                Complexity of the resulting qp-graphs
+qpCliqueNumber          Clique number
+qpCov                   Calculation of the sample covariance matrix
+qpEdgeNrr               Non-rejection rate estimation for a pair of
+                        variables
+qpFunctionalCoherence   Functional coherence estimation
+qpG2Sigma               Random covariance matrix
+qpGenNrr                Generalized non-rejection rate estimation
+qpGetCliques            Clique list
+qpGraph-class           The qp-graph
+qpGraphDensity          Densities of resulting qp-graphs
+qpHTF                   Hastie Tibshirani Friedman iterative regression
+                        algorithm
+qpHist                  Histograms of non-rejection rates
+qpIPF                   Iterative proportional fitting algorithm
+qpImportNrr             Import non-rejection rates
+qpK2ParCor              Partial correlation coefficients
+qpNrr                   Non-rejection rate estimation
+qpPAC                   Estimation of partial correlation coefficients
+qpPCC                   Estimation of Pearson correlation coefficients
+qpPRscoreThreshold      Calculation of scores thresholds attaining
+                        nominal precision or recall levels
+qpPathWeight            Calculation of path weights
+qpPlotMap               Plots a map of associated pairs
+qpPlotNetwork           Plots a graph
+qpPrecisionRecall       Calculation of precision-recall curves
+qpRndGraph              Undirected random d-regular graphs
+qpRndWishart            Random Wishart distribution
+qpTopPairs              Report pairs of variables
+qpUnifRndAssociation    Uniformly random association values
+qpUpdateCliquesRemoving
+                        Update clique list when removing one edge
+qpgraph-package         Estimation of genetic and molecular regulatory
+                        networks from high-throughput genomics data

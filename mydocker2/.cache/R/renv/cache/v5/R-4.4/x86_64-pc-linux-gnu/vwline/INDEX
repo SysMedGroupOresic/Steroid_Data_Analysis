@@ -1,0 +1,10 @@
+edgePoints              Calculate edge points
+grid.brushXspline       Sweep an X-spline curve with a brush.
+grid.offsetBezier       Draw a Bezier Offset Curve.
+grid.offsetXspline      Draw an X-spline offset curve.
+grid.vwXspline          Draw a variable-width X-spline.
+grid.vwcurve            Draw a variable-width smooth curve.
+grid.vwline             Draw a variable-width set of line segments.
+outline                 Calculate outline
+vwPath                  Functions to render variable-width line
+widthSpec               Specify the width of a variable-width line

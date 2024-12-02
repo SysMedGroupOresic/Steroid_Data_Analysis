@@ -1,0 +1,29 @@
+H5ADMatrix-class        h5ad central matrices (or matrices in the
+                        /layers group) as DelayedMatrix objects
+H5ADMatrixSeed-class    H5ADMatrixSeed objects
+H5File-class            H5File objects
+H5SparseMatrix-class    HDF5 sparse matrices as DelayedMatrix objects
+H5SparseMatrixSeed-class
+                        H5SparseMatrixSeed objects
+HDF5-dump-management    HDF5 dump management
+HDF5Array-class         HDF5 datasets as DelayedArray objects
+HDF5ArraySeed-class     HDF5ArraySeed objects
+ReshapedHDF5Array-class
+                        Virtually reshaped HDF5 datasets as
+                        DelayedArray objects
+ReshapedHDF5ArraySeed-class
+                        ReshapedHDF5ArraySeed objects
+TENxMatrix-class        10x Genomics datasets as DelayedMatrix objects
+TENxMatrixSeed-class    TENxMatrixSeed objects
+h5ls                    A wrapper to rhdf5::h5ls() that works on H5File
+                        objects
+h5mread                 An alternative to 'rhdf5::h5read'
+h5mread_from_reshaped   Read data from a virtually reshaped HDF5
+                        dataset
+h5writeDimnames         Write/read the dimnames of an HDF5 dataset
+saveHDF5SummarizedExperiment
+                        Save/load an HDF5-based SummarizedExperiment
+                        object
+writeHDF5Array          Write an array-like object to an HDF5 file
+writeTENxMatrix         Write a matrix-like object as an HDF5-based
+                        sparse matrix

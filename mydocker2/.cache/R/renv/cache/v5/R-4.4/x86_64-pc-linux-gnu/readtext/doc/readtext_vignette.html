@@ -1,0 +1,924 @@
+<!DOCTYPE html>
+
+<html>
+
+<head>
+
+<meta charset="utf-8" />
+<meta name="generator" content="pandoc" />
+<meta http-equiv="X-UA-Compatible" content="IE=EDGE" />
+
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+
+
+
+<title>Reading text files with readtext</title>
+
+<script>// Pandoc 2.9 adds attributes on both header and div. We remove the former (to
+// be compatible with the behavior of Pandoc < 2.8).
+document.addEventListener('DOMContentLoaded', function(e) {
+  var hs = document.querySelectorAll("div.section[class*='level'] > :first-child");
+  var i, h, a;
+  for (i = 0; i < hs.length; i++) {
+    h = hs[i];
+    if (!/^h[1-6]$/i.test(h.tagName)) continue;  // it should be a header h1-h6
+    a = h.attributes;
+    while (a.length > 0) h.removeAttribute(a[0].name);
+  }
+});
+</script>
+
+<style type="text/css">
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+span.underline{text-decoration: underline;}
+div.column{display: inline-block; vertical-align: top; width: 50%;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+</style>
+
+
+
+<style type="text/css">
+code {
+white-space: pre;
+}
+.sourceCode {
+overflow: visible;
+}
+</style>
+<style type="text/css" data-origin="pandoc">
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+{ counter-reset: source-line 0; }
+pre.numberSource code > span
+{ position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+{ content: counter(source-line);
+position: relative; left: -1em; text-align: right; vertical-align: baseline;
+border: none; display: inline-block;
+-webkit-touch-callout: none; -webkit-user-select: none;
+-khtml-user-select: none; -moz-user-select: none;
+-ms-user-select: none; user-select: none;
+padding: 0 4px; width: 4em;
+color: #aaaaaa;
+}
+pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa; padding-left: 4px; }
+div.sourceCode
+{ }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+code span.al { color: #ff0000; font-weight: bold; } 
+code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } 
+code span.at { color: #7d9029; } 
+code span.bn { color: #40a070; } 
+code span.bu { color: #008000; } 
+code span.cf { color: #007020; font-weight: bold; } 
+code span.ch { color: #4070a0; } 
+code span.cn { color: #880000; } 
+code span.co { color: #60a0b0; font-style: italic; } 
+code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } 
+code span.do { color: #ba2121; font-style: italic; } 
+code span.dt { color: #902000; } 
+code span.dv { color: #40a070; } 
+code span.er { color: #ff0000; font-weight: bold; } 
+code span.ex { } 
+code span.fl { color: #40a070; } 
+code span.fu { color: #06287e; } 
+code span.im { color: #008000; font-weight: bold; } 
+code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } 
+code span.kw { color: #007020; font-weight: bold; } 
+code span.op { color: #666666; } 
+code span.ot { color: #007020; } 
+code span.pp { color: #bc7a00; } 
+code span.sc { color: #4070a0; } 
+code span.ss { color: #bb6688; } 
+code span.st { color: #4070a0; } 
+code span.va { color: #19177c; } 
+code span.vs { color: #4070a0; } 
+code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } 
+</style>
+<script>
+// apply pandoc div.sourceCode style to pre.sourceCode instead
+(function() {
+  var sheets = document.styleSheets;
+  for (var i = 0; i < sheets.length; i++) {
+    if (sheets[i].ownerNode.dataset["origin"] !== "pandoc") continue;
+    try { var rules = sheets[i].cssRules; } catch (e) { continue; }
+    var j = 0;
+    while (j < rules.length) {
+      var rule = rules[j];
+      // check if there is a div.sourceCode rule
+      if (rule.type !== rule.STYLE_RULE || rule.selectorText !== "div.sourceCode") {
+        j++;
+        continue;
+      }
+      var style = rule.style.cssText;
+      // check if color or background-color is set
+      if (rule.style.color === '' && rule.style.backgroundColor === '') {
+        j++;
+        continue;
+      }
+      // replace div.sourceCode by a pre.sourceCode rule
+      sheets[i].deleteRule(j);
+      sheets[i].insertRule('pre.sourceCode{' + style + '}', j);
+    }
+  }
+})();
+</script>
+
+
+
+
+<style type="text/css">
+body {
+background-color: #fff;
+margin: 0 auto;
+max-width: 800px;
+float: center;
+margin-left: auto;
+margin-right: auto;
+overflow: visible;
+}
+body #header {
+clear: both;
+margin-bottom: 8px;
+border-bottom: 2px solid #999;
+font-size: 20px;
+padding: 2px 10px 2px 25px;
+}
+body #content {
+background-color: white;
+clear: both;
+float: left;
+overflow: visible;
+padding: 10px;
+border: 1px solid #BBBBBB;
+border-radius: 5px;
+width: 780px;
+}
+body #footer {
+background-color: #99BBDD;
+clear: both;
+float: left;
+margin: 8px 0;
+border: 1px solid #6688AA;
+border-radius: 5px;
+padding: 0 10px;
+width: 780px;
+}
+body .clear {
+clear: both;
+border-width: 0;
+margin: 0;
+visibility: hidden;
+}
+#TOC {
+clear: both;
+margin: 0 0 10px 10px;
+padding: 4px;
+width: 400px;
+border: 1px solid #CCCCCC;
+border-radius: 5px;
+background-color: #f6f6f6;
+font-size: 13px;
+line-height: 16px;
+}
+#TOC .toctitle {
+font-weight: bold;
+font-size: 15px;
+margin-left: 5px;
+}
+#TOC ul {
+padding-left: 40px;
+margin-left: -1.5em;
+margin-top: 5px;
+margin-bottom: 5px;
+}
+#TOC ul ul {
+margin-left: -2em;
+}
+#TOC li {
+line-height: 16px;
+}
+table {
+margin-left: 25px;
+border-width: 1px;
+border-spacing: 0px;
+border-style: outset;
+border-color: gray;
+border-collapse: collapse;
+}
+table th {
+border-width: 1px;
+padding: 5px;
+border-style: inset;
+border-color: #DDDDDD;
+background-color: white;
+}
+table td {
+border-width: 1px;
+border-style: inset;
+border-color: #DDDDDD;
+background-color: white;
+line-height: 18px;
+padding: 2px 5px;
+}
+p {
+margin-left: 15px;
+margin-bottom: 5px;
+}
+blockquote {
+background-color: #f6f6f6;
+padding: 13px;
+padding-bottom: 1px;
+}
+hr {
+border-style: solid;
+border: none;
+border-top: 1px solid #777;
+margin: 28px 0;
+}
+dl {
+margin-left: 0;
+}
+dl dd {
+margin-bottom: 13px;
+margin-left: 13px;
+}
+ul {
+margin-top: 0;
+}
+ul li {
+list-style: circle outside;
+}
+ul ul {
+margin-bottom: 0;
+}
+code {
+font-family: Consolas, Monaco, 'Courier New', monospace;
+color: #000;
+padding: 0px;
+}
+p > code, li > code {
+color: #333;
+border: 1px solid #ddd;
+border-radius: 3px;
+background-color: #f8f8f8;
+font-size: 80%;
+padding: 0px 2px;
+}
+
+pre {
+font-size: 12px;
+line-height: 16px;
+white-space: pre-wrap; 
+}
+pre.r {
+background-color: #F3F5F7;
+padding: 4px 10px;
+border: 1px solid #AEBDCC;
+border-radius: 5px;
+margin: 5px 5px 10px 20px;
+}
+img {
+background-color: #FFFFFF;
+padding: 2px;
+border: 1px solid #DDDDDD;
+border-radius: 3px;
+border: 1px solid #CCCCCC;
+box-shadow: 2px 2px 12px -5px #999999;
+margin: 0 5px;
+}
+body {
+font-family: "Open Sans", "Helvetica Neue", Helvetica, Arial, sans-serif;
+font-size: 15px;
+line-height: 22px;
+}
+body #header {
+}
+h1 {
+margin-top: 0;
+font-size: 35px;
+line-height: 40px;
+}
+h2 {
+border-bottom: 2px solid #ccc;
+width: 85%;
+padding-top: 10px;
+font-size: 22px;
+}
+h3 {
+border-bottom: 2px solid #ccc;
+width: 75%;
+padding-top: 10px;
+font-size: 18px;
+}
+h4 {
+border-bottom: 1px solid #ccc;
+width: 60%;
+margin-left: 8px;
+font-size: 16px;
+}
+h5, h6 {
+border-bottom: 1px solid #ccc;
+width: 60%;
+margin-left: 15px;
+font-size: 16px;
+}
+h4.author {
+border-bottom: none;
+}
+a {
+color: #0033dd;
+text-decoration: none;
+}
+a:hover {
+color: #6666ff; }
+a:visited {
+color: #800080; }
+a:visited:hover {
+color: #BB00BB; }
+a[href^="http:"] {
+text-decoration: underline; }
+a[href^="https:"] {
+text-decoration: underline; }
+dl dt {
+font-weight: bold;
+}
+pre .operator,
+pre .paren {
+color: #888;
+}
+pre .literal {
+color: #990073;
+}
+pre .number {
+color: #0080C0;
+}
+pre .comment {
+color: #008000;
+font-style: italic
+}
+pre .keyword {
+color: #900;
+font-weight: bold
+}
+pre .identifier {
+color: #000;
+}
+pre .string {
+color: #b44;
+}
+</style>
+
+
+
+
+</head>
+
+<body>
+
+
+
+
+<h1 class="title toc-ignore">Reading text files with readtext</h1>
+
+
+<div id="TOC">
+<ul>
+<li><a href="#introduction" id="toc-introduction">1.
+Introduction</a></li>
+<li><a href="#reading-one-or-more-text-files" id="toc-reading-one-or-more-text-files">2. Reading one or more text
+files</a>
+<ul>
+<li><a href="#plain-text-files-.txt" id="toc-plain-text-files-.txt">2.1
+Plain text files (.txt)</a></li>
+<li><a href="#comma--or-tab-separated-values-.csv-.tab-.tsv" id="toc-comma--or-tab-separated-values-.csv-.tab-.tsv">2.2 Comma- or
+tab-separated values (.csv, .tab, .tsv)</a></li>
+<li><a href="#json-data-.json" id="toc-json-data-.json">2.3 JSON data
+(.json)</a></li>
+<li><a href="#pdf-files" id="toc-pdf-files">2.4 PDF files</a></li>
+<li><a href="#microsoft-word-files-.doc-.docx" id="toc-microsoft-word-files-.doc-.docx">2.5 Microsoft Word files (.doc,
+.docx)</a></li>
+<li><a href="#text-from-urls" id="toc-text-from-urls">2.6 Text from
+URLs</a></li>
+<li><a href="#text-from-archive-files-.zip-.tar-.tar.gz-.tar.bz" id="toc-text-from-archive-files-.zip-.tar-.tar.gz-.tar.bz">2.7 Text from
+archive files (.zip, .tar, .tar.gz, .tar.bz)</a></li>
+</ul></li>
+<li><a href="#inter-operability-with-quanteda" id="toc-inter-operability-with-quanteda">3. Inter-operability with
+quanteda</a></li>
+<li><a href="#solving-common-problems" id="toc-solving-common-problems">4. Solving common problems</a>
+<ul>
+<li><a href="#remove-page-numbers-using-regular-expressions" id="toc-remove-page-numbers-using-regular-expressions">4.1 Remove page
+numbers using regular expressions</a></li>
+<li><a href="#read-files-with-different-encodings" id="toc-read-files-with-different-encodings">4.2 Read files with
+different encodings</a></li>
+</ul></li>
+</ul>
+</div>
+
+<div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" tabindex="-1"></a><span class="co"># Load readtext package</span></span>
+<span id="cb1-2"><a href="#cb1-2" tabindex="-1"></a><span class="fu">library</span>(<span class="st">&quot;readtext&quot;</span>)</span></code></pre></div>
+<div id="introduction" class="section level1">
+<h1>1. Introduction</h1>
+<p>The vignette walks you through importing a variety of different text
+files into R using the <strong>readtext</strong> package. Currently,
+<strong>readtext</strong> supports plain text files (.txt), data in some
+form of JavaScript Object Notation (.json), comma-or tab-separated
+values (.csv, .tab, .tsv), XML documents (.xml), as well as PDF and
+Microsoft Word formatted files (.pdf, .doc, .docx).</p>
+<p><strong>readtext</strong> also handles multiple files and file types
+using for instance a “glob” expression, files from a URL or an archive
+file (.zip, .tar, .tar.gz, .tar.bz). Usually, you do not have to
+determine the format of the files explicitly - <strong>readtext</strong>
+takes this information from the file ending.</p>
+<p>The <strong>readtext</strong> package comes with a data directory
+called <code>extdata</code> that contains examples of all files listed
+above. In the vignette, we use this data directory.</p>
+<div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" tabindex="-1"></a><span class="co"># Get the data directory from readtext</span></span>
+<span id="cb2-2"><a href="#cb2-2" tabindex="-1"></a>DATA_DIR <span class="ot">&lt;-</span> <span class="fu">system.file</span>(<span class="st">&quot;extdata/&quot;</span>, <span class="at">package =</span> <span class="st">&quot;readtext&quot;</span>)</span></code></pre></div>
+<p>The <code>extdata</code> directory contains several subfolders that
+include different text files. In the following examples, we load one or
+more files stored in each of these folders. The <code>paste0</code>
+command is used to concatenate the <code>extdata</code> folder from the
+<strong>readtext</strong> package with the subfolders. When reading in
+custom text files, you will need to determine your own data directory
+(see <code>?setwd()</code>).</p>
+</div>
+<div id="reading-one-or-more-text-files" class="section level1">
+<h1>2. Reading one or more text files</h1>
+<div id="plain-text-files-.txt" class="section level2">
+<h2>2.1 Plain text files (.txt)</h2>
+<p>The folder “txt” contains a subfolder named UDHR with .txt files of
+the Universal Declaration of Human Rights in 13 languages.</p>
+<div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" tabindex="-1"></a><span class="co"># Read in all files from a folder</span></span>
+<span id="cb3-2"><a href="#cb3-2" tabindex="-1"></a><span class="fu">readtext</span>(<span class="fu">paste0</span>(DATA_DIR, <span class="st">&quot;/txt/UDHR/*&quot;</span>))</span>
+<span id="cb3-3"><a href="#cb3-3" tabindex="-1"></a><span class="do">## readtext object consisting of 13 documents and 0 docvars.</span></span>
+<span id="cb3-4"><a href="#cb3-4" tabindex="-1"></a><span class="do">## $text</span></span>
+<span id="cb3-5"><a href="#cb3-5" tabindex="-1"></a><span class="do">##  [1] &quot;# A data frame: 13 × 2&quot;                                  </span></span>
+<span id="cb3-6"><a href="#cb3-6" tabindex="-1"></a><span class="do">##  [2] &quot;  doc_id            text                         &quot;       </span></span>
+<span id="cb3-7"><a href="#cb3-7" tabindex="-1"></a><span class="do">##  [3] &quot;  &lt;chr&gt;             &lt;chr&gt;                        &quot;       </span></span>
+<span id="cb3-8"><a href="#cb3-8" tabindex="-1"></a><span class="do">##  [4] &quot;1 UDHR_chinese.txt  \&quot;\\\&quot;世界人权宣言\\n联合国\\\&quot;...\&quot;&quot;</span></span>
+<span id="cb3-9"><a href="#cb3-9" tabindex="-1"></a><span class="do">##  [5] &quot;2 UDHR_czech.txt    \&quot;\\\&quot;VŠEOBECNÁ \\\&quot;...\&quot;          &quot; </span></span>
+<span id="cb3-10"><a href="#cb3-10" tabindex="-1"></a><span class="do">##  [6] &quot;3 UDHR_danish.txt   \&quot;\\\&quot;Den 10. de\\\&quot;...\&quot;          &quot; </span></span>
+<span id="cb3-11"><a href="#cb3-11" tabindex="-1"></a><span class="do">##  [7] &quot;4 UDHR_english.txt  \&quot;\\\&quot;Universal \\\&quot;...\&quot;          &quot; </span></span>
+<span id="cb3-12"><a href="#cb3-12" tabindex="-1"></a><span class="do">##  [8] &quot;5 UDHR_french.txt   \&quot;\\\&quot;Déclaratio\\\&quot;...\&quot;          &quot; </span></span>
+<span id="cb3-13"><a href="#cb3-13" tabindex="-1"></a><span class="do">##  [9] &quot;6 UDHR_georgian.txt \&quot;\\\&quot;FLFVBFYBC \\\&quot;...\&quot;          &quot; </span></span>
+<span id="cb3-14"><a href="#cb3-14" tabindex="-1"></a><span class="do">## [10] &quot;# ℹ 7 more rows&quot;                                         </span></span>
+<span id="cb3-15"><a href="#cb3-15" tabindex="-1"></a><span class="do">## </span></span>
+<span id="cb3-16"><a href="#cb3-16" tabindex="-1"></a><span class="do">## $summary</span></span>
+<span id="cb3-17"><a href="#cb3-17" tabindex="-1"></a><span class="do">## $summary[[1]]</span></span>
+<span id="cb3-18"><a href="#cb3-18" tabindex="-1"></a><span class="do">## NULL</span></span>
+<span id="cb3-19"><a href="#cb3-19" tabindex="-1"></a><span class="do">## </span></span>
+<span id="cb3-20"><a href="#cb3-20" tabindex="-1"></a><span class="do">## </span></span>
+<span id="cb3-21"><a href="#cb3-21" tabindex="-1"></a><span class="do">## attr(,&quot;class&quot;)</span></span>
+<span id="cb3-22"><a href="#cb3-22" tabindex="-1"></a><span class="do">## [1] &quot;trunc_mat&quot;</span></span></code></pre></div>
+<p>We can specify document-level metadata (<code>docvars</code>) based
+on the file names or on a separate data.frame. Below we take the docvars
+from the filenames (<code>docvarsfrom = &quot;filenames&quot;</code>) and set the
+names for each variable
+(<code>docvarnames = c(&quot;unit&quot;, &quot;context&quot;, &quot;year&quot;, &quot;language&quot;, &quot;party&quot;)</code>).
+The command <code>dvsep = &quot;_&quot;</code> determines the separator (a regular
+expression character string) included in the filenames to delimit the
+<code>docvar</code> elements.</p>
+<div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" tabindex="-1"></a><span class="co"># Manifestos with docvars from filenames</span></span>
+<span id="cb4-2"><a href="#cb4-2" tabindex="-1"></a><span class="fu">readtext</span>(<span class="fu">paste0</span>(DATA_DIR, <span class="st">&quot;/txt/EU_manifestos/*.txt&quot;</span>),</span>
+<span id="cb4-3"><a href="#cb4-3" tabindex="-1"></a>         <span class="at">docvarsfrom =</span> <span class="st">&quot;filenames&quot;</span>, </span>
+<span id="cb4-4"><a href="#cb4-4" tabindex="-1"></a>         <span class="at">docvarnames =</span> <span class="fu">c</span>(<span class="st">&quot;unit&quot;</span>, <span class="st">&quot;context&quot;</span>, <span class="st">&quot;year&quot;</span>, <span class="st">&quot;language&quot;</span>, <span class="st">&quot;party&quot;</span>),</span>
+<span id="cb4-5"><a href="#cb4-5" tabindex="-1"></a>         <span class="at">dvsep =</span> <span class="st">&quot;_&quot;</span>, </span>
+<span id="cb4-6"><a href="#cb4-6" tabindex="-1"></a>         <span class="at">encoding =</span> <span class="st">&quot;ISO-8859-1&quot;</span>)</span>
+<span id="cb4-7"><a href="#cb4-7" tabindex="-1"></a><span class="do">## readtext object consisting of 17 documents and 5 docvars.</span></span>
+<span id="cb4-8"><a href="#cb4-8" tabindex="-1"></a><span class="do">## $text</span></span>
+<span id="cb4-9"><a href="#cb4-9" tabindex="-1"></a><span class="do">##  [1] &quot;# A data frame: 17 × 7&quot;                                                                </span></span>
+<span id="cb4-10"><a href="#cb4-10" tabindex="-1"></a><span class="do">##  [2] &quot;  doc_id                  text                unit  context  year language party&quot;      </span></span>
+<span id="cb4-11"><a href="#cb4-11" tabindex="-1"></a><span class="do">##  [3] &quot;  &lt;chr&gt;                   &lt;chr&gt;               &lt;chr&gt; &lt;chr&gt;   &lt;int&gt; &lt;chr&gt;    &lt;chr&gt;&quot;      </span></span>
+<span id="cb4-12"><a href="#cb4-12" tabindex="-1"></a><span class="do">##  [4] &quot;1 EU_euro_2004_de_PSE.txt \&quot;\\\&quot;PES · PSE \\\&quot;...\&quot; EU    euro     2004 de       PSE  &quot;</span></span>
+<span id="cb4-13"><a href="#cb4-13" tabindex="-1"></a><span class="do">##  [5] &quot;2 EU_euro_2004_de_V.txt   \&quot;\\\&quot;Gemeinsame\\\&quot;...\&quot; EU    euro     2004 de       V    &quot;</span></span>
+<span id="cb4-14"><a href="#cb4-14" tabindex="-1"></a><span class="do">##  [6] &quot;3 EU_euro_2004_en_PSE.txt \&quot;\\\&quot;PES · PSE \\\&quot;...\&quot; EU    euro     2004 en       PSE  &quot;</span></span>
+<span id="cb4-15"><a href="#cb4-15" tabindex="-1"></a><span class="do">##  [7] &quot;4 EU_euro_2004_en_V.txt   \&quot;\\\&quot;Manifesto\\n\\\&quot;..… EU    euro     2004 en       V    &quot;</span></span>
+<span id="cb4-16"><a href="#cb4-16" tabindex="-1"></a><span class="do">##  [8] &quot;5 EU_euro_2004_es_PSE.txt \&quot;\\\&quot;PES · PSE \\\&quot;...\&quot; EU    euro     2004 es       PSE  &quot;</span></span>
+<span id="cb4-17"><a href="#cb4-17" tabindex="-1"></a><span class="do">##  [9] &quot;6 EU_euro_2004_es_V.txt   \&quot;\\\&quot;Manifesto\\n\\\&quot;..… EU    euro     2004 es       V    &quot;</span></span>
+<span id="cb4-18"><a href="#cb4-18" tabindex="-1"></a><span class="do">## [10] &quot;# ℹ 11 more rows&quot;                                                                      </span></span>
+<span id="cb4-19"><a href="#cb4-19" tabindex="-1"></a><span class="do">## </span></span>
+<span id="cb4-20"><a href="#cb4-20" tabindex="-1"></a><span class="do">## $summary</span></span>
+<span id="cb4-21"><a href="#cb4-21" tabindex="-1"></a><span class="do">## $summary[[1]]</span></span>
+<span id="cb4-22"><a href="#cb4-22" tabindex="-1"></a><span class="do">## NULL</span></span>
+<span id="cb4-23"><a href="#cb4-23" tabindex="-1"></a><span class="do">## </span></span>
+<span id="cb4-24"><a href="#cb4-24" tabindex="-1"></a><span class="do">## </span></span>
+<span id="cb4-25"><a href="#cb4-25" tabindex="-1"></a><span class="do">## attr(,&quot;class&quot;)</span></span>
+<span id="cb4-26"><a href="#cb4-26" tabindex="-1"></a><span class="do">## [1] &quot;trunc_mat&quot;</span></span></code></pre></div>
+<p><strong>readtext</strong> can also curse through subdirectories. In
+our example, the folder <code>txt/movie_reviews</code> contains two
+subfolders (called <code>neg</code> and <code>pos</code>). We can load
+all texts included in both folders.</p>
+<div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" tabindex="-1"></a><span class="co"># Recurse through subdirectories</span></span>
+<span id="cb5-2"><a href="#cb5-2" tabindex="-1"></a><span class="fu">readtext</span>(<span class="fu">paste0</span>(DATA_DIR, <span class="st">&quot;/txt/movie_reviews/*&quot;</span>))</span>
+<span id="cb5-3"><a href="#cb5-3" tabindex="-1"></a><span class="do">## readtext object consisting of 10 documents and 0 docvars.</span></span>
+<span id="cb5-4"><a href="#cb5-4" tabindex="-1"></a><span class="do">## $text</span></span>
+<span id="cb5-5"><a href="#cb5-5" tabindex="-1"></a><span class="do">##  [1] &quot;# A data frame: 10 × 2&quot;                            </span></span>
+<span id="cb5-6"><a href="#cb5-6" tabindex="-1"></a><span class="do">##  [2] &quot;  doc_id              text                &quot;        </span></span>
+<span id="cb5-7"><a href="#cb5-7" tabindex="-1"></a><span class="do">##  [3] &quot;  &lt;chr&gt;               &lt;chr&gt;               &quot;        </span></span>
+<span id="cb5-8"><a href="#cb5-8" tabindex="-1"></a><span class="do">##  [4] &quot;1 neg_cv000_29416.txt \&quot;\\\&quot;plot : two\\\&quot;...\&quot; &quot;  </span></span>
+<span id="cb5-9"><a href="#cb5-9" tabindex="-1"></a><span class="do">##  [5] &quot;2 neg_cv001_19502.txt \&quot;\\\&quot;the happy \\\&quot;...\&quot; &quot;  </span></span>
+<span id="cb5-10"><a href="#cb5-10" tabindex="-1"></a><span class="do">##  [6] &quot;3 neg_cv002_17424.txt \&quot;\\\&quot;it is movi\\\&quot;...\&quot; &quot;  </span></span>
+<span id="cb5-11"><a href="#cb5-11" tabindex="-1"></a><span class="do">##  [7] &quot;4 neg_cv003_12683.txt \&quot;\\\&quot; \\\&quot; quest f\\\&quot;...\&quot;&quot;</span></span>
+<span id="cb5-12"><a href="#cb5-12" tabindex="-1"></a><span class="do">##  [8] &quot;5 neg_cv004_12641.txt \&quot;\\\&quot;synopsis :\\\&quot;...\&quot; &quot;  </span></span>
+<span id="cb5-13"><a href="#cb5-13" tabindex="-1"></a><span class="do">##  [9] &quot;6 pos_cv000_29590.txt \&quot;\\\&quot;films adap\\\&quot;...\&quot; &quot;  </span></span>
+<span id="cb5-14"><a href="#cb5-14" tabindex="-1"></a><span class="do">## [10] &quot;# ℹ 4 more rows&quot;                                   </span></span>
+<span id="cb5-15"><a href="#cb5-15" tabindex="-1"></a><span class="do">## </span></span>
+<span id="cb5-16"><a href="#cb5-16" tabindex="-1"></a><span class="do">## $summary</span></span>
+<span id="cb5-17"><a href="#cb5-17" tabindex="-1"></a><span class="do">## $summary[[1]]</span></span>
+<span id="cb5-18"><a href="#cb5-18" tabindex="-1"></a><span class="do">## NULL</span></span>
+<span id="cb5-19"><a href="#cb5-19" tabindex="-1"></a><span class="do">## </span></span>
+<span id="cb5-20"><a href="#cb5-20" tabindex="-1"></a><span class="do">## </span></span>
+<span id="cb5-21"><a href="#cb5-21" tabindex="-1"></a><span class="do">## attr(,&quot;class&quot;)</span></span>
+<span id="cb5-22"><a href="#cb5-22" tabindex="-1"></a><span class="do">## [1] &quot;trunc_mat&quot;</span></span></code></pre></div>
+</div>
+<div id="comma--or-tab-separated-values-.csv-.tab-.tsv" class="section level2">
+<h2>2.2 Comma- or tab-separated values (.csv, .tab, .tsv)</h2>
+<p>Read in comma separated values (.csv files) that contain textual
+data. We determine the <code>texts</code> variable in our .csv file as
+the <code>text_field</code>. This is the column that contains the actual
+text. The other columns of the original csv file (<code>Year</code>,
+<code>President</code>, <code>FirstName</code>) are by default treated
+as document-level variables.</p>
+<div class="sourceCode" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" tabindex="-1"></a><span class="co"># Read in comma-separated values</span></span>
+<span id="cb6-2"><a href="#cb6-2" tabindex="-1"></a><span class="fu">readtext</span>(<span class="fu">paste0</span>(DATA_DIR, <span class="st">&quot;/csv/inaugCorpus.csv&quot;</span>), <span class="at">text_field =</span> <span class="st">&quot;texts&quot;</span>)</span>
+<span id="cb6-3"><a href="#cb6-3" tabindex="-1"></a><span class="do">## readtext object consisting of 5 documents and 3 docvars.</span></span>
+<span id="cb6-4"><a href="#cb6-4" tabindex="-1"></a><span class="do">## $text</span></span>
+<span id="cb6-5"><a href="#cb6-5" tabindex="-1"></a><span class="do">## [1] &quot;# A data frame: 5 × 5&quot;                                                   </span></span>
+<span id="cb6-6"><a href="#cb6-6" tabindex="-1"></a><span class="do">## [2] &quot;  doc_id            text                 Year President  FirstName&quot;      </span></span>
+<span id="cb6-7"><a href="#cb6-7" tabindex="-1"></a><span class="do">## [3] &quot;  &lt;chr&gt;             &lt;chr&gt;               &lt;int&gt; &lt;chr&gt;      &lt;chr&gt;    &quot;      </span></span>
+<span id="cb6-8"><a href="#cb6-8" tabindex="-1"></a><span class="do">## [4] &quot;1 inaugCorpus.csv.1 \&quot;\\\&quot;Fellow-Cit\\\&quot;...\&quot;  1789 Washington George   &quot;</span></span>
+<span id="cb6-9"><a href="#cb6-9" tabindex="-1"></a><span class="do">## [5] &quot;2 inaugCorpus.csv.2 \&quot;\\\&quot;Fellow cit\\\&quot;...\&quot;  1793 Washington George   &quot;</span></span>
+<span id="cb6-10"><a href="#cb6-10" tabindex="-1"></a><span class="do">## [6] &quot;3 inaugCorpus.csv.3 \&quot;\\\&quot;When it wa\\\&quot;...\&quot;  1797 Adams      John     &quot;</span></span>
+<span id="cb6-11"><a href="#cb6-11" tabindex="-1"></a><span class="do">## [7] &quot;4 inaugCorpus.csv.4 \&quot;\\\&quot;Friends an\\\&quot;...\&quot;  1801 Jefferson  Thomas   &quot;</span></span>
+<span id="cb6-12"><a href="#cb6-12" tabindex="-1"></a><span class="do">## [8] &quot;5 inaugCorpus.csv.5 \&quot;\\\&quot;Proceeding\\\&quot;...\&quot;  1805 Jefferson  Thomas   &quot;</span></span>
+<span id="cb6-13"><a href="#cb6-13" tabindex="-1"></a><span class="do">## </span></span>
+<span id="cb6-14"><a href="#cb6-14" tabindex="-1"></a><span class="do">## $summary</span></span>
+<span id="cb6-15"><a href="#cb6-15" tabindex="-1"></a><span class="do">## $summary[[1]]</span></span>
+<span id="cb6-16"><a href="#cb6-16" tabindex="-1"></a><span class="do">## NULL</span></span>
+<span id="cb6-17"><a href="#cb6-17" tabindex="-1"></a><span class="do">## </span></span>
+<span id="cb6-18"><a href="#cb6-18" tabindex="-1"></a><span class="do">## </span></span>
+<span id="cb6-19"><a href="#cb6-19" tabindex="-1"></a><span class="do">## attr(,&quot;class&quot;)</span></span>
+<span id="cb6-20"><a href="#cb6-20" tabindex="-1"></a><span class="do">## [1] &quot;trunc_mat&quot;</span></span></code></pre></div>
+<p>The same procedure applies to tab-separated values.</p>
+<div class="sourceCode" id="cb7"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" tabindex="-1"></a><span class="co"># Read in tab-separated values</span></span>
+<span id="cb7-2"><a href="#cb7-2" tabindex="-1"></a><span class="fu">readtext</span>(<span class="fu">paste0</span>(DATA_DIR, <span class="st">&quot;/tsv/dailsample.tsv&quot;</span>), <span class="at">text_field =</span> <span class="st">&quot;speech&quot;</span>)</span>
+<span id="cb7-3"><a href="#cb7-3" tabindex="-1"></a><span class="do">## readtext object consisting of 33 documents and 9 docvars.</span></span>
+<span id="cb7-4"><a href="#cb7-4" tabindex="-1"></a><span class="do">## $text</span></span>
+<span id="cb7-5"><a href="#cb7-5" tabindex="-1"></a><span class="do">##  [1] &quot;# A data frame: 33 × 11&quot;                                                            </span></span>
+<span id="cb7-6"><a href="#cb7-6" tabindex="-1"></a><span class="do">##  [2] &quot;  doc_id         text  speechID memberID partyID constID title date  member_name&quot;   </span></span>
+<span id="cb7-7"><a href="#cb7-7" tabindex="-1"></a><span class="do">##  [3] &quot;  &lt;chr&gt;          &lt;chr&gt;    &lt;int&gt;    &lt;int&gt;   &lt;int&gt;   &lt;int&gt; &lt;chr&gt; &lt;chr&gt; &lt;chr&gt;      &quot;   </span></span>
+<span id="cb7-8"><a href="#cb7-8" tabindex="-1"></a><span class="do">##  [4] &quot;1 dailsample.ts… \&quot;\\\&quot;M…        1      977      22     158 1. C… 1919… Count Geor…&quot;</span></span>
+<span id="cb7-9"><a href="#cb7-9" tabindex="-1"></a><span class="do">##  [5] &quot;2 dailsample.ts… \&quot;\\\&quot;I…        2     1603      22     103 1. C… 1919… Mr. Pádrai…&quot;</span></span>
+<span id="cb7-10"><a href="#cb7-10" tabindex="-1"></a><span class="do">##  [6] &quot;3 dailsample.ts… \&quot;\\\&quot;&#39;…        3      116      22     178 1. C… 1919… Mr. Cathal…&quot;</span></span>
+<span id="cb7-11"><a href="#cb7-11" tabindex="-1"></a><span class="do">##  [7] &quot;4 dailsample.ts… \&quot;\\\&quot;T…        4      116      22     178 2. C… 1919… Mr. Cathal…&quot;</span></span>
+<span id="cb7-12"><a href="#cb7-12" tabindex="-1"></a><span class="do">##  [8] &quot;5 dailsample.ts… \&quot;\\\&quot;L…        5      116      22     178 3. A… 1919… Mr. Cathal…&quot;</span></span>
+<span id="cb7-13"><a href="#cb7-13" tabindex="-1"></a><span class="do">##  [9] &quot;6 dailsample.ts… \&quot;\\\&quot;-…        6      116      22     178 3. A… 1919… Mr. Cathal…&quot;</span></span>
+<span id="cb7-14"><a href="#cb7-14" tabindex="-1"></a><span class="do">## [10] &quot;# ℹ 27 more rows&quot;                                                                   </span></span>
+<span id="cb7-15"><a href="#cb7-15" tabindex="-1"></a><span class="do">## [11] &quot;# ℹ 2 more variables: party_name &lt;chr&gt;, const_name &lt;chr&gt;&quot;                           </span></span>
+<span id="cb7-16"><a href="#cb7-16" tabindex="-1"></a><span class="do">## </span></span>
+<span id="cb7-17"><a href="#cb7-17" tabindex="-1"></a><span class="do">## $summary</span></span>
+<span id="cb7-18"><a href="#cb7-18" tabindex="-1"></a><span class="do">## $summary[[1]]</span></span>
+<span id="cb7-19"><a href="#cb7-19" tabindex="-1"></a><span class="do">## NULL</span></span>
+<span id="cb7-20"><a href="#cb7-20" tabindex="-1"></a><span class="do">## </span></span>
+<span id="cb7-21"><a href="#cb7-21" tabindex="-1"></a><span class="do">## </span></span>
+<span id="cb7-22"><a href="#cb7-22" tabindex="-1"></a><span class="do">## attr(,&quot;class&quot;)</span></span>
+<span id="cb7-23"><a href="#cb7-23" tabindex="-1"></a><span class="do">## [1] &quot;trunc_mat&quot;</span></span></code></pre></div>
+</div>
+<div id="json-data-.json" class="section level2">
+<h2>2.3 JSON data (.json)</h2>
+<p>You can also read .json data. Again you need to specify the
+<code>text_field</code>.</p>
+<div class="sourceCode" id="cb8"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" tabindex="-1"></a><span class="do">## Read in JSON data</span></span>
+<span id="cb8-2"><a href="#cb8-2" tabindex="-1"></a><span class="fu">readtext</span>(<span class="fu">paste0</span>(DATA_DIR, <span class="st">&quot;/json/inaugural_sample.json&quot;</span>), <span class="at">text_field =</span> <span class="st">&quot;texts&quot;</span>)</span>
+<span id="cb8-3"><a href="#cb8-3" tabindex="-1"></a><span class="do">## readtext object consisting of 3 documents and 3 docvars.</span></span>
+<span id="cb8-4"><a href="#cb8-4" tabindex="-1"></a><span class="do">## $text</span></span>
+<span id="cb8-5"><a href="#cb8-5" tabindex="-1"></a><span class="do">## [1] &quot;# A data frame: 3 × 5&quot;                                                         </span></span>
+<span id="cb8-6"><a href="#cb8-6" tabindex="-1"></a><span class="do">## [2] &quot;  doc_id                  text                 Year President  FirstName&quot;      </span></span>
+<span id="cb8-7"><a href="#cb8-7" tabindex="-1"></a><span class="do">## [3] &quot;  &lt;chr&gt;                   &lt;chr&gt;               &lt;int&gt; &lt;chr&gt;      &lt;chr&gt;    &quot;      </span></span>
+<span id="cb8-8"><a href="#cb8-8" tabindex="-1"></a><span class="do">## [4] &quot;1 inaugural_sample.json.1 \&quot;\\\&quot;Fellow-Cit\\\&quot;...\&quot;  1789 Washington George   &quot;</span></span>
+<span id="cb8-9"><a href="#cb8-9" tabindex="-1"></a><span class="do">## [5] &quot;2 inaugural_sample.json.2 \&quot;\\\&quot;Fellow cit\\\&quot;...\&quot;  1793 Washington George   &quot;</span></span>
+<span id="cb8-10"><a href="#cb8-10" tabindex="-1"></a><span class="do">## [6] &quot;3 inaugural_sample.json.3 \&quot;\\\&quot;When it wa\\\&quot;...\&quot;  1797 Adams      John     &quot;</span></span>
+<span id="cb8-11"><a href="#cb8-11" tabindex="-1"></a><span class="do">## </span></span>
+<span id="cb8-12"><a href="#cb8-12" tabindex="-1"></a><span class="do">## $summary</span></span>
+<span id="cb8-13"><a href="#cb8-13" tabindex="-1"></a><span class="do">## $summary[[1]]</span></span>
+<span id="cb8-14"><a href="#cb8-14" tabindex="-1"></a><span class="do">## NULL</span></span>
+<span id="cb8-15"><a href="#cb8-15" tabindex="-1"></a><span class="do">## </span></span>
+<span id="cb8-16"><a href="#cb8-16" tabindex="-1"></a><span class="do">## </span></span>
+<span id="cb8-17"><a href="#cb8-17" tabindex="-1"></a><span class="do">## attr(,&quot;class&quot;)</span></span>
+<span id="cb8-18"><a href="#cb8-18" tabindex="-1"></a><span class="do">## [1] &quot;trunc_mat&quot;</span></span></code></pre></div>
+</div>
+<div id="pdf-files" class="section level2">
+<h2>2.4 PDF files</h2>
+<p><strong>readtext</strong> can also read in and convert .pdf
+files.</p>
+<p>In the example below we load all .pdf files stored in the
+<code>UDHR</code> folder, and determine that the <code>docvars</code>
+shall be taken from the filenames. We call the document-level variables
+<code>document</code> and <code>language</code>, and specify the
+delimiter (<code>dvsep</code>).</p>
+<div class="sourceCode" id="cb9"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" tabindex="-1"></a><span class="do">## Read in Universal Declaration of Human Rights pdf files</span></span>
+<span id="cb9-2"><a href="#cb9-2" tabindex="-1"></a>(rt_pdf <span class="ot">&lt;-</span> <span class="fu">readtext</span>(<span class="fu">paste0</span>(DATA_DIR, <span class="st">&quot;/pdf/UDHR/*.pdf&quot;</span>), </span>
+<span id="cb9-3"><a href="#cb9-3" tabindex="-1"></a>                    <span class="at">docvarsfrom =</span> <span class="st">&quot;filenames&quot;</span>, </span>
+<span id="cb9-4"><a href="#cb9-4" tabindex="-1"></a>                    <span class="at">docvarnames =</span> <span class="fu">c</span>(<span class="st">&quot;document&quot;</span>, <span class="st">&quot;language&quot;</span>),</span>
+<span id="cb9-5"><a href="#cb9-5" tabindex="-1"></a>                    <span class="at">sep =</span> <span class="st">&quot;_&quot;</span>))</span>
+<span id="cb9-6"><a href="#cb9-6" tabindex="-1"></a><span class="do">## readtext object consisting of 11 documents and 2 docvars.</span></span>
+<span id="cb9-7"><a href="#cb9-7" tabindex="-1"></a><span class="do">## $text</span></span>
+<span id="cb9-8"><a href="#cb9-8" tabindex="-1"></a><span class="do">##  [1] &quot;# A data frame: 11 × 4&quot;                                                    </span></span>
+<span id="cb9-9"><a href="#cb9-9" tabindex="-1"></a><span class="do">##  [2] &quot;  doc_id           text                          document language&quot;        </span></span>
+<span id="cb9-10"><a href="#cb9-10" tabindex="-1"></a><span class="do">##  [3] &quot;  &lt;chr&gt;            &lt;chr&gt;                         &lt;chr&gt;    &lt;chr&gt;   &quot;        </span></span>
+<span id="cb9-11"><a href="#cb9-11" tabindex="-1"></a><span class="do">##  [4] &quot;1 UDHR_chinese.pdf \&quot;\\\&quot;世界人权宣言\\n\\n联合\\\&quot;...\&quot; UDHR     chinese &quot;</span></span>
+<span id="cb9-12"><a href="#cb9-12" tabindex="-1"></a><span class="do">##  [5] &quot;2 UDHR_czech.pdf   \&quot;\\\&quot;VŠEOBECNÁ \\\&quot;...\&quot;           UDHR     czech   &quot;  </span></span>
+<span id="cb9-13"><a href="#cb9-13" tabindex="-1"></a><span class="do">##  [6] &quot;3 UDHR_danish.pdf  \&quot;\\\&quot;Den 10. de\\\&quot;...\&quot;           UDHR     danish  &quot;  </span></span>
+<span id="cb9-14"><a href="#cb9-14" tabindex="-1"></a><span class="do">##  [7] &quot;4 UDHR_english.pdf \&quot;\\\&quot;Universal \\\&quot;...\&quot;           UDHR     english &quot;  </span></span>
+<span id="cb9-15"><a href="#cb9-15" tabindex="-1"></a><span class="do">##  [8] &quot;5 UDHR_french.pdf  \&quot;\\\&quot;Déclaratio\\\&quot;...\&quot;           UDHR     french  &quot;  </span></span>
+<span id="cb9-16"><a href="#cb9-16" tabindex="-1"></a><span class="do">##  [9] &quot;6 UDHR_greek.pdf   \&quot;\\\&quot;ΟΙΚΟΥΜΕΝΙΚ\\\&quot;...\&quot;           UDHR     greek   &quot;  </span></span>
+<span id="cb9-17"><a href="#cb9-17" tabindex="-1"></a><span class="do">## [10] &quot;# ℹ 5 more rows&quot;                                                           </span></span>
+<span id="cb9-18"><a href="#cb9-18" tabindex="-1"></a><span class="do">## </span></span>
+<span id="cb9-19"><a href="#cb9-19" tabindex="-1"></a><span class="do">## $summary</span></span>
+<span id="cb9-20"><a href="#cb9-20" tabindex="-1"></a><span class="do">## $summary[[1]]</span></span>
+<span id="cb9-21"><a href="#cb9-21" tabindex="-1"></a><span class="do">## NULL</span></span>
+<span id="cb9-22"><a href="#cb9-22" tabindex="-1"></a><span class="do">## </span></span>
+<span id="cb9-23"><a href="#cb9-23" tabindex="-1"></a><span class="do">## </span></span>
+<span id="cb9-24"><a href="#cb9-24" tabindex="-1"></a><span class="do">## attr(,&quot;class&quot;)</span></span>
+<span id="cb9-25"><a href="#cb9-25" tabindex="-1"></a><span class="do">## [1] &quot;trunc_mat&quot;</span></span></code></pre></div>
+</div>
+<div id="microsoft-word-files-.doc-.docx" class="section level2">
+<h2>2.5 Microsoft Word files (.doc, .docx)</h2>
+<p>Microsoft Word formatted files are converted through the package
+<strong>antiword</strong> for older <code>.doc</code> files, and using
+<strong>XML</strong> for newer <code>.docx</code> files.</p>
+<div class="sourceCode" id="cb10"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" tabindex="-1"></a><span class="do">## Read in Word data (.docx)</span></span>
+<span id="cb10-2"><a href="#cb10-2" tabindex="-1"></a><span class="fu">readtext</span>(<span class="fu">paste0</span>(DATA_DIR, <span class="st">&quot;/word/*.docx&quot;</span>))</span>
+<span id="cb10-3"><a href="#cb10-3" tabindex="-1"></a><span class="do">## readtext object consisting of 2 documents and 0 docvars.</span></span>
+<span id="cb10-4"><a href="#cb10-4" tabindex="-1"></a><span class="do">## $text</span></span>
+<span id="cb10-5"><a href="#cb10-5" tabindex="-1"></a><span class="do">## [1] &quot;# A data frame: 2 × 2&quot;                                  </span></span>
+<span id="cb10-6"><a href="#cb10-6" tabindex="-1"></a><span class="do">## [2] &quot;  doc_id                      text               &quot;      </span></span>
+<span id="cb10-7"><a href="#cb10-7" tabindex="-1"></a><span class="do">## [3] &quot;  &lt;chr&gt;                       &lt;chr&gt;              &quot;      </span></span>
+<span id="cb10-8"><a href="#cb10-8" tabindex="-1"></a><span class="do">## [4] &quot;1 UK_2015_EccentricParty.docx \&quot;\\\&quot;The Eccent\\\&quot;...\&quot;&quot;</span></span>
+<span id="cb10-9"><a href="#cb10-9" tabindex="-1"></a><span class="do">## [5] &quot;2 UK_2015_LoonyParty.docx     \&quot;\\\&quot;The Offici\\\&quot;...\&quot;&quot;</span></span>
+<span id="cb10-10"><a href="#cb10-10" tabindex="-1"></a><span class="do">## </span></span>
+<span id="cb10-11"><a href="#cb10-11" tabindex="-1"></a><span class="do">## $summary</span></span>
+<span id="cb10-12"><a href="#cb10-12" tabindex="-1"></a><span class="do">## $summary[[1]]</span></span>
+<span id="cb10-13"><a href="#cb10-13" tabindex="-1"></a><span class="do">## NULL</span></span>
+<span id="cb10-14"><a href="#cb10-14" tabindex="-1"></a><span class="do">## </span></span>
+<span id="cb10-15"><a href="#cb10-15" tabindex="-1"></a><span class="do">## </span></span>
+<span id="cb10-16"><a href="#cb10-16" tabindex="-1"></a><span class="do">## attr(,&quot;class&quot;)</span></span>
+<span id="cb10-17"><a href="#cb10-17" tabindex="-1"></a><span class="do">## [1] &quot;trunc_mat&quot;</span></span></code></pre></div>
+</div>
+<div id="text-from-urls" class="section level2">
+<h2>2.6 Text from URLs</h2>
+<p>You can also read in text directly from a URL.</p>
+<div class="sourceCode" id="cb11"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" tabindex="-1"></a><span class="co"># Note: Example required: which URL should we use?</span></span></code></pre></div>
+</div>
+<div id="text-from-archive-files-.zip-.tar-.tar.gz-.tar.bz" class="section level2">
+<h2>2.7 Text from archive files (.zip, .tar, .tar.gz, .tar.bz)</h2>
+<p>Finally, it is possible to include text from archives.</p>
+<div class="sourceCode" id="cb12"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" tabindex="-1"></a><span class="co"># Note: Archive file required. The only zip archive included in readtext has </span></span>
+<span id="cb12-2"><a href="#cb12-2" tabindex="-1"></a><span class="co"># different encodings and is difficult to import (see section 4.2).</span></span></code></pre></div>
+</div>
+</div>
+<div id="inter-operability-with-quanteda" class="section level1">
+<h1>3. Inter-operability with quanteda</h1>
+<p><strong>readtext</strong> was originally developed in early versions
+of the <a href="https://github.com/quanteda/quanteda"><strong>quanteda</strong></a>
+package for the quantitative analysis of textual data. It was spawned
+from the <code>textfile()</code> function from that package, and now
+lives exclusively in <strong>readtext</strong>. Because
+<strong>quanteda</strong>’s corpus constructor recognizes the data.frame
+format returned by <code>readtext()</code>, it can construct a corpus
+directly from a <code>readtext</code> object, preserving all docvars and
+other meta-data.</p>
+<p>You can easily construct a corpus from a <strong>readtext</strong>
+object.</p>
+<div class="sourceCode" id="cb13"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" tabindex="-1"></a><span class="cf">if</span> (<span class="fu">require</span>(<span class="st">&quot;quanteda&quot;</span>)) {</span>
+<span id="cb13-2"><a href="#cb13-2" tabindex="-1"></a></span>
+<span id="cb13-3"><a href="#cb13-3" tabindex="-1"></a><span class="co"># read in comma-separated values with readtext</span></span>
+<span id="cb13-4"><a href="#cb13-4" tabindex="-1"></a>rt_csv <span class="ot">&lt;-</span> <span class="fu">readtext</span>(<span class="fu">paste0</span>(DATA_DIR, <span class="st">&quot;/csv/inaugCorpus.csv&quot;</span>), <span class="at">text_field =</span> <span class="st">&quot;texts&quot;</span>)</span>
+<span id="cb13-5"><a href="#cb13-5" tabindex="-1"></a></span>
+<span id="cb13-6"><a href="#cb13-6" tabindex="-1"></a><span class="co"># create quanteda corpus</span></span>
+<span id="cb13-7"><a href="#cb13-7" tabindex="-1"></a>corpus_csv <span class="ot">&lt;-</span> <span class="fu">corpus</span>(rt_csv)</span>
+<span id="cb13-8"><a href="#cb13-8" tabindex="-1"></a><span class="fu">summary</span>(corpus_csv, <span class="dv">5</span>)</span>
+<span id="cb13-9"><a href="#cb13-9" tabindex="-1"></a>}</span>
+<span id="cb13-10"><a href="#cb13-10" tabindex="-1"></a><span class="do">## Loading required package: quanteda</span></span>
+<span id="cb13-11"><a href="#cb13-11" tabindex="-1"></a><span class="do">## Package version: 3.3.1</span></span>
+<span id="cb13-12"><a href="#cb13-12" tabindex="-1"></a><span class="do">## Unicode version: 14.0</span></span>
+<span id="cb13-13"><a href="#cb13-13" tabindex="-1"></a><span class="do">## ICU version: 71.1</span></span>
+<span id="cb13-14"><a href="#cb13-14" tabindex="-1"></a><span class="do">## Parallel computing: 10 of 10 threads used.</span></span>
+<span id="cb13-15"><a href="#cb13-15" tabindex="-1"></a><span class="do">## See https://quanteda.io for tutorials and examples.</span></span>
+<span id="cb13-16"><a href="#cb13-16" tabindex="-1"></a><span class="do">## </span></span>
+<span id="cb13-17"><a href="#cb13-17" tabindex="-1"></a><span class="do">## Attaching package: &#39;quanteda&#39;</span></span>
+<span id="cb13-18"><a href="#cb13-18" tabindex="-1"></a><span class="do">## The following object is masked from &#39;package:readtext&#39;:</span></span>
+<span id="cb13-19"><a href="#cb13-19" tabindex="-1"></a><span class="do">## </span></span>
+<span id="cb13-20"><a href="#cb13-20" tabindex="-1"></a><span class="do">##     texts</span></span>
+<span id="cb13-21"><a href="#cb13-21" tabindex="-1"></a><span class="do">## Corpus consisting of 5 documents, showing 5 documents:</span></span>
+<span id="cb13-22"><a href="#cb13-22" tabindex="-1"></a><span class="do">## </span></span>
+<span id="cb13-23"><a href="#cb13-23" tabindex="-1"></a><span class="do">##               Text Types Tokens Sentences Year  President FirstName</span></span>
+<span id="cb13-24"><a href="#cb13-24" tabindex="-1"></a><span class="do">##  inaugCorpus.csv.1   625   1539        23 1789 Washington    George</span></span>
+<span id="cb13-25"><a href="#cb13-25" tabindex="-1"></a><span class="do">##  inaugCorpus.csv.2    96    147         4 1793 Washington    George</span></span>
+<span id="cb13-26"><a href="#cb13-26" tabindex="-1"></a><span class="do">##  inaugCorpus.csv.3   826   2577        37 1797      Adams      John</span></span>
+<span id="cb13-27"><a href="#cb13-27" tabindex="-1"></a><span class="do">##  inaugCorpus.csv.4   717   1923        41 1801  Jefferson    Thomas</span></span>
+<span id="cb13-28"><a href="#cb13-28" tabindex="-1"></a><span class="do">##  inaugCorpus.csv.5   804   2380        45 1805  Jefferson    Thomas</span></span></code></pre></div>
+</div>
+<div id="solving-common-problems" class="section level1">
+<h1>4. Solving common problems</h1>
+<div id="remove-page-numbers-using-regular-expressions" class="section level2">
+<h2>4.1 Remove page numbers using regular expressions</h2>
+<p>When a document contains page numbers, they are imported as well. If
+you want to remove them, you can use a regular expression. We strongly
+recommend using the <a href="https://github.com/gagolews/stringi"><strong>stringi</strong></a>
+package. For the most common regular expressions you can look at this <a href="https://web.mit.edu/hackl/www/lab/turkshop/slides/regex-cheatsheet.pdf">cheatsheet</a>.</p>
+<p>You first need to check in the original file in which format the page
+numbers occur (e.g., “1”, “-1-”, “page 1” etc.). We can make use of the
+fact that page numbers are almost always preceded and followed by a
+linebreak (<code>\n</code>). After loading the text with
+<strong>readtext</strong>, you can replace the page numbers.</p>
+<div class="sourceCode" id="cb14"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1" tabindex="-1"></a><span class="co"># Load stringi package</span></span>
+<span id="cb14-2"><a href="#cb14-2" tabindex="-1"></a><span class="fu">require</span>(<span class="st">&quot;stringi&quot;</span>)</span></code></pre></div>
+<p>In the first example, the page numbers have the format “page X”.</p>
+<div class="sourceCode" id="cb15"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1" tabindex="-1"></a><span class="co"># Make some text with page numbers</span></span>
+<span id="cb15-2"><a href="#cb15-2" tabindex="-1"></a>sample_text_a <span class="ot">&lt;-</span> <span class="st">&quot;The quick brown fox named Seamus jumps over the lazy dog also named Seamus, </span></span>
+<span id="cb15-3"><a href="#cb15-3" tabindex="-1"></a><span class="st">page 1 </span></span>
+<span id="cb15-4"><a href="#cb15-4" tabindex="-1"></a><span class="st">with the newspaper from a boy named quick Seamus, in his mouth.</span></span>
+<span id="cb15-5"><a href="#cb15-5" tabindex="-1"></a><span class="st">page 2</span></span>
+<span id="cb15-6"><a href="#cb15-6" tabindex="-1"></a><span class="st">The quicker brown fox jumped over 2 lazy dogs.&quot;</span></span>
+<span id="cb15-7"><a href="#cb15-7" tabindex="-1"></a></span>
+<span id="cb15-8"><a href="#cb15-8" tabindex="-1"></a>sample_text_a</span>
+<span id="cb15-9"><a href="#cb15-9" tabindex="-1"></a><span class="do">## [1] &quot;The quick brown fox named Seamus jumps over the lazy dog also named Seamus, \npage 1 \nwith the newspaper from a boy named quick Seamus, in his mouth.\npage 2\nThe quicker brown fox jumped over 2 lazy dogs.&quot;</span></span>
+<span id="cb15-10"><a href="#cb15-10" tabindex="-1"></a></span>
+<span id="cb15-11"><a href="#cb15-11" tabindex="-1"></a><span class="co"># Remove &quot;page&quot; and respective digit</span></span>
+<span id="cb15-12"><a href="#cb15-12" tabindex="-1"></a>sample_text_a2 <span class="ot">&lt;-</span> <span class="fu">unlist</span>(<span class="fu">stri_split_fixed</span>(sample_text_a, <span class="st">&#39;</span><span class="sc">\n</span><span class="st">&#39;</span>), <span class="at">use.names =</span> <span class="cn">FALSE</span>)</span>
+<span id="cb15-13"><a href="#cb15-13" tabindex="-1"></a>sample_text_a2 <span class="ot">&lt;-</span> <span class="fu">stri_replace_all_regex</span>(sample_text_a2, <span class="st">&quot;page </span><span class="sc">\\</span><span class="st">d*&quot;</span>, <span class="st">&quot;&quot;</span>)</span>
+<span id="cb15-14"><a href="#cb15-14" tabindex="-1"></a>sample_text_a2 <span class="ot">&lt;-</span> <span class="fu">stri_trim_both</span>(sample_text_a2)</span>
+<span id="cb15-15"><a href="#cb15-15" tabindex="-1"></a>sample_text_a2 <span class="ot">&lt;-</span> sample_text_a2[sample_text_a2 <span class="sc">!=</span> <span class="st">&#39;&#39;</span>]</span>
+<span id="cb15-16"><a href="#cb15-16" tabindex="-1"></a><span class="fu">stri_paste</span>(sample_text_a2, <span class="at">collapse =</span> <span class="st">&#39;</span><span class="sc">\n</span><span class="st">&#39;</span>)</span>
+<span id="cb15-17"><a href="#cb15-17" tabindex="-1"></a><span class="do">## [1] &quot;The quick brown fox named Seamus jumps over the lazy dog also named Seamus,\nwith the newspaper from a boy named quick Seamus, in his mouth.\nThe quicker brown fox jumped over 2 lazy dogs.&quot;</span></span></code></pre></div>
+<p>In the second example we remove page numbers which have the format “-
+X -”.</p>
+<div class="sourceCode" id="cb16"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1" tabindex="-1"></a>sample_text_b <span class="ot">&lt;-</span> <span class="st">&quot;The quick brown fox named Seamus </span></span>
+<span id="cb16-2"><a href="#cb16-2" tabindex="-1"></a><span class="st">- 1 - </span></span>
+<span id="cb16-3"><a href="#cb16-3" tabindex="-1"></a><span class="st">jumps over the lazy dog also named Seamus, with </span></span>
+<span id="cb16-4"><a href="#cb16-4" tabindex="-1"></a><span class="st">- 2 - </span></span>
+<span id="cb16-5"><a href="#cb16-5" tabindex="-1"></a><span class="st">the newspaper from a boy named quick Seamus, in his mouth. </span></span>
+<span id="cb16-6"><a href="#cb16-6" tabindex="-1"></a><span class="st">- 33 - </span></span>
+<span id="cb16-7"><a href="#cb16-7" tabindex="-1"></a><span class="st">The quicker brown fox jumped over 2 lazy dogs.&quot;</span></span>
+<span id="cb16-8"><a href="#cb16-8" tabindex="-1"></a></span>
+<span id="cb16-9"><a href="#cb16-9" tabindex="-1"></a>sample_text_b</span>
+<span id="cb16-10"><a href="#cb16-10" tabindex="-1"></a><span class="do">## [1] &quot;The quick brown fox named Seamus \n- 1 - \njumps over the lazy dog also named Seamus, with \n- 2 - \nthe newspaper from a boy named quick Seamus, in his mouth. \n- 33 - \nThe quicker brown fox jumped over 2 lazy dogs.&quot;</span></span>
+<span id="cb16-11"><a href="#cb16-11" tabindex="-1"></a></span>
+<span id="cb16-12"><a href="#cb16-12" tabindex="-1"></a>sample_text_b2 <span class="ot">&lt;-</span> <span class="fu">unlist</span>(<span class="fu">stri_split_fixed</span>(sample_text_b, <span class="st">&#39;</span><span class="sc">\n</span><span class="st">&#39;</span>), <span class="at">use.names =</span> <span class="cn">FALSE</span>)</span>
+<span id="cb16-13"><a href="#cb16-13" tabindex="-1"></a>sample_text_b2 <span class="ot">&lt;-</span> <span class="fu">stri_replace_all_regex</span>(sample_text_b2, <span class="st">&quot;[-] </span><span class="sc">\\</span><span class="st">d* [-]&quot;</span>, <span class="st">&quot;&quot;</span>)</span>
+<span id="cb16-14"><a href="#cb16-14" tabindex="-1"></a>sample_text_b2 <span class="ot">&lt;-</span> <span class="fu">stri_trim_both</span>(sample_text_b2)</span>
+<span id="cb16-15"><a href="#cb16-15" tabindex="-1"></a>sample_text_b2 <span class="ot">&lt;-</span> sample_text_b2[sample_text_b2 <span class="sc">!=</span> <span class="st">&#39;&#39;</span>]</span>
+<span id="cb16-16"><a href="#cb16-16" tabindex="-1"></a><span class="fu">stri_paste</span>(sample_text_b2, <span class="at">collapse =</span> <span class="st">&#39;</span><span class="sc">\n</span><span class="st">&#39;</span>)</span>
+<span id="cb16-17"><a href="#cb16-17" tabindex="-1"></a><span class="do">## [1] &quot;The quick brown fox named Seamus\njumps over the lazy dog also named Seamus, with\nthe newspaper from a boy named quick Seamus, in his mouth.\nThe quicker brown fox jumped over 2 lazy dogs.&quot;</span></span></code></pre></div>
+<p>Such <strong>stringi</strong> functions can also be applied to
+<strong>readtext</strong> objects.</p>
+</div>
+<div id="read-files-with-different-encodings" class="section level2">
+<h2>4.2 Read files with different encodings</h2>
+<p>Sometimes files of the same type have different encodings. If the
+encoding of a file is included in the file name, we can extract this
+information and import the texts correctly.</p>
+<div class="sourceCode" id="cb17"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb17-1"><a href="#cb17-1" tabindex="-1"></a><span class="co"># create a temporary directory to extract the .zip file</span></span>
+<span id="cb17-2"><a href="#cb17-2" tabindex="-1"></a>FILEDIR <span class="ot">&lt;-</span> <span class="fu">tempdir</span>()</span>
+<span id="cb17-3"><a href="#cb17-3" tabindex="-1"></a><span class="co"># unzip file</span></span>
+<span id="cb17-4"><a href="#cb17-4" tabindex="-1"></a><span class="fu">unzip</span>(<span class="fu">system.file</span>(<span class="st">&quot;extdata&quot;</span>, <span class="st">&quot;data_files_encodedtexts.zip&quot;</span>, <span class="at">package =</span> <span class="st">&quot;readtext&quot;</span>), <span class="at">exdir =</span> FILEDIR)</span></code></pre></div>
+<p>Here, we will get the encoding from the filenames themselves.</p>
+<div class="sourceCode" id="cb18"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb18-1"><a href="#cb18-1" tabindex="-1"></a><span class="co"># get encoding from filename</span></span>
+<span id="cb18-2"><a href="#cb18-2" tabindex="-1"></a>filenames <span class="ot">&lt;-</span> <span class="fu">list.files</span>(FILEDIR, <span class="st">&quot;^(Indian|UDHR_).*</span><span class="sc">\\</span><span class="st">.txt$&quot;</span>)</span>
+<span id="cb18-3"><a href="#cb18-3" tabindex="-1"></a></span>
+<span id="cb18-4"><a href="#cb18-4" tabindex="-1"></a><span class="fu">head</span>(filenames)</span>
+<span id="cb18-5"><a href="#cb18-5" tabindex="-1"></a><span class="do">## [1] &quot;IndianTreaty_English_UTF-16LE.txt&quot;  &quot;IndianTreaty_English_UTF-8-BOM.txt&quot;</span></span>
+<span id="cb18-6"><a href="#cb18-6" tabindex="-1"></a><span class="do">## [3] &quot;UDHR_Arabic_ISO-8859-6.txt&quot;         &quot;UDHR_Arabic_UTF-8.txt&quot;             </span></span>
+<span id="cb18-7"><a href="#cb18-7" tabindex="-1"></a><span class="do">## [5] &quot;UDHR_Arabic_WINDOWS-1256.txt&quot;       &quot;UDHR_Chinese_GB2312.txt&quot;</span></span>
+<span id="cb18-8"><a href="#cb18-8" tabindex="-1"></a></span>
+<span id="cb18-9"><a href="#cb18-9" tabindex="-1"></a><span class="co"># Strip the extension</span></span>
+<span id="cb18-10"><a href="#cb18-10" tabindex="-1"></a>filenames <span class="ot">&lt;-</span> <span class="fu">gsub</span>(<span class="st">&quot;.txt$&quot;</span>, <span class="st">&quot;&quot;</span>, filenames)</span>
+<span id="cb18-11"><a href="#cb18-11" tabindex="-1"></a>parts <span class="ot">&lt;-</span> <span class="fu">strsplit</span>(filenames, <span class="st">&quot;_&quot;</span>)</span>
+<span id="cb18-12"><a href="#cb18-12" tabindex="-1"></a>fileencodings <span class="ot">&lt;-</span> <span class="fu">sapply</span>(parts, <span class="st">&quot;[&quot;</span>, <span class="dv">3</span>)</span>
+<span id="cb18-13"><a href="#cb18-13" tabindex="-1"></a></span>
+<span id="cb18-14"><a href="#cb18-14" tabindex="-1"></a><span class="fu">head</span>(fileencodings)</span>
+<span id="cb18-15"><a href="#cb18-15" tabindex="-1"></a><span class="do">## [1] &quot;UTF-16LE&quot;     &quot;UTF-8-BOM&quot;    &quot;ISO-8859-6&quot;   &quot;UTF-8&quot;        &quot;WINDOWS-1256&quot;</span></span>
+<span id="cb18-16"><a href="#cb18-16" tabindex="-1"></a><span class="do">## [6] &quot;GB2312&quot;</span></span>
+<span id="cb18-17"><a href="#cb18-17" tabindex="-1"></a></span>
+<span id="cb18-18"><a href="#cb18-18" tabindex="-1"></a><span class="co"># Check whether certain file encodings are not supported</span></span>
+<span id="cb18-19"><a href="#cb18-19" tabindex="-1"></a>notAvailableIndex <span class="ot">&lt;-</span> <span class="fu">which</span>(<span class="sc">!</span>(fileencodings <span class="sc">%in%</span> <span class="fu">iconvlist</span>()))</span>
+<span id="cb18-20"><a href="#cb18-20" tabindex="-1"></a>fileencodings[notAvailableIndex]</span>
+<span id="cb18-21"><a href="#cb18-21" tabindex="-1"></a><span class="do">## [1] &quot;UTF-8-BOM&quot;</span></span></code></pre></div>
+<p>If we read the text files without specifying the encoding, we get
+erroneously formatted text. To avoid this, we determine the
+<code>encoding</code> using the character object
+<code>fileencoding</code> created above.</p>
+<p>We can also add <code>docvars</code> based on the filenames.</p>
+<div class="sourceCode" id="cb19"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb19-1"><a href="#cb19-1" tabindex="-1"></a>txts <span class="ot">&lt;-</span> <span class="fu">readtext</span>(<span class="fu">paste0</span>(DATA_DIR, <span class="st">&quot;/data_files_encodedtexts.zip&quot;</span>), </span>
+<span id="cb19-2"><a href="#cb19-2" tabindex="-1"></a>                 <span class="at">encoding =</span> fileencodings,</span>
+<span id="cb19-3"><a href="#cb19-3" tabindex="-1"></a>                 <span class="at">docvarsfrom =</span> <span class="st">&quot;filenames&quot;</span>, </span>
+<span id="cb19-4"><a href="#cb19-4" tabindex="-1"></a>                 <span class="at">docvarnames =</span> <span class="fu">c</span>(<span class="st">&quot;document&quot;</span>, <span class="st">&quot;language&quot;</span>, <span class="st">&quot;input_encoding&quot;</span>))</span>
+<span id="cb19-5"><a href="#cb19-5" tabindex="-1"></a><span class="fu">print</span>(txts, <span class="at">n =</span> <span class="dv">50</span>)</span>
+<span id="cb19-6"><a href="#cb19-6" tabindex="-1"></a><span class="do">## readtext object consisting of 36 documents and 3 docvars.</span></span>
+<span id="cb19-7"><a href="#cb19-7" tabindex="-1"></a><span class="do">## $text</span></span>
+<span id="cb19-8"><a href="#cb19-8" tabindex="-1"></a><span class="do">##  [1] &quot;# A data frame: 36 × 5&quot;                                                             </span></span>
+<span id="cb19-9"><a href="#cb19-9" tabindex="-1"></a><span class="do">##  [2] &quot;   doc_id                             text      document language input_encoding&quot;   </span></span>
+<span id="cb19-10"><a href="#cb19-10" tabindex="-1"></a><span class="do">##  [3] &quot;   &lt;chr&gt;                              &lt;chr&gt;     &lt;chr&gt;    &lt;chr&gt;    &lt;chr&gt;         &quot;   </span></span>
+<span id="cb19-11"><a href="#cb19-11" tabindex="-1"></a><span class="do">##  [4] &quot; 1 IndianTreaty_English_UTF-16LE.txt  \&quot;\\\&quot;WHERE… IndianT… English  UTF-16LE      &quot;</span></span>
+<span id="cb19-12"><a href="#cb19-12" tabindex="-1"></a><span class="do">##  [5] &quot; 2 IndianTreaty_English_UTF-8-BOM.txt \&quot;\\\&quot;ARTIC… IndianT… English  UTF-8-BOM     &quot;</span></span>
+<span id="cb19-13"><a href="#cb19-13" tabindex="-1"></a><span class="do">##  [6] &quot; 3 UDHR_Arabic_ISO-8859-6.txt         \&quot;\\\&quot;الديب… UDHR     Arabic   ISO-8859-6    &quot;</span></span>
+<span id="cb19-14"><a href="#cb19-14" tabindex="-1"></a><span class="do">##  [7] &quot; 4 UDHR_Arabic_UTF-8.txt              \&quot;\\\&quot;الديب… UDHR     Arabic   UTF-8         &quot;</span></span>
+<span id="cb19-15"><a href="#cb19-15" tabindex="-1"></a><span class="do">##  [8] &quot; 5 UDHR_Arabic_WINDOWS-1256.txt       \&quot;\\\&quot;الديب… UDHR     Arabic   WINDOWS-1256  &quot;</span></span>
+<span id="cb19-16"><a href="#cb19-16" tabindex="-1"></a><span class="do">##  [9] &quot; 6 UDHR_Chinese_GB2312.txt            \&quot;\\\&quot;世界…  UDHR     Chinese  GB2312        &quot;</span></span>
+<span id="cb19-17"><a href="#cb19-17" tabindex="-1"></a><span class="do">## [10] &quot; 7 UDHR_Chinese_GBK.txt               \&quot;\\\&quot;世界…  UDHR     Chinese  GBK           &quot;</span></span>
+<span id="cb19-18"><a href="#cb19-18" tabindex="-1"></a><span class="do">## [11] &quot; 8 UDHR_Chinese_UTF-8.txt             \&quot;\\\&quot;世界…  UDHR     Chinese  UTF-8         &quot;</span></span>
+<span id="cb19-19"><a href="#cb19-19" tabindex="-1"></a><span class="do">## [12] &quot; 9 UDHR_English_UTF-16BE.txt          \&quot;\\\&quot;Unive… UDHR     English  UTF-16BE      &quot;</span></span>
+<span id="cb19-20"><a href="#cb19-20" tabindex="-1"></a><span class="do">## [13] &quot;10 UDHR_English_UTF-16LE.txt          \&quot;\\\&quot;Unive… UDHR     English  UTF-16LE      &quot;</span></span>
+<span id="cb19-21"><a href="#cb19-21" tabindex="-1"></a><span class="do">## [14] &quot;11 UDHR_English_UTF-8.txt             \&quot;\\\&quot;Unive… UDHR     English  UTF-8         &quot;</span></span>
+<span id="cb19-22"><a href="#cb19-22" tabindex="-1"></a><span class="do">## [15] &quot;12 UDHR_English_WINDOWS-1252.txt      \&quot;\\\&quot;Unive… UDHR     English  WINDOWS-1252  &quot;</span></span>
+<span id="cb19-23"><a href="#cb19-23" tabindex="-1"></a><span class="do">## [16] &quot;13 UDHR_French_ISO-8859-1.txt         \&quot;\\\&quot;Décla… UDHR     French   ISO-8859-1    &quot;</span></span>
+<span id="cb19-24"><a href="#cb19-24" tabindex="-1"></a><span class="do">## [17] &quot;14 UDHR_French_UTF-8.txt              \&quot;\\\&quot;Décla… UDHR     French   UTF-8         &quot;</span></span>
+<span id="cb19-25"><a href="#cb19-25" tabindex="-1"></a><span class="do">## [18] &quot;15 UDHR_French_WINDOWS-1252.txt       \&quot;\\\&quot;Décla… UDHR     French   WINDOWS-1252  &quot;</span></span>
+<span id="cb19-26"><a href="#cb19-26" tabindex="-1"></a><span class="do">## [19] &quot;16 UDHR_German_ISO-8859-1.txt         \&quot;\\\&quot;Die A… UDHR     German   ISO-8859-1    &quot;</span></span>
+<span id="cb19-27"><a href="#cb19-27" tabindex="-1"></a><span class="do">## [20] &quot;17 UDHR_German_UTF-8.txt              \&quot;\\\&quot;Die A… UDHR     German   UTF-8         &quot;</span></span>
+<span id="cb19-28"><a href="#cb19-28" tabindex="-1"></a><span class="do">## [21] &quot;18 UDHR_German_WINDOWS-1252.txt       \&quot;\\\&quot;Die A… UDHR     German   WINDOWS-1252  &quot;</span></span>
+<span id="cb19-29"><a href="#cb19-29" tabindex="-1"></a><span class="do">## [22] &quot;19 UDHR_Greek_CP1253.txt              \&quot;\\\&quot;ΟΙΚΟΥ… UDHR     Greek    CP1253        &quot;</span></span>
+<span id="cb19-30"><a href="#cb19-30" tabindex="-1"></a><span class="do">## [23] &quot;20 UDHR_Greek_ISO-8859-7.txt          \&quot;\\\&quot;ΟΙΚΟΥ… UDHR     Greek    ISO-8859-7    &quot;</span></span>
+<span id="cb19-31"><a href="#cb19-31" tabindex="-1"></a><span class="do">## [24] &quot;21 UDHR_Greek_UTF-8.txt               \&quot;\\\&quot;ΟΙΚΟΥ… UDHR     Greek    UTF-8         &quot;</span></span>
+<span id="cb19-32"><a href="#cb19-32" tabindex="-1"></a><span class="do">## [25] &quot;22 UDHR_Hindi_UTF-8.txt               \&quot;\\\&quot;मानव … UDHR     Hindi    UTF-8         &quot;</span></span>
+<span id="cb19-33"><a href="#cb19-33" tabindex="-1"></a><span class="do">## [26] &quot;23 UDHR_Icelandic_ISO-8859-1.txt      \&quot;\\\&quot;Mannr… UDHR     Iceland… ISO-8859-1    &quot;</span></span>
+<span id="cb19-34"><a href="#cb19-34" tabindex="-1"></a><span class="do">## [27] &quot;24 UDHR_Icelandic_UTF-8.txt           \&quot;\\\&quot;Mannr… UDHR     Iceland… UTF-8         &quot;</span></span>
+<span id="cb19-35"><a href="#cb19-35" tabindex="-1"></a><span class="do">## [28] &quot;25 UDHR_Icelandic_WINDOWS-1252.txt    \&quot;\\\&quot;Mannr… UDHR     Iceland… WINDOWS-1252  &quot;</span></span>
+<span id="cb19-36"><a href="#cb19-36" tabindex="-1"></a><span class="do">## [29] &quot;26 UDHR_Japanese_CP932.txt            \&quot;\\\&quot;『世…  UDHR     Japanese CP932         &quot;</span></span>
+<span id="cb19-37"><a href="#cb19-37" tabindex="-1"></a><span class="do">## [30] &quot;27 UDHR_Japanese_ISO-2022-JP.txt      \&quot;\\\&quot;『世…  UDHR     Japanese ISO-2022-JP   &quot;</span></span>
+<span id="cb19-38"><a href="#cb19-38" tabindex="-1"></a><span class="do">## [31] &quot;28 UDHR_Japanese_UTF-8.txt            \&quot;\\\&quot;『世…  UDHR     Japanese UTF-8         &quot;</span></span>
+<span id="cb19-39"><a href="#cb19-39" tabindex="-1"></a><span class="do">## [32] &quot;29 UDHR_Japanese_WINDOWS-936.txt      \&quot;\\\&quot;『世…  UDHR     Japanese WINDOWS-936   &quot;</span></span>
+<span id="cb19-40"><a href="#cb19-40" tabindex="-1"></a><span class="do">## [33] &quot;30 UDHR_Korean_ISO-2022-KR.txt        \&quot;\\\&quot;세 계… UDHR     Korean   ISO-2022-KR   &quot;</span></span>
+<span id="cb19-41"><a href="#cb19-41" tabindex="-1"></a><span class="do">## [34] &quot;31 UDHR_Korean_UTF-8.txt              \&quot;\\\&quot;세 계… UDHR     Korean   UTF-8         &quot;</span></span>
+<span id="cb19-42"><a href="#cb19-42" tabindex="-1"></a><span class="do">## [35] &quot;32 UDHR_Russian_ISO-8859-5.txt        \&quot;\\\&quot;Всеоб… UDHR     Russian  ISO-8859-5    &quot;</span></span>
+<span id="cb19-43"><a href="#cb19-43" tabindex="-1"></a><span class="do">## [36] &quot;33 UDHR_Russian_KOI8-R.txt            \&quot;\\\&quot;Всеоб… UDHR     Russian  KOI8-R        &quot;</span></span>
+<span id="cb19-44"><a href="#cb19-44" tabindex="-1"></a><span class="do">## [37] &quot;34 UDHR_Russian_UTF-8.txt             \&quot;\\\&quot;Всеоб… UDHR     Russian  UTF-8         &quot;</span></span>
+<span id="cb19-45"><a href="#cb19-45" tabindex="-1"></a><span class="do">## [38] &quot;35 UDHR_Russian_WINDOWS-1251.txt      \&quot;\\\&quot;Всеоб… UDHR     Russian  WINDOWS-1251  &quot;</span></span>
+<span id="cb19-46"><a href="#cb19-46" tabindex="-1"></a><span class="do">## [39] &quot;36 UDHR_Thai_UTF-8.txt                \&quot;\\\&quot;ปฏิญญา… UDHR     Thai     UTF-8         &quot;</span></span>
+<span id="cb19-47"><a href="#cb19-47" tabindex="-1"></a><span class="do">## </span></span>
+<span id="cb19-48"><a href="#cb19-48" tabindex="-1"></a><span class="do">## $summary</span></span>
+<span id="cb19-49"><a href="#cb19-49" tabindex="-1"></a><span class="do">## $summary[[1]]</span></span>
+<span id="cb19-50"><a href="#cb19-50" tabindex="-1"></a><span class="do">## NULL</span></span>
+<span id="cb19-51"><a href="#cb19-51" tabindex="-1"></a><span class="do">## </span></span>
+<span id="cb19-52"><a href="#cb19-52" tabindex="-1"></a><span class="do">## </span></span>
+<span id="cb19-53"><a href="#cb19-53" tabindex="-1"></a><span class="do">## attr(,&quot;class&quot;)</span></span>
+<span id="cb19-54"><a href="#cb19-54" tabindex="-1"></a><span class="do">## [1] &quot;trunc_mat&quot;</span></span></code></pre></div>
+<p>From this file we can easily create a <strong>quanteda</strong>
+<code>corpus</code> object.</p>
+<div class="sourceCode" id="cb20"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb20-1"><a href="#cb20-1" tabindex="-1"></a><span class="cf">if</span> (<span class="fu">require</span>(<span class="st">&quot;quanteda&quot;</span>)) {</span>
+<span id="cb20-2"><a href="#cb20-2" tabindex="-1"></a>corpus_txts <span class="ot">&lt;-</span> <span class="fu">corpus</span>(txts)</span>
+<span id="cb20-3"><a href="#cb20-3" tabindex="-1"></a><span class="fu">summary</span>(corpus_txts, <span class="dv">5</span>)</span>
+<span id="cb20-4"><a href="#cb20-4" tabindex="-1"></a>}</span>
+<span id="cb20-5"><a href="#cb20-5" tabindex="-1"></a><span class="do">## Corpus consisting of 36 documents, showing 5 documents:</span></span>
+<span id="cb20-6"><a href="#cb20-6" tabindex="-1"></a><span class="do">## </span></span>
+<span id="cb20-7"><a href="#cb20-7" tabindex="-1"></a><span class="do">##                                Text Types Tokens Sentences     document</span></span>
+<span id="cb20-8"><a href="#cb20-8" tabindex="-1"></a><span class="do">##   IndianTreaty_English_UTF-16LE.txt   618   2577       152 IndianTreaty</span></span>
+<span id="cb20-9"><a href="#cb20-9" tabindex="-1"></a><span class="do">##  IndianTreaty_English_UTF-8-BOM.txt   647   3085       150 IndianTreaty</span></span>
+<span id="cb20-10"><a href="#cb20-10" tabindex="-1"></a><span class="do">##          UDHR_Arabic_ISO-8859-6.txt   753   1555        86         UDHR</span></span>
+<span id="cb20-11"><a href="#cb20-11" tabindex="-1"></a><span class="do">##               UDHR_Arabic_UTF-8.txt   753   1555        86         UDHR</span></span>
+<span id="cb20-12"><a href="#cb20-12" tabindex="-1"></a><span class="do">##        UDHR_Arabic_WINDOWS-1256.txt   753   1555        86         UDHR</span></span>
+<span id="cb20-13"><a href="#cb20-13" tabindex="-1"></a><span class="do">##  language input_encoding</span></span>
+<span id="cb20-14"><a href="#cb20-14" tabindex="-1"></a><span class="do">##   English       UTF-16LE</span></span>
+<span id="cb20-15"><a href="#cb20-15" tabindex="-1"></a><span class="do">##   English      UTF-8-BOM</span></span>
+<span id="cb20-16"><a href="#cb20-16" tabindex="-1"></a><span class="do">##    Arabic     ISO-8859-6</span></span>
+<span id="cb20-17"><a href="#cb20-17" tabindex="-1"></a><span class="do">##    Arabic          UTF-8</span></span>
+<span id="cb20-18"><a href="#cb20-18" tabindex="-1"></a><span class="do">##    Arabic   WINDOWS-1256</span></span></code></pre></div>
+</div>
+</div>
+
+
+
+<!-- code folding -->
+
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    script.src  = "https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML";
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+
+</body>
+</html>

@@ -1,0 +1,157 @@
+import(methods)
+importFrom(stats, setNames)
+importFrom(utils, as.person)
+
+importMethodsFrom(DBI, dbGetQuery, dbListTables, dbListFields)
+
+import(AnnotationDbi)
+import(BiocGenerics)
+import(S4Vectors)
+import(IRanges)
+import(GenomeInfoDb)
+import(XVector)
+import(GenomicRanges)
+
+importClassesFrom(Biostrings, DNAString, DNAStringSet, MaskedDNAString)
+importFrom(Biostrings, DNAStringSet, reverseComplement, getSeq)
+
+importFrom(rtracklayer, asBED, asGFF)
+
+
+exportClasses(TxDb, FeatureDb)
+
+export(
+  ## id2name.R:
+  id2name,
+
+  ## transcripts.R:
+  transcripts, exons, cds, genes,
+
+  ## transcriptsBy.R:
+  transcriptsBy,
+  exonsBy,
+  cdsBy,
+  intronsByTranscript,
+  fiveUTRsByTranscript,
+  threeUTRsByTranscript,
+
+  ## transcriptsByOverlaps.R:
+  transcriptsByOverlaps,
+  exonsByOverlaps,
+  cdsByOverlaps,
+
+  ## transcriptLengths.R:
+  transcriptLengths,
+
+  ## exonicParts.R:
+  tidyTranscripts, tidyExons, tidyIntrons,
+  exonicParts, intronicParts,
+
+  ## extendExonsIntoIntrons.R:
+  extendExonsIntoIntrons,
+
+  ## features.R:
+  features,
+
+  ## microRNAs.R:
+  microRNAs,
+  tRNAs,
+
+  ## extractTranscriptSeqs.R:
+  extractTranscriptSeqs,
+
+  ## extractUpstreamSeqs.R:
+  extractUpstreamSeqs,
+
+  ## getPromoterSeq-methods.R:
+  getPromoterSeq, getTerminatorSeq,
+
+  ## transcriptLocs2refLocs.R:
+  transcriptLocs2refLocs,
+  transcriptWidths,
+
+  ## coordinate-mapping-methods.R:
+  mapToTranscripts, pmapToTranscripts,
+  mapFromTranscripts, pmapFromTranscripts,
+
+  ## proteinToGenome.R:
+  proteinToGenome,
+
+  ## coverageByTranscript.R:
+  coverageByTranscript,
+  pcoverageByTranscript
+)
+
+exportMethods(
+  organism,
+  show,
+  as.list,
+  seqlevels0, "seqlevels<-", seqinfo,
+  transcripts, exons, cds, genes,
+  promoters, terminators,
+  transcriptsByOverlaps,
+  exonsByOverlaps,
+  cdsByOverlaps,
+  transcriptsBy,
+  exonsBy,
+  cdsBy,
+  intronsByTranscript,
+  fiveUTRsByTranscript,
+  threeUTRsByTranscript,
+  microRNAs,
+  tRNAs,
+  extractTranscriptSeqs,
+  extractUpstreamSeqs,
+  getPromoterSeq, getTerminatorSeq,
+  isActiveSeq,
+  "isActiveSeq<-",
+  asBED, asGFF,
+  distance,
+  mapToTranscripts, pmapToTranscripts,
+  mapFromTranscripts, pmapFromTranscripts,
+  mapIdsToRanges, mapRangesToIds,
+  proteinToGenome
+)
+
+
+### - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+### Stuff that has moved to txdbmaker
+###
+
+export(
+  ## makeTxDb.R:
+  makeTxDb,
+
+  ## makeTxDbFromUCSC.R:
+  supportedUCSCtables,
+  browseUCSCtrack,
+  makeTxDbFromUCSC,
+
+  ## makeTxDbFromBiomart.R:
+  getChromInfoFromBiomart,
+  makeTxDbFromBiomart,
+
+  ## makeTxDbFromEnsembl.R:
+  makeTxDbFromEnsembl,
+
+  ## makeTxDbFromGRanges.R:
+  makeTxDbFromGRanges,
+
+  ## makeTxDbFromGFF.R:
+  makeTxDbFromGFF,
+
+  ## makeFeatureDbFromUCSC.R:
+  supportedUCSCFeatureDbTracks,
+  supportedUCSCFeatureDbTables,
+  UCSCFeatureDbTableSchema,
+  makeFeatureDbFromUCSC,
+
+  ## makeTxDbPackage.R:
+  supportedMiRBaseBuildValues,
+  makePackageName,
+  makeTxDbPackage,
+  makeTxDbPackageFromUCSC,
+  makeFDbPackageFromUCSC,
+  makeTxDbPackageFromBiomart
+)
+

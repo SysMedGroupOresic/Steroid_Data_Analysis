@@ -1,0 +1,139 @@
+url: http://dmetar.protectlab.org
+
+template:
+  bootstrap: 5
+  includes:
+    in_header: |
+      <link rel="stylesheet" href="../costum.css">
+      <link rel="stylesheet" href="costum.css">
+      <script src="../logo.js" defer></script>
+      <script src="logo.js" defer></script>
+  bslib:
+      base_font: {google: "Fira Sans", wght = "200..900"}
+      heading_font: {google: "Fira Sans", wght = "200..900"}
+      code_font: {google: "Fira Code"}
+      primary: "#3382b2"
+      bg: "#fffefa"
+      fg: "black"
+  params:
+    bootswatch: flatly
+    docsearch:
+      api_key: 358a758fa720ccb381dab79f60a2b3a4
+      index_name: dmetar
+
+navbar:
+  type: default
+  left:
+  - text: Get Started
+    href: articles/dmetar.html
+  - text: Documentation
+    href: reference/index.html
+  - text: Book
+    href: https://bookdown.org/MathiasHarrer/Doing_Meta_Analysis_in_R/
+
+reference:
+  - title: Effect size calculation
+    contents:
+    - NNT
+    - se.from.p
+    - pool.groups
+
+  - title: Small-study effects & Publication bias
+    contents:
+    - eggers.test
+    - find.outliers
+    - InfluenceAnalysis
+    - gosh.diagnostics
+    - pcurve
+
+  - title: Power analysis
+    contents:
+    - power.analysis
+    - power.analysis.subgroup
+
+  - title: Meta-regression & Subgroups
+    contents:
+    - multimodel.inference
+    - subgroup.analysis.mixed.effects
+
+  - title: Multilevel Meta-Analysis
+    contents:
+    - mlm.variance.distribution
+
+  - title: Network Meta-Analysis
+    contents:
+    - direct.evidence.plot
+    - sucra
+
+  - title: Risk of bias
+    contents:
+    - rob.summary
+
+  - title: Data sets
+    contents:
+    - BdiScores
+    - Chernobyl
+    - DepressionMortality
+    - EatingDisorderPrevention
+    - HealthWellbeing
+    - m.gosh
+    - MVRegressionData
+    - NetDataGemtc
+    - NetDataNetmeta
+    - OpioidMisuse
+    - SleepProblems
+    - SuicidePrevention
+    - TherapyFormats
+    - TherapyFormatsGeMTC
+    - ThirdWave
+
+  - title: S3 methods
+    contents:
+    - forest.find.outliers
+    - forest.subgroup.analysis.mixed.effects
+    - plot.InfluenceAnalysis
+    - plot.direct.evidence.plot
+    - plot.eggers.test
+    - plot.find.outliers
+    - plot.gosh.diagnostics
+    - plot.mlm.variance.distribution
+    - plot.multimodel.inference
+    - plot.power.analysis
+    - plot.power.analysis.subgroup
+    - plot.subgroup.analysis.mixed.effects
+    - plot.sucra
+    - print.InfluenceAnalysis
+    - print.NNT
+    - print.direct.evidence.plot
+    - print.eggers.test
+    - print.find.outliers
+    - print.gosh.diagnostics
+    - print.mlm.variance.distribution
+    - print.multimodel.inference
+    - print.pcurve
+    - print.power.analysis
+    - print.power.analysis.subgroup
+    - print.subgroup.analysis.mixed.effects
+    - print.sucra
+    - summary.InfluenceAnalysis
+    - summary.direct.evidence.plot
+    - summary.eggers.test
+    - summary.find.outliers
+    - summary.gosh.diagnostics
+    - summary.mlm.variance.distribution
+    - summary.multimodel.inference
+    - summary.pcurve
+    - summary.power.analysis
+    - summary.power.analysis.subgroup
+    - summary.subgroup.analysis.mixed.effects
+
+
+  - title: Package
+    contents:
+    - dmetar
+
+
+
+
+
+

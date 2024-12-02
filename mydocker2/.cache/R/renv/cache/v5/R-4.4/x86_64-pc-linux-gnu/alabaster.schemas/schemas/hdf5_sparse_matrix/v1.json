@@ -1,0 +1,101 @@
+{
+    "$id": "hdf5_sparse_matrix/v1.json",
+    "$schema": "http://json-schema.org/draft-07/schema",
+    "_attributes": {
+        "format": "application/x-hdf5",
+        "restore": {
+            "R": "alabaster.matrix::loadArray",
+            "python": "dolomite_matrix.load_hdf5_sparse_matrix"
+        }
+    },
+    "additionalProperties": false,
+    "description": "Sparse matrix, saved in compressed sparse format inside a group of a HDF5 file. (see [here](https://github.com/ArtifactDB/takane/blob/master/docs/specifications/hdf5_sparse_matrix/v1.md) for a detailed specification).\n\nDerived from `array/v1.json`: some kind of multi-dimensional array, where we store metadata about the dimensions and type of data. The exact implementation of the array is left to concrete subclasses.",
+    "properties": {
+        "$schema": {
+            "description": "The schema to use.",
+            "type": "string"
+        },
+        "array": {
+            "additionalProperties": false,
+            "properties": {
+                "dimensions": {
+                    "description": "Dimensions of an n-dimensional array.",
+                    "items": {
+                        "type": "integer"
+                    },
+                    "maxItems": 2,
+                    "minItems": 2,
+                    "type": "array"
+                },
+                "type": {
+                    "description": "Type of data stored in this array.",
+                    "enum": [
+                        "boolean",
+                        "number",
+                        "integer",
+                        "string",
+                        "other"
+                    ],
+                    "type": "string"
+                }
+            },
+            "required": [
+                "dimensions"
+            ],
+            "type": "object"
+        },
+        "hdf5_sparse_matrix": {
+            "additionalProperties": false,
+            "properties": {
+                "dimnames": {
+                    "description": "Name of the HDF5 group containing the dimnames. Only used for older `hdf5_dense_array` instances, and is ignored if a version number attribute is present in the HDF5 group named by `group`. (in such cases, dimension names are instead referenced by the `dimension-names` attribute on the group).",
+                    "type": "string"
+                },
+                "format": {
+                    "description": "Format of the sparse matrix.",
+                    "enum": [
+                        "tenx_matrix"
+                    ],
+                    "type": "string"
+                },
+                "group": {
+                    "description": "Name of the group inside the HDF5 file that contains the sparse matrix's data.",
+                    "type": "string"
+                },
+                "version": {
+                    "default": 1,
+                    "description": "Minor version of this format. Only used for older `hdf5_sparse_matrix` instances, and is ignored if a version number attribute is present in the HDF5 group named by `group`. ",
+                    "maximum": 2,
+                    "type": "integer"
+                }
+            },
+            "required": [
+                "format",
+                "group"
+            ],
+            "type": "object"
+        },
+        "is_child": {
+            "default": false,
+            "description": "Is this a child document, only to be interpreted in the context of the parent document from which it is linked? This may have implications for search and metadata requirements.",
+            "type": "boolean"
+        },
+        "md5sum": {
+            "description": "MD5 checksum for the file.",
+            "type": "string"
+        },
+        "path": {
+            "description": "Path to the file in the project directory.",
+            "type": "string"
+        }
+    },
+    "required": [
+        "$schema",
+        "array",
+        "hdf5_sparse_matrix",
+        "md5sum",
+        "path"
+    ],
+    "title": "HDF5 sparse matrix",
+    "type": "object"
+}

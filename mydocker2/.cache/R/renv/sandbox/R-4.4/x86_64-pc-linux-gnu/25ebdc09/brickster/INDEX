@@ -1,0 +1,279 @@
+DatabricksSqlClient     Databricks SQL Connector
+access_control_req_group
+                        Access Control Request for Group
+access_control_req_user
+                        Access Control Request For User
+access_control_request
+                        Access Control Request
+add_lib_path            Add Library Path
+aws_attributes          AWS Attributes
+azure_attributes        Azure Attributes
+close_workspace         Close Databricks Workspace Connection
+cluster_autoscale       Cluster Autoscale
+cluster_log_conf        Cluster Log Configuration
+cron_schedule           Cron Schedule
+db_cluster_action       Cluster Action Helper Function
+db_cluster_create       Create a Cluster
+db_cluster_delete       Delete/Terminate a Cluster
+db_cluster_edit         Edit a Cluster
+db_cluster_events       List Cluster Activity Events
+db_cluster_get          Get Details of a Cluster
+db_cluster_list         List Clusters
+db_cluster_list_node_types
+                        List Available Cluster Node Types
+db_cluster_list_zones   List Availability Zones (AWS Only)
+db_cluster_perm_delete
+                        Permanently Delete a Cluster
+db_cluster_pin          Pin a Cluster
+db_cluster_resize       Resize a Cluster
+db_cluster_restart      Restart a Cluster
+db_cluster_runtime_versions
+                        List Available Databricks Runtime Versions
+db_cluster_start        Start a Cluster
+db_cluster_terminate    Delete/Terminate a Cluster
+db_cluster_unpin        Unpin a Cluster
+db_context_command_cancel
+                        Cancel a Command
+db_context_command_run
+                        Run a Command
+db_context_command_run_and_wait
+                        Run a Command and Wait For Results
+db_context_command_status
+                        Get Information About a Command
+db_context_create       Create an Execution Context
+db_context_destroy      Delete an Execution Context
+db_context_manager      Databricks Execution Context Manager (R6 Class)
+db_context_status       Get Information About an Execution Context
+db_current_cloud        Detect Current Workspaces Cloud
+db_current_user         Get Current User Info
+db_current_workspace_id
+                        Detect Current Workspace ID
+db_dbfs_add_block       DBFS Add Block
+db_dbfs_close           DBFS Close
+db_dbfs_create          DBFS Create
+db_dbfs_delete          DBFS Delete
+db_dbfs_get_status      DBFS Get Status
+db_dbfs_list            DBFS List
+db_dbfs_mkdirs          DBFS mkdirs
+db_dbfs_move            DBFS Move
+db_dbfs_put             DBFS Put
+db_dbfs_read            DBFS Read
+db_host                 Generate/Fetch Databricks Host
+db_jobs_create          Create Job
+db_jobs_delete          Delete a Job
+db_jobs_get             Get Job Details
+db_jobs_list            List Jobs
+db_jobs_reset           Overwrite All Settings For A Job
+db_jobs_run_now         Trigger A New Job Run
+db_jobs_runs_cancel     Cancel Job Run
+db_jobs_runs_delete     Delete Job Run
+db_jobs_runs_export     Export Job Run Output
+db_jobs_runs_get        Get Job Run Details
+db_jobs_runs_get_output
+                        Get Job Run Output
+db_jobs_runs_list       List Job Runs
+db_jobs_runs_submit     Create And Trigger A One-Time Run
+db_jobs_update          Partially Update A Job
+db_libs_all_cluster_statuses
+                        Get Status of All Libraries on All Clusters
+db_libs_cluster_status
+                        Get Status of Libraries on Cluster
+db_libs_install         Install Library on Cluster
+db_libs_uninstall       Uninstall Library on Cluster
+db_mlflow_model_approve_transition_req
+                        Approve Model Version Stage Transition Request
+db_mlflow_model_delete_transition_req
+                        Delete a Model Version Stage Transition Request
+db_mlflow_model_open_transition_reqs
+                        Get All Open Stage Transition Requests for the
+                        Model Version
+db_mlflow_model_reject_transition_req
+                        Reject Model Version Stage Transition Request
+db_mlflow_model_transition_req
+                        Make a Model Version Stage Transition Request
+db_mlflow_model_transition_stage
+                        Transition a Model Version's Stage
+db_mlflow_model_version_comment
+                        Make a Comment on a Model Version
+db_mlflow_model_version_comment_delete
+                        Delete a Comment on a Model Version
+db_mlflow_model_version_comment_edit
+                        Edit a Comment on a Model Version
+db_mlflow_registered_model_details
+                        Get Registered Model Details
+db_perform_request      Perform Databricks API Request
+db_read_netrc           Read .netrc File
+db_repl                 Remote REPL to Databricks Cluster
+db_repo_create          Create Repo
+db_repo_delete          Delete Repo
+db_repo_get             Get Repo
+db_repo_get_all         Get All Repos
+db_repo_update          Update Repo
+db_req_error_body       Propagate Databricks API Errors
+db_request              Databricks Request Helper
+db_request_json         Generate Request JSON
+db_secrets_delete       Delete Secret in Secret Scope
+db_secrets_list         List Secrets in Secret Scope
+db_secrets_put          Put Secret in Secret Scope
+db_secrets_scope_acl_delete
+                        Delete Secret Scope ACL
+db_secrets_scope_acl_get
+                        Get Secret Scope ACL
+db_secrets_scope_acl_list
+                        List Secret Scope ACL's
+db_secrets_scope_acl_put
+                        Put ACL on Secret Scope
+db_secrets_scope_create
+                        Create Secret Scope
+db_secrets_scope_delete
+                        Delete Secret Scope
+db_secrets_scope_list_all
+                        List Secret Scopes
+db_sql_client           Create Databricks SQL Connector Client
+db_sql_exec_cancel      Cancel SQL Query
+db_sql_exec_query       Execute SQL Query
+db_sql_exec_result      Get SQL Query Results
+db_sql_exec_status      Get SQL Query Status
+db_sql_global_warehouse_get
+                        Get Global Warehouse Config
+db_sql_query_history    List Warehouse Query History
+db_sql_warehouse_create
+                        Create Warehouse
+db_sql_warehouse_delete
+                        Delete Warehouse
+db_sql_warehouse_edit   Edit Warehouse
+db_sql_warehouse_get    Get Warehouse
+db_sql_warehouse_list   List Warehouses
+db_sql_warehouse_start
+                        Start Warehouse
+db_sql_warehouse_stop   Stop Warehouse
+db_token                Fetch Databricks Token
+db_volume_delete        Volume FileSystem Delete
+db_volume_dir_create    Volume FileSystem Create Directory
+db_volume_dir_delete    Volume FileSystem Delete Directory
+db_volume_dir_exists    Volume FileSystem Check Directory Exists
+db_volume_file_exists   Volume FileSystem File Status
+db_volume_list          Volume FileSystem List Directory Contents
+db_volume_read          Volume FileSystem Read
+db_volume_write         Volume FileSystem Write
+db_vs_endpoints_create
+                        Create a Vector Search Endpoint
+db_vs_endpoints_delete
+                        Delete a Vector Search Endpoint
+db_vs_endpoints_get     Get a Vector Search Endpoint
+db_vs_endpoints_list    List Vector Search Endpoints
+db_vs_indexes_create    Create a Vector Search Index
+db_vs_indexes_delete    Delete a Vector Search Index
+db_vs_indexes_delete_data
+                        Delete Data from a Vector Search Index
+db_vs_indexes_get       Get a Vector Search Index
+db_vs_indexes_list      List Vector Search Indexes
+db_vs_indexes_query     Query a Vector Search Index
+db_vs_indexes_query_next_page
+                        Query Vector Search Next Page
+db_vs_indexes_scan      Scan a Vector Search Index
+db_vs_indexes_sync      Synchronize a Vector Search Index
+db_vs_indexes_upsert_data
+                        Upsert Data into a Vector Search Index
+db_workspace_delete     Delete Object/Directory (Workspaces)
+db_workspace_export     Export Notebook or Directory (Workspaces)
+db_workspace_get_status
+                        Get Object Status (Workspaces)
+db_workspace_import     Import Notebook/Directory (Workspaces)
+db_workspace_list       List Directory Contents (Workspaces)
+db_workspace_mkdirs     Make a Directory (Workspaces)
+db_wsid                 Fetch Databricks Workspace ID
+dbfs_storage_info       DBFS Storage Information
+delta_sync_index_spec   Delta Sync Vector Search Index Specification
+direct_access_index_spec
+                        Delta Sync Vector Search Index Specification
+docker_image            Docker Image
+email_notifications     Email Notifications
+embedding_source_column
+                        Embedding Source Column
+embedding_vector_column
+                        Embedding Vector Column
+file_storage_info       File Storage Information
+gcp_attributes          GCP Attributes
+get_and_start_cluster   Get and Start Cluster
+get_and_start_warehouse
+                        Get and Start Warehouse
+get_latest_dbr          Get Latest Databricks Runtime (DBR)
+git_source              Git Source for Job Notebook Tasks
+in_databricks_nb        Detect if running within Databricks Notebook
+init_script_info        Init Script Info
+install_db_sql_connector
+                        Install Databricks SQL Connector (Python)
+is.access_control_req_group
+                        Test if object is of class
+                        AccessControlRequestForGroup
+is.access_control_req_user
+                        Test if object is of class
+                        AccessControlRequestForUser
+is.access_control_request
+                        Test if object is of class AccessControlRequest
+is.aws_attributes       Test if object is of class AwsAttributes
+is.azure_attributes     Test if object is of class AzureAttributes
+is.cluster_autoscale    Test if object is of class AutoScale
+is.cluster_log_conf     Test if object is of class ClusterLogConf
+is.cron_schedule        Test if object is of class CronSchedule
+is.dbfs_storage_info    Test if object is of class DbfsStorageInfo
+is.delta_sync_index     Test if object is of class DeltaSyncIndex
+is.direct_access_index
+                        Test if object is of class DirectAccessIndex
+is.docker_image         Test if object is of class DockerImage
+is.email_notifications
+                        Test if object is of class
+                        JobEmailNotifications
+is.embedding_source_column
+                        Test if object is of class
+                        EmbeddingSourceColumn
+is.embedding_vector_column
+                        Test if object is of class
+                        EmbeddingVectorColumn
+is.file_storage_info    Test if object is of class FileStorageInfo
+is.gcp_attributes       Test if object is of class GcpAttributes
+is.git_source           Test if object is of class GitSource
+is.init_script_info     Test if object is of class InitScriptInfo
+is.job_task             Test if object is of class JobTaskSettings
+is.lib_cran             Test if object is of class CranLibrary
+is.lib_egg              Test if object is of class EggLibrary
+is.lib_jar              Test if object is of class JarLibrary
+is.lib_maven            Test if object is of class MavenLibrary
+is.lib_pypi             Test if object is of class PyPiLibrary
+is.lib_whl              Test if object is of class WhlLibrary
+is.libraries            Test if object is of class Libraries
+is.library              Test if object is of class Library
+is.new_cluster          Test if object is of class NewCluster
+is.notebook_task        Test if object is of class NotebookTask
+is.pipeline_task        Test if object is of class PipelineTask
+is.python_wheel_task    Test if object is of class PythonWheelTask
+is.s3_storage_info      Test if object is of class S3StorageInfo
+is.spark_jar_task       Test if object is of class SparkJarTask
+is.spark_python_task    Test if object is of class SparkPythonTask
+is.spark_submit_task    Test if object is of class SparkSubmitTask
+is.valid_task_type      Test if object is of class JobTask
+is.vector_search_index_spec
+                        Test if object is of class
+                        VectorSearchIndexSpec
+job_task                Job Task
+job_tasks               Job Tasks
+lib_cran                Cran Library (R)
+lib_egg                 Egg Library (Python)
+lib_jar                 Jar Library (Scala)
+lib_maven               Maven Library (Scala)
+lib_pypi                PyPi Library (Python)
+lib_whl                 Wheel Library (Python)
+libraries               Libraries
+new_cluster             New Cluster
+notebook_task           Notebook Task
+open_workspace          Connect to Databricks Workspace
+pipeline_task           Pipeline Task
+python_wheel_task       Python Wheel Task
+remove_lib_path         Remove Library Path
+s3_storage_info         S3 Storage Info
+spark_jar_task          Spark Jar Task
+spark_python_task       Spark Python Task
+spark_submit_task       Spark Submit Task
+wait_for_lib_installs   Wait for Libraries to Install on Databricks
+                        Cluster

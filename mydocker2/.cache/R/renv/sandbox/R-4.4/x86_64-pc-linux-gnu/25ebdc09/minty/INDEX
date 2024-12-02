@@ -1,0 +1,10 @@
+col_skip                Create column specification
+date_names              Create or retrieve date names
+locale                  Create locales
+parse_datetime          Parse date/times
+parse_factor            Parse factors
+parse_guess             Parse using the "best" type
+parse_logical           Parse logicals, integers, and reals
+parse_number            Parse numbers, flexibly
+type_convert            Re-convert character columns in existing data
+                        frame

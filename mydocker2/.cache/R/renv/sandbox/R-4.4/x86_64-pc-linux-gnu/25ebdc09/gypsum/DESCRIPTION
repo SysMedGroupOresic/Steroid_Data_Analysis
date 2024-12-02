@@ -1,0 +1,29 @@
+Package: gypsum
+Version: 1.2.0
+Date: 2024-06-20
+Title: Interface to the gypsum REST API
+Description: 
+    Client for the gypsum REST API (https://gypsum.artifactdb.com), a cloud-based file store in the ArtifactDB ecosystem.
+    This package provides functions for uploads, downloads, and various adminstrative and management tasks.
+    Check out the documentation at https://github.com/ArtifactDB/gypsum-worker for more details.
+Authors@R: person("Aaron", "Lun", role=c("aut", "cre"), email="infinite.monkeys.with.keyboards@gmail.com")
+License: MIT + file LICENSE
+Imports: utils, httr2, jsonlite, parallel, filelock, rappdirs
+Suggests: knitr, rmarkdown, testthat, BiocStyle, digest, jsonvalidate,
+        DBI, RSQLite, S4Vectors, methods
+RoxygenNote: 7.3.1
+VignetteBuilder: knitr
+URL: https://github.com/ArtifactDB/gypsum-R
+BugReports: https://github.com/ArtifactDB/gypsum-R/issues
+biocViews: DataImport
+git_url: https://git.bioconductor.org/packages/gypsum
+git_branch: RELEASE_3_20
+git_last_commit: 7fb25e1
+git_last_commit_date: 2024-10-29
+Repository: Bioconductor 3.20
+Date/Publication: 2024-10-29
+NeedsCompilation: no
+Packaged: 2024-10-30 03:14:01 UTC; biocbuild
+Author: Aaron Lun [aut, cre]
+Maintainer: Aaron Lun <infinite.monkeys.with.keyboards@gmail.com>
+Built: R 4.4.1; ; 2024-10-30 16:02:29 UTC; windows

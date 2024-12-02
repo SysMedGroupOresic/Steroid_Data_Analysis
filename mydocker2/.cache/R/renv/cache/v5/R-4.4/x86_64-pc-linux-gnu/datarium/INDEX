@@ -1,0 +1,21 @@
+anxiety                 Anxiety Data for Two-Way Mixed ANOVA
+depression              Depression Data for Two Way Mixed ANOVA
+genderweight            Weight Data By Gender for Two-Samples Mean Test
+headache                Headache Data for Three Way ANOVA
+heartattack             Heart Attack Data for Three Way ANOVA
+housetasks.raw          Housetasks
+jobsatisfaction         Job Satisfaction Data for Two-Way ANOVA
+marketing               Marketing Data Set
+mice                    Mice Weight Data for One Sample Mean Test
+mice2                   Mice Weight Data for Paired-Samples Mean Test
+performance             Performance Data for Three-Way Mixed ANOVA
+properties              Properties Data for Chi-square Test of
+                        Independence
+selfesteem              Self-Esteem Score Data for One-way Repeated
+                        Measures ANOVA
+selfesteem2             Self Esteem Score Data for Two-way Repeated
+                        Measures ANOVA
+stress                  Stress Data for Two-Way ANCOVA
+titanic.raw             Survival of Passengers on the Titanic
+weightloss              Weight Loss Score Data for Three-way Repeated
+                        Measures ANOVA

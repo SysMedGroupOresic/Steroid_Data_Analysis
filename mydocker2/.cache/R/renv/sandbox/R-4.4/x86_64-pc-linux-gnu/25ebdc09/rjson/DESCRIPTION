@@ -1,0 +1,24 @@
+Package: rjson
+Version: 0.2.23
+Title: JSON for R
+Author: Alex Couture-Beil [aut, cre]
+Authors@R: person(given = "Alex", family = "Couture-Beil", role = c("aut", "cre"), email = "rjson_pkg@mofo.ca")
+Maintainer: Alex Couture-Beil <rjson_pkg@mofo.ca>
+Depends: R (>= 4.0.0)
+Description: Converts R object into JSON objects and vice-versa.
+URL: https://github.com/alexcb/rjson
+License: GPL-2
+Repository: RSPM
+Packaged: 2024-09-16 17:34:28 UTC; root
+NeedsCompilation: yes
+Date/Publication: 2024-09-16 18:20:02 UTC
+Encoding: UTF-8
+Built: R 4.4.0; x86_64-w64-mingw32; 2024-09-17 04:24:19 UTC; windows
+Archs: x64
+RemoteType: standard
+RemotePkgRef: rjson
+RemoteRef: rjson
+RemoteRepos: https://packagemanager.posit.co/cran/latest
+RemoteReposName: CRAN
+RemotePkgPlatform: x86_64-w64-mingw32
+RemoteSha: 0.2.23
