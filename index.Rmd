@@ -41,7 +41,8 @@ library(magrittr); library(ggplot2);library( "censReg" );library(ggsankey);libra
 ## Warning, do not add: 'library(forestplot)'! It is not working with ggforestplot... (9.9.24)
 library(mdatools);library(circlize);library(igraph);library('bigsnpr');library(rcompanion);
 #library(scRNAseq);
-library(tibble);library(stringr);library(MOFA2);library('qpgraph');library('rmdformats');#library(rmarkdown) #in case 'rmarkdown error', drive these two
+library(tibble);library(stringr);library(MOFA2);library('qpgraph');library('rmdformats');#
+library(rmarkdown) #in case 'rmarkdown error', drive these two
 library("grid"); library("ggplotify");library(ggpubr);library(rstatix);library(datarium);library(RColorBrewer); library(ggh4x); library(effsize)
 library(chorddiag);library(corrplot);library(scater);library(mdatools);library(car);library(FSA);library(pathviewr);library(glmnet)
 library("lmtest");library(PerformanceAnalytics);library(psych);library("readxl");library(ggforce);library(ComplexHeatmap);library(ragg) 
@@ -910,18 +911,18 @@ brks_heatmap <- function(mat, color_palette){
                seq(rng[2]/dim(mat)[1], rng[2], length.out=floor(lpal/2)))
  }
 # #I do this in my computer and then load the figure, see below:
-color_palette=brewer.pal(n = 11, name = 'RdBu')
-color_palette=rev(color_palette)
-color_palette=colorRampPalette(c('blue', 'white','orange'), alpha = TRUE)(150)
-# library(grid)
-jpeg(paste0("cohensd_",date,".jpg"), width=9, height=12, units="in", res=1000 );
-setHook("grid.newpage", function() pushViewport(viewport(x=1,y=1,width=0.9, height=0.9, name="vp", just=c("right","top"))), action="prepend")
-pheatmap(x,cluster_cols=FALSE,cluster_rows=FALSE,breaks = brks_heatmap(x, color_palette),color=color_palette,column_names_side = c("bottom"), angle_col = c("90"))
-setHook("grid.newpage", NULL, "replace")
-grid.text("Steatosis, Fibrosis, Necroinflammation, HOMA-IR", y=-0.07, x=0.4,gp=gpar(fontsize=16))
-grid.text("Steroids (Androgens, Estrogens, Gluc., Mineraloc., Progestogens)", x=-0.07, rot=90, gp=gpar(fontsize=16))
-#For quality/pltowise reasons I need to do this:
-dev.copy(jpeg,paste0("cohensd_",date,".jpg"),width=9, height=12, units="in", res=1000);dev.off()
+# color_palette=brewer.pal(n = 11, name = 'RdBu')
+# color_palette=rev(color_palette)
+# color_palette=colorRampPalette(c('blue', 'white','orange'), alpha = TRUE)(150)
+# # library(grid)
+# jpeg(paste0("cohensd_",date,".jpg"), width=9, height=12, units="in", res=1000 );
+# setHook("grid.newpage", function() pushViewport(viewport(x=1,y=1,width=0.9, height=0.9, name="vp", just=c("right","top"))), action="prepend")
+# pheatmap(x,cluster_cols=FALSE,cluster_rows=FALSE,breaks = brks_heatmap(x, color_palette),color=color_palette,column_names_side = c("bottom"), angle_col = c("90"))
+# setHook("grid.newpage", NULL, "replace")
+# grid.text("Steatosis, Fibrosis, Necroinflammation, HOMA-IR", y=-0.07, x=0.4,gp=gpar(fontsize=16))
+# grid.text("Steroids (Androgens, Estrogens, Gluc., Mineraloc., Progestogens)", x=-0.07, rot=90, gp=gpar(fontsize=16))
+# #For quality/pltowise reasons I need to do this:
+# dev.copy(jpeg,paste0("cohensd_",date,".jpg"),width=9, height=12, units="in", res=1000);dev.off()
 
 knitr::include_graphics(paste0("cohensd_",date, ".jpg"))
 # daiR::image_to_pdf(paste0("cohensd_",date, ".jpg"), pdf_name=paste0(paste0("cohensd_",date, ".pdf")));
