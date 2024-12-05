@@ -1,9 +1,0 @@
-GeomSankeynode          Bars representing nodes in a Sankey diagram
-GeomSankeysegment       Sankey edges (flows)
-PositionSankey          Position nodes and edges in a Sankey diagram
-StatSankeyedge          Sankey stats
-draw_key_sankeyedge     Key glyphs for legends
-ecosystem_services      Data on risks to supply ecosystem services
-pivot_stages_longer     Pivot wide data to long for plotting as Sankey
-scale_waist_continuous
-                        Sankey edge waist line scales

@@ -1,8 +1,0 @@
-Param                   Generic parameter class
-ProcessingStep          Processing step
-ProtGenerics            S4 generic functions for Bioconductor
-                        proteomics infrastructure
-backendInitialize       General backend methods
-filterFeatures          Filter features
-filterSpectra           Filter Spectra
-peaksData               Get or set MS peak data

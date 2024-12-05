@@ -1,6 +1,0 @@
-export(readLisrel)
-export(lisrelMatrix)
-S3method(print, lisrel)
-importFrom("utils", "read.table")
-# S3method(plot, lisrel)
-# S3method(summary, lisrel)

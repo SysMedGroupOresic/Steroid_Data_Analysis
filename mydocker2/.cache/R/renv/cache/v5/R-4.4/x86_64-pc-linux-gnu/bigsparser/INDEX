@@ -1,9 +1,0 @@
-SFBM-class              Class SFBM
-SFBM_compact-class      Class SFBM_compact
-SFBM_corr_compact-class
-                        Class SFBM_corr_compact
-[,SFBM,ANY,ANY,ANY-method
-                        Accessor methods for class 'SFBM'.
-dim,SFBM-method         Dimension and type methods for class 'SFBM'.
-sp_prodVec              Products with a vector
-sp_solve_sym            Solver for symmetric SFBM

@@ -1,5 +1,0 @@
-loadSingleCellExperiment	readSingleCellExperiment
-readSingleCellExperiment	readSingleCellExperiment
-saveObject,SingleCellExperiment-method	saveSingleCellExperiment
-saveSingleCellExperiment	saveSingleCellExperiment
-stageObject,SingleCellExperiment-method	saveSingleCellExperiment

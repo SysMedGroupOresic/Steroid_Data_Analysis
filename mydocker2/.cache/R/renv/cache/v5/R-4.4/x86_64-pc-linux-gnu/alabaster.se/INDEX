@@ -1,9 +1,0 @@
-emptyRowRanges          Is the 'rowRanges' empty?
-readRangedSummarizedExperiment
-                        Read a RangedSummarizedExperiment from disk
-readSummarizedExperiment
-                        Read a SummarizedExperiment from disk
-saveRangedSummarizedExperiment
-                        Save a RangedSummarizedExperiment to disk
-saveSummarizedExperiment
-                        Save a SummarizedExperiment to disk

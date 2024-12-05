@@ -30,18 +30,16 @@ output:
 
 # Loading All R Packages
 ```{r, warning=FALSE,message=FALSE}
-# .libPaths( c( "C:/Program Files/R/R-4.4.1/library",.libPaths()) ) .libPaths(c("/home/rstudio/renv/",.libPaths()))
-.libPaths(c("C:/Program Files/R/R-4.4.1/library","C:/Users/patati/Documents/GitHub/Steroid_Data_Analysis/renv/library/R-4.3/x86_64-w64-mingw32"))
-.libPaths(c("/home/rstudio/renv/library/R-4.3/x86_64-w64-mingw32","/home/rstudio/renv/library/windows/R-4.4/x86_64-w64-mingw32",.libPaths()))
-# 
+# .libPaths( c( "C:/Program Files/R/R-4.4.1/library",.libPaths()) )
 library(scales);library("plotrix");library(Maaslin2);  library(ggtext);library(lavaan);library(psych);library("xlsx");library(lsr);library(quantreg);library("readxl")
 library(semPlot);library(mediation);require(lme4);require(reshape2);library(mlma);library(plyr);library("viridis");library(RColorBrewer);library('tibble');library(tidyverse);library(binilib);
 # You may need the latest rtools for all these to work
 library(magrittr); library(ggplot2);library( "censReg" );library(ggsankey);library(dplyr);library(dmetar);library(meta);library(ggforestplot);
 ## Warning, do not add: 'library(forestplot)'! It is not working with ggforestplot... (9.9.24)
 library(mdatools);library(circlize);library(igraph);library('bigsnpr');library(rcompanion);
-#library(scRNAseq);
-library(tibble);library(stringr);library(MOFA2);library('qpgraph');library('rmdformats');#
+# library(scRNAseq);
+library(tibble);library(stringr);library(MOFA2);library('qpgraph');
+library(rmdformats);#
 library(rmarkdown) #in case 'rmarkdown error', drive these two
 library("grid"); library("ggplotify");library(ggpubr);library(rstatix);library(datarium);library(RColorBrewer); library(ggh4x); library(effsize)
 library(chorddiag);library(corrplot);library(scater);library(mdatools);library(car);library(FSA);library(pathviewr);library(glmnet)
@@ -52,8 +50,24 @@ library(extrafont);library(scatterplot3d); library(rgl);library(ggsankey);librar
 # https://stackoverflow.com/questions/15170399/change-r-default-library-path-using-libpaths-in-rprofile-site-fails-to-work
 library('brickster') #remove_lib_path(path, version = FALSE)
 
-
-
+# renv::install() #this installs from the basic R repository, but not from biomanager etc.
+# if (!require("BiocManager", quietly = TRUE)) install.packages("BiocManager")
+# BiocManager::install("sevenbridges"); if (!require("remotes", quietly = TRUE)) install.packages("remotes");
+# remotes::install_github("fossbert/binilib")
+# BiocManager::install("limma")
+# BiocManager::install("DESeq2")
+# BiocManager::install("chorddiag"); install.packages("devtools");devtools::install_github("mattflor/chorddiag") #both styles work..
+# BiocManager::install("ComplexHeatmap")
+# BiocManager::install("dmetar"); devtools::install_github("MathiasHarrer/dmetar") #both styles work... hope the same result.. latter better I presume since from source
+# BiocManager::install("ggforestplot"); devtools::install_github("NightingaleHealth/ggforestplot") #the same..
+# BiocManager::install("ggsankey"); devtools::install_github("davidsjoberg/ggsankey") #the same comment..
+# BiocManager::install("Maaslin2") #was not ok from biomanager and no alternatives given, so copied from my general source; could have just been push 'ok' thing..
+# BiocManager::install("metagenomeSeq") #also not ok, did the same 
+# BiocManager::install("MOFA2")
+# BiocManager::install("qpgraph")
+# BiocManager::install("scater")
+# BiocManager::install("scRNAseq") #did not go through either
+# BiocManager::install("fgsea")
 
 ```
 
@@ -88,7 +102,7 @@ date=paste0('tikka',thedate) # Change this...
 ```{r, warning=FALSE,message=FALSE}
 
 #First set your data folder:
-# setwd("C:/Users/patati/Documents/GitHub/Steroid_Data_Analysis")# or:"C:/Users/patati/Desktop/Turku/R" #check the wd with: here::here() #or getwd()
+setwd("C:/Users/patati/Documents/GitHub/Steroid_Data_Analysis")# or:"C:/Users/patati/Desktop/Turku/R" #check the wd with: here::here() #or getwd()
 load("thereal.RData")
 
 #And then load the primary steroid data

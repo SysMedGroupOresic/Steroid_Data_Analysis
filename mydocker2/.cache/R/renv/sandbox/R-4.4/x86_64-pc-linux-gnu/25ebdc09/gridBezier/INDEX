@@ -1,5 +1,0 @@
-BezierPoints            Calculate Points on a Bezier Curve
-grid.Bezier             Draw a Bezier Spline
-grid.quad               Draw a Quadratic Bezier Spline
-nSteps                  Calculate Steps for a Bezier Spline
-quadPoints              Calculate Points on a Bezier Curve

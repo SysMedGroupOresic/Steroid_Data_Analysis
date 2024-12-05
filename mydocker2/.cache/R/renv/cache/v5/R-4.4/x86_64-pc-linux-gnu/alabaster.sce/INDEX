@@ -1,4 +1,0 @@
-readSingleCellExperiment
-                        Read a SingleCellExperiment from disk
-saveSingleCellExperiment
-                        Save a SingleCellExperiment to disk
