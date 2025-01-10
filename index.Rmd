@@ -28,284 +28,67 @@ output:
 ```
 
 
-# Loading All R Packages
-```{r, warning=FALSE,message=FALSE}
-# .libPaths( c( "C:/Program Files/R/R-4.4.1/library",.libPaths()) )
-library(scales);library("plotrix");library(Maaslin2);  library(ggtext);library(lavaan);library(psych);library("xlsx");library(lsr);library(quantreg);library("readxl")
-library(semPlot);library(mediation);require(lme4);require(reshape2);library(mlma);library(plyr);library("viridis");library(RColorBrewer);library('tibble');library(tidyverse);library(binilib);
-# You may need the latest rtools for all these to work
-library(magrittr); library(ggplot2);library( "censReg" );library(ggsankey);library(dplyr);library(dmetar);library(meta);library(ggforestplot);
-## Warning, do not add: 'library(forestplot)'! It is not working with ggforestplot... (9.9.24)
-library(mdatools);library(circlize);library(igraph);library('bigsnpr');library(rcompanion);
-# library(scRNAseq);
-library(tibble);library(stringr);library(MOFA2);library('qpgraph');
-library(rmdformats);#
-library(rmarkdown) #in case 'rmarkdown error', drive these two
-library("grid"); library("ggplotify");library(ggpubr);library(rstatix);library(datarium);library(RColorBrewer); library(ggh4x); library(effsize)
-library(chorddiag);library(corrplot);library(scater);library(mdatools);library(car);library(FSA);library(pathviewr);library(glmnet)
-library("lmtest");library(PerformanceAnalytics);library(psych);library("readxl");library(ggforce);library(ComplexHeatmap);library(ragg) 
-library('Hmisc');library(correlation);library(ggcorrplot);library(pheatmap);library(mgcv);library('ppcor');library(superb)
-library(rmdformats);library(prettydoc);library(hrbrthemes);library(tint);library(tufte);require(remotes); library(magick); library(insight); 
-library(extrafont);library(scatterplot3d); library(rgl);library(ggsankey);library(ggsankeyfier); library(daiR); library(sjPlot)
-# https://stackoverflow.com/questions/15170399/change-r-default-library-path-using-libpaths-in-rprofile-site-fails-to-work
-library('brickster') #remove_lib_path(path, version = FALSE)
+# Loading Required R Packages
+```{r, warning=FALSE, message=FALSE}
+# echo=FALSE is too good
+# Set library paths if needed
+# .libPaths(c("C:/Program Files/R/R-4.4.1/library", .libPaths()))
 
-# renv::install() #this installs from the basic R repository, but not from biomanager etc.
+# List of libraries to load (alphabetically sorted)
+packages <- c("bigsnpr", "binilib", "brickster", "car", "censReg", "circlize", "ComplexHeatmap", "correlation", 
+              "corrplot", "daiR", "datarium", "dmetar", "dplyr", "effsize", "extrafont", "forcats", "fs", "FSA", 
+              "ggcorrplot", "ggforce", "ggforestplot", "ggplot2", "ggplotify", "ggpubr", "ggsankey", "ggsankeyfier", 
+              "ggh4x", "ggtext", "glmnet", "grid", "Hmisc", "hrbrthemes", "igraph", "insight", "lavaan", "lmtest", 
+              "lme4", "lsr", "magick", "magrittr", "Maaslin2", "mdatools", "mediation", "meta", "mgcv", "mlma", 
+              "MOFA2", "pheatmap", "PerformanceAnalytics", "pathviewr", "plyr", "plotrix", "ppcor", "prettydoc", 
+              "psych", "quantreg", "qpgraph", "ragg", "RColorBrewer", "rcompanion", "readxl", "remotes", "reshape2", 
+              "rgl", "rmarkdown", "rmdformats", "rstatix", "scales", "scater", "scatterplot3d", "sjPlot", "stringr", 
+              "superb", "tibble", "tidyverse", "tint", "tufte", "viridis", "xlsx")
+
+# Load all libraries
+invisible(lapply(packages, library, character.only = TRUE))
+
+# Note: Do not load 'forestplot' as it conflicts with 'ggforestplot'
+
+# Install packages if not already installed
+# renv::install() # Installs from the basic R repository
 # if (!require("BiocManager", quietly = TRUE)) install.packages("BiocManager")
-# BiocManager::install("sevenbridges"); if (!require("remotes", quietly = TRUE)) install.packages("remotes");
-# remotes::install_github("fossbert/binilib")
-# BiocManager::install("limma")
-# BiocManager::install("DESeq2")
-# BiocManager::install("chorddiag"); install.packages("devtools");devtools::install_github("mattflor/chorddiag") #both styles work..
-# BiocManager::install("ComplexHeatmap")
-# BiocManager::install("dmetar"); devtools::install_github("MathiasHarrer/dmetar") #both styles work... hope the same result.. latter better I presume since from source
-# BiocManager::install("ggforestplot"); devtools::install_github("NightingaleHealth/ggforestplot") #the same..
-# BiocManager::install("ggsankey"); devtools::install_github("davidsjoberg/ggsankey") #the same comment..
-# BiocManager::install("Maaslin2") #was not ok from biomanager and no alternatives given, so copied from my general source; could have just been push 'ok' thing..
-# BiocManager::install("metagenomeSeq") #also not ok, did the same 
-# BiocManager::install("MOFA2")
-# BiocManager::install("qpgraph")
-# BiocManager::install("scater")
-# BiocManager::install("scRNAseq") #did not go through either
-# BiocManager::install("fgsea")
-
+# BiocManager::install(c("ComplexHeatmap", "DESeq2", "dmetar", "fgsea", "ggforestplot", "ggsankey", "limma", "Maaslin2", "metagenomeSeq", "MOFA2", "qpgraph", "scater", "scRNAseq", "sevenbridges"))
+# remotes::install_github(c("davidsjoberg/ggsankey", "fossbert/binilib", "MathiasHarrer/dmetar", "mattflor/chorddiag", "NightingaleHealth/ggforestplot"))
+# devtools::install_github("mattflor/chorddiag") # Alternative installation method
 ```
-
-
-# Setting Global Variables
-```{r,warning=FALSE,message=FALSE}
-options(scipen = 999); 
-rm(list = ls()) 
-thedate <- strftime(Sys.Date(),"%d%m%y")
-date=paste0('tikka',thedate) # Change this...
-# remotes::install_github("fossbert/binilib",force=TRUE) #install.packages(c('tidyverse','tibble'))
-# Just in case the 'install' functions here...
-# Basic installing commands, examples:
-# if (!require("BiocManager", quietly = TRUE)) install.packages("BiocManager")
-# BiocManager::install("Maaslin2"); # install.packages('dmetar')
-# devtools::install_github("davidsjoberg/ggforestplot") #this you have to know, check google
-# remotes::install_version("insight", version = "0.20.5", repos = "http://cran.us.r-project.org", force=TRUE)
-# https://stackoverflow.com/questions/32771517/package-cannot-be-unloaded-in-r-cannot-install-package
-# font_import() # This is important if you have not loaded them before
-# loadfonts(device = "win") #Same applies here.
-# Install all dependencies if Knitr or RStudio requests...
-# renv::status(); library(rmarkdown); render("path/to/file.Rmd") 
-# https://forum.posit.co/t/rstudio-doesnt-find-rmarkdown-package-when-knitting/33992/4
-# remove.packages("DelayedArray"); 
-# BiocManager::install("DelayedArray") #https://stackoverflow.com/questions/60451908/tidyverse-not-loaded-it-says-namespace-vctrs-0-2-0-is-already-loaded-but
-# https://require.predictiveecology.org/
-# install.packages("Require") # Or just copy the old... "C:/Program Files/R/R-4.4.1/library/tidyverse"
-```
-
 
 # Importing Data and Metadata
 ```{r, warning=FALSE,message=FALSE}
 
 #First set your data folder:
 setwd("C:/Users/patati/Documents/GitHub/Steroid_Data_Analysis")# or:"C:/Users/patati/Desktop/Turku/R" #check the wd with: here::here() #or getwd()
-load("thereal.RData")
-
-#And then load the primary steroid data
-# NAFLD=read_excel("NAFLD_SteroidStudy.xlsx",sheet = "LFAT_steroidsDATA") # This is partly auxiliary
-# oknames=colnames(NAFLD); NAFLD=data.frame(NAFLD)
-# 
-# #The names of the steroid groups need to be imported early on:
-# groups=read.csv("groups_17823.csv", header = TRUE, sep=";")
-# groups=groups[,c('Group','Abbreviation')]
-# groups=groups[groups[,'Abbreviation']!='F',]
-# groups=groups[order(groups[,'Group']),]
-# groups[,'Abbreviation'][groups[,'Abbreviation']=='17aOH-P4']='17a-OHP4'
-# 
-# ForSteroidNames=read_excel("NAFLD_SteroidStudy_for groups.xlsx",sheet = "Steroid name abbreviations") # This is partly auxiliary
-# groups2=data.frame(ForSteroidNames)[,1:4]; g1=read.csv("groups_17823.csv", header = TRUE, sep=";")
-# groups2=cbind(g1[,'Group'], groups2[,c('Abbreviation','Abbreviation_old','Name')])
-# groups2=groups2[groups2[,'Abbreviation']!='FF',]; colnames(groups2)[1]="Group";
-# groups2=groups2[order(groups2[,'Group']),]
-# groups2[,'Abbreviation'][groups2[,'Abbreviation']=='17aOH-P4']='17a-OHP4'
-# 
-# #P4 was found from elsewhere to have the following characteristics:
-# NAFLD[,'P4'] = as.numeric(NAFLD[,'P4'])
-# NAFLD[,'P4'][is.na(NAFLD[,'P4'])] = 22557.3330346846#median(NAFLD[,'P4'], na.rm=TRUE)
-# NAFLD[,5:7][NAFLD[,5:7]==0.01]=0; colnames(NAFLD)=oknames
-# MASLD=read_excel("Combined.Matrix.For.Pauli.2023.10.17.Excel.Formatv2.xlsx") # This is the main file
-# oknames=colnames(MASLD); MASLD=data.frame(MASLD); colnames(MASLD)=oknames   # All kinds of tricks are needed for getting the right data format
-# rownames(MASLD)=MASLD[,1]
-# MASLD[,'P4'] = as.numeric(MASLD[,'P4']) #The same comment as above
-# MASLD[,'P4'][is.na(MASLD[,'P4'])] = 22557.3330346846
-# eva=c('Grade(0-3)', 'Stage(0-4)','Necroinflammation')
-# MASLD[,eva][MASLD[,eva]==0.01]=0;
-# td=c('11-KDHT','AN','DHT','17a-OHP5','E2','P5','DOC')
-# val=c(103,252,51,200,26.5,253,10); vale=c(100,250,50,200,25,250,10)
-# for (i in 1:7) {MASLD[,td][i][MASLD[,td][i]==val[i]]=vale[i]}
-# 
-# # These (E) are ok as per lab:
-# ME=read.csv('E_tikka231023.csv',header=TRUE, sep=";")
-# ME2=rownames(MASLD[MASLD[,'E']==106000,])
-# to=ME[which(ME[,1] %in% ME2),'patient.number']
-# te=ME[which(ME[,1] %in% ME2),'E']
-# MASLD[as.character(to),'E']=te
-# # These (11-KA4) will perhaps change in the lab (sometime after 24.10.23):
-# M11=read.csv('11KA4_tikka231023.csv',header=TRUE, sep=";")
-# # M11[,1][c(1:5,9)];MASLD[as.character(M11[,1][c(1:5,9)]),'11-KA4'] #These were denoted with 'big interference'
-# MASLD[as.character(M11[,1][c(1:5,9)]),'11-KA4'] = NA #Alternatively: median(MASLD[!rownames(MASLD) %in% as.character(M11[,1][c(1:5,9)]),'11-KA4'])
-# a=MASLD[order(MASLD[,'BMI']),'BMI']
-# b=NAFLD[order(NAFLD[,'BMI']),'BMI']
-# them=unique(b[! b %in% a])
-# NAFLD=NAFLD[order(NAFLD[,'BMI']),]
-# NAFLD=NAFLD[NAFLD[,'BMI']!=them,]
-# MASLD=MASLD[order(MASLD[,'BMI']),]
-# #https://appsilon.com/imputation-in-r/ #https://www.datasciencemadesimple.com/get-minimum-value-of-a-column-in-r-2/?expand_article=1
-# # New data import withouth changing the conames: https://readxl.tidyverse.org/articles/column-names.html
-# Bali=data.frame(read_excel("Liver_bile_acids_PFAS.xlsx",sheet = "Liver_BA",.name_repair = "minimal")); row.names(Bali)=Bali[,1]
-# Pfase=data.frame(read_excel("Liver_bile_acids_PFAS.xlsx",sheet = "PFAS_serum",.name_repair = "minimal")); rownames(Pfase)=as.vector(unlist(Pfase[,1]))
-# Base=data.frame(read_excel("Liver_bile_acids_PFAS.xlsx",sheet = "Serum_BA",.name_repair = "minimal"));rownames(Base)=as.vector(unlist(Base[,1]))
-# C4=data.frame(read_excel("Liver_bile_acids_PFAS.xlsx",sheet = "C4",.name_repair = "minimal")); rownames(C4)=as.vector(unlist(C4[,1]))
-# Clini=data.frame(read_excel("Matching clinical data_all.xlsx",sheet = "Sheet1",.name_repair = "minimal")); rownames(Clini)=as.vector(unlist(Clini[,1]));
-# #https://www.analyticsvidhya.com/blog/2021/06/hypothesis-testing-parametric-and-non-parametric-tests-in-statistics/
-# MASLD[1:2,2:27] #or head(MASLD);
-# 
-# # The below ordering needs to be changed...
-# Bali=Bali[as.character(MASLD$PatientNumber),];Bali[1:3,2:10] #https://stackoverflow.com/questions/54264980/r-how-to-set-row-names-attribute-as-numeric-from-character I did otherway around
-# Base=Base[as.character(MASLD$PatientNumber),];#Base[1:3,2:10]
-# Clini=Clini[as.character(MASLD$PatientNumber),];#Clini[1:3,2:10] # Many of these are irrelevant here... so not opening them, they would exhaust this file
-# C4=C4[as.character(MASLD$PatientNumber),];#C4[1:3,]
-# Pfase=Pfase[as.character(MASLD$PatientNumber),];Pfase[1:3,2:10]
-# 
-# # Menopause markers:
-# menopause=read_excel("Putative_metabolic_markers_menopause.xlsx",sheet='menopause markers',.name_repair = "minimal"); #rownames(Clini)=as.vector(unlist(Clini[,1]));
-# menopause=menopause[8:dim(menopause)[1],]; menopause=menopause[,-15]; menopause[2,2:14]=menopause[1,2:14]; menopause=data.frame(menopause); menopause[2,13:14]=c('v1','v2'); #dim(menopause)
-# colnames(menopause)=c('row_names',menopause[2,2:dim(menopause)[2]]); menopause=menopause[3:dim(menopause)[1],];rownames(menopause)=as.vector(unlist(menopause[,1]));
-# menopause=menopause[as.character(MASLD$PatientNumber),]
-# colnames(Pfase)[colnames(Pfase)=='PFHxA.1']='PFHxA_Branched'
-# Pfase=Pfase[,colnames(Pfase)!='Benzylparaben.1']
-# Pfase[Pfase[,'Benzylparaben']>10,'Benzylparaben']=NA
-# 
-# Jeihou=data.frame(read_excel("Copy of BA_liverfat_RawData.xls",.name_repair = "minimal")); row.names(Jeihou)=Jeihou[,1];Jeihou=Jeihou[as.character(MASLD$PatientNumber),]
-# u=Jeihou[Jeihou[,'GHDGA']=='<LLOQ',1]; a=u[!is.na(u)]; b=rownames(Bali[Bali[,'GHDGA']==1,]);
-# uu=Jeihou[Jeihou[,'GHDGA']=='No Result',1]; aa=uu[!is.na(uu)];
-# Bali[as.character(a),'GHDGA']=min(Bali[,'GHDGA'],na.rm=TRUE)/2
-# heps=Bali[Bali[,'GHDGA']==1,1]
-# Bali[as.character(heps),'GHDGA']=NA
-# #https://www.datasciencemadesimple.com/get-minimum-value-of-a-column-in-r-2/?expand_article=1
-# mat=Bali[,c('TbMCA','ToMCA','TDCA','TDHCA','TLCA')]
-# mat[!mat>1]=10000
-# mat[mat==2]=10000 #Colmins did not work so I used (i.e. colmins ei toiminut ja käytin):
-# hip=do.call(pmin, lapply(1:nrow(mat), function(i)mat[i,])) #https://stackoverflow.com/questions/13676878/fastest-way-to-get-min-from-every-column-in-a-matrix
-# hou=c('TbMCA','ToMCA','TDCA','TDHCA','TLCA')
-# for (i in 1:5) {Bali[Bali[,hou[i]]==1,hou[i]]=hip[i]}
-# for (i in 1:5) {Bali[Bali[,hou[i]]==2,hou[i]]=hip[i]}
-# 
-# # An imputation for the missing values:
-# C4[is.na(C4[,2]),2]=median(C4[!is.na(C4[,2]),2]) #assuming that these were not below quantitation and replacing with median
-# #https://www.geeksforgeeks.org/performing-logarithmic-computations-in-r-programming-log-log10-log1p-and-log2-functions/
-# #https://stackoverflow.com/questions/50476717/i-want-to-align-match-two-unequal-columns
-# 
-# #Matching two unequal columns.. match the names of one original column (dat2) to ones that are missing (dat1 with to other) #Not sure if this should be this difficult...
-# tv=cbind(MASLD[,1],NAFLD[,2:7],Clini[,'HOMA.IR'],MASLD[,colnames(NAFLD[,8:27])],Bali[,2:dim(Bali)[2]], C4[,2:dim(C4)[2]],Base[,2:dim(Base)[2]],Pfase[,(2:(dim(Pfase)[2]))], MASLD[,'PFAS']);
-# colnames(tv)[colnames(tv)=='C4[, 2:dim(C4)[2]]']='C4';colnames(tv)[colnames(tv)=='Clini[, \"HOMA.IR\"]']='HOMA-IR'
-# colnames(tv)[colnames(tv)=='MASLD[, \"PFAS\"]']='PFAS';
-# colnames(tv)[colnames(tv)=="MASLD[, 1]" ]='PatientNumber';#colnames(tv)#
-# rownames(tv)=unlist(Bali[,1]);
-# hep=colnames(tv)[!colnames(tv) %in% c( "Benzylparaben" ,"Methylparaben")]
-# 
-# # Not sure when it is the best time to take not needed variables away, perhaps at the very end?
-# tv=tv[,hep]
-# # Here I add the lipids. In the future, I need to divide all the groups in their own components e.g. dataframe called 'lipids' so that adding them will be more straightforward:
-# tv=cbind(tv,MASLD[,(dim(MASLD)[2]-13):dim(MASLD)[2]])
-# # hupo=match(   colnames(tv)[colnames(tv) %in% groups2[,3]], groups2[,3] ) # do ni; https://www.geeksforgeeks.org/how-to-find-index-of-element-in-vector-in-r/
-# # tvauxe=tv
-# # colnames(tv)[colnames(tv) %in% groups2[,3]]=groups2[hupo,2]
-# 
-# 
-# # The basic preprocessing is just the below lines:
-# tve=tv[,2:dim(tv)[2]]; tve[tve == 0] <- NA; #Almost all variables are here
-# tv_half <- tve %>% mutate(replace(., is.na(.), min(., na.rm = T)/2)) #https://mdatools.com/docs/preprocessing--autoscaling.html
-# tv_half_log2 <- log2(tv_half);
-# tv_auto <- prep.autoscale(as.matrix(tv_half_log2), center = TRUE, scale = TRUE);  #https://svkucheryavski.gitbooks.io/mdatools/content/preprocessing/text.html
-# tv_all=cbind(tv[,1],tv_auto);
-# 
-# # Changing the column names needs to have separate variables for each type of variable (contaminant, steroid, etc.)
-# x1=colnames(tv_all[,c(1:8)]); v2=dim(NAFLD)[2]+1
-# x2=colnames(tv_all[,9:v2]);v3=(dim(Bali)[2]+v2);x3=colnames(tv_all[,(v2+1):(v3)]);v4=(dim(Base)[2])+v3
-# x4=colnames(tv_all[,(v3+1):(v4-1)]);x5=colnames(tv_all[,(v4):(dim(tv_all)[2])]);
-# x3 <- paste(x3, "_L", sep="") #https://stackoverflow.com/questions/6984796/how-to-paste-a-string-on-each-element-of-a-vector-of-strings-using-apply-in-r
-# x4=gsub("(-[0-9]*)*.1", "", x4) #https://stackoverflow.com/questions/18997297/remove-ending-of-string-with-gsub
-# x4 <- paste(x4, "_S", sep="")# https://rdrr.io/bioc/qpgraph/man/qpNrr.html
-# x5a=x5[1:9]
-# x6=x5[10:length(x5)] #Dividing to lipids
-# x5=x5a  #Making sure that PFAS are separate
-# nm = c(x1,x2,x3,x4,x5,x6); nm=c('PatientNumber','Gender','AGE','BMI','Steatosis Grade','Fibrosis Stage','Necroinflammation','HOMA-IR',nm[9:length(nm)])
-# colnames(tv_all)=nm; #tv_all[1:5,1:30]; #NAFLD[1:2,1:28];
-# colnames(tv_all)[colnames(tv_all)=='MASLD[, \"PFAS\"]']='PFAS';
-# # This (deletion) is good to do after all the previous:
-# x5=x5[x5!='PFAS'];x5=x5[x5!='Perfluorodecyl.ethanoic.acid']; x6=x6[x6!='Total_TG'] # x1;x2;x3;x4;x5;
-# tv_all=tv_all[,!colnames(tv_all) %in% c('Total_TG','PFAS',"Perfluorodecyl.ethanoic.acid")]
-# 
-# # In case you would need just the logged values:
-# tv_half_log22=cbind(tv[,1],tv_half_log2);
-# x1=colnames(tv_half_log22[,c(1:8)]); v2=dim(NAFLD)[2]+1
-# x2=colnames(tv_half_log22[,9:v2]);v3=(dim(Bali)[2]+v2);
-# x3=colnames(tv_half_log22[,(v2+1):(v3)]);v4=(dim(Base)[2])+v3
-# x3=x3[c(length(x3),1:(length(x3)-1))]
-# x4=colnames(tv_half_log22[,(v3+1):(v4-1)]);
-# x5=colnames(tv_half_log22[,(v4):(dim(tv_half_log22)[2])]);
-# x3 <- paste(x3, "_L", sep="")
-# #https://stackoverflow.com/questions/6984796/how-to-paste-a-string-on-each-element-of-a-vector-of-strings-using-apply-in-r
-# x4=gsub("(-[0-9]*)*.1", "", x4) #https://stackoverflow.com/questions/18997297/remove-ending-of-string-with-gsub
-# x4 <- paste(x4, "_S", sep="")# https://rdrr.io/bioc/qpgraph/man/qpNrr.html
-# x5a=x5[1:9]
-# x6=x5[10:length(x5)] #dividing to lipids
-# x5=x5a  #making sure that PFAS are separate
-# nm = c(x1,x2,x3,x4,x5,x6); nm=c('PatientNumber','Gender','AGE','BMI','Steatosis Grade','Fibrosis Stage','Necroinflammation','HOMA-IR',nm[9:length(nm)])
-# colnames(tv_half_log22)=nm; #tv_half_log22[1:5,1:30]; #NAFLD[1:2,1:28];
-# colnames(tv_half_log22)[colnames(tv_half_log22)=='MASLD[, \"PFAS\"]']='PFAS';
-# # This (deletion) is good to do after all the previous:
-# x5=x5[x5!='PFAS'];x5=x5[x5!='Perfluorodecyl.ethanoic.acid']; x6=x6[x6!='Total_TG'] # x1;x2;x3;x4;x5;
-# tv_half_log22=tv_half_log22[,!colnames(tv_half_log22) %in% c('Total_TG','PFAS',"Perfluorodecyl.ethanoic.acid")]
-# 
-# # This needs to be done early on:
-# colnames(tv)[colnames(tv)=='17aOH-P4']='17a-OHP4'
-# colnames(tv_half_log22)[colnames(tv_half_log22)=='17aOH-P4']='17a-OHP4'
-# colnames(tv_all)[colnames(tv_all)=='17aOH-P4']='17a-OHP4'
-# 
-# tv_all=tv_all[,!colnames(tv_all) %in% c('Total_TG','PFAS','Perfluorodecyl.ethanoic.acid')]
-# tv_all=tv_all[,!colnames(tv_all) %in% x4]
-# 
-# # In case you would need nonscaled covariates and scaled/logged all other variables:
-# tv_covscl=tv_all
-# tv_covNS=cbind(tv[,1:8],tv_all[,9:dim(tv_all)[2]])
-# tv_LOG_covscl=tv_half_log22
-# tv_LOG_covNS=cbind(tv[,1:8],tv_half_log22[,9:dim(tv_half_log22)[2]])
-# colnames(tv_covNS)[1:8]=colnames(tv_all)[1:8]
-# colnames(tv_LOG_covNS)[1:8]=colnames(tv_all)[1:8]
-# # This is needed occasionally:
-# tv_c=tv_covscl
-# # https://stackoverflow.com/questions/6984796/how-to-paste-a-string-on-each-element-of-a-vector-of-strings-using-apply-in-r
-# # https://stackoverflow.com/questions/18997297/remove-ending-of-string-with-gsub # https://rdrr.io/bioc/qpgraph/man/qpNrr.html
-# 
-# hupo=match(   colnames(tv_c)[colnames(tv_c) %in% groups2[,3]], groups2[,3] )
-# # do ni; https://www.geeksforgeeks.org/how-to-find-index-of-element-in-vector-in-r/
-# tvauxe=tv_c
-# colnames(tv_c)[colnames(tv_c) %in% groups2[,3]]=groups2[hupo,2]
-# 
-# # This needs to be done also soon, to gather all the treatment etc. variable names separately...:
-# Treatment=colnames(tv_all)[52:58];
-# Mediator=colnames(tv_all)[9:28];
-# Outcome=colnames(tv_all)[c(29:51,59:71)]; ##https://sparkbyexamples.com/r-programming/r-remove-from-vector-with-examples/
-# 
-# Outcome=Outcome[!Outcome %in% c('Total_TG','PFAS','Perfluorodecyl.ethanoic.acid')]
-# Outcome=Outcome[! Outcome %in% x4] #https://sparkbyexamples.com/r-programming/r-remove-from-vector-with-examples/
-# Mediator[Mediator=="17aOH-P4"]="17a-OHP4"
-# Treatment=Treatment[!Treatment %in% c('Perfluorodecyl.ethanoic.acid')]
-
-# tvauxe2=tv_LOG_covscl
-# hupo=match(   colnames(tv_LOG_covscl)[colnames(tv_LOG_covscl) %in% groups2[,3]], groups2[,3] )
-# colnames(tv_LOG_covscl)[colnames(tv_LOG_covscl) %in% groups2[,3]]=groups2[hupo,2]
-
-# save.image('thereal.RData')
+load("thereal.RData") #This is so to say real data, and it is not available here (at the site).
 
 ```
 
+# Setting Global Variables
+```{r, warning=FALSE, message=FALSE}
+options(scipen = 999) # Disable scientific notation
+# rm(list = ls()) # Clear workspace; this should not be if you have the load above
+thedate <- strftime(Sys.Date(), "%d%m%y") #Do not take the old date from the load...
+date <- paste0('tikka', thedate) # Customize this as needed
+
+# Example installation commands
+# remotes::install_github("fossbert/binilib", force=TRUE)
+# install.packages(c('tidyverse', 'tibble'))
+# if (!require("BiocManager", quietly = TRUE)) install.packages("BiocManager")
+# BiocManager::install("Maaslin2")
+# devtools::install_github("davidsjoberg/ggforestplot")
+# remotes::install_version("insight", version = "0.20.5", repos = "http://cran.us.r-project.org", force=TRUE)
+# font_import() # Import fonts if not already done
+# loadfonts(device = "win") # Load fonts for Windows
+# renv::status() # Check renv status
+# library(rmarkdown); render("path/to/file.Rmd") # Render R Markdown document
+# remove.packages("DelayedArray")
+# BiocManager::install("DelayedArray")
+# install.packages("Require") # Install 'Require' package
+```
 
 
 
@@ -314,70 +97,75 @@ load("thereal.RData")
 #https://r-graph-gallery.com/265-grouped-boxplot-with-ggplot2.html
 #https://stackoverflow.com/questions/53724834/why-does-the-plot-size-differ-between-docx-and-html-in-rmarkdownrender
 
-boxplots=function(tvt,Group,Outcome,Out,oute,other) {
-  # tvt=ie
-if (Group=='Male') {tvt=tvt[tvt[,'Gender']==1,]} else if (Group=='Female') 
-{tvt=tvt[tvt[,'Gender']==0,]} else if (Group=='All') {tvt=tvt}
-Steroid=rep(colnames(tvt[,9:28]), each=dim(tvt)[1])
-data2=rep('Control',dim(tvt)[1])
-num=min(tvt[,Outcome])
-if (Outcome=='HOMA-IR') {num=1.5}
-data2[tvt[,Outcome]>num]='Case' #'Steatosis.Grade.0.To.3' #
-Treatment=data2
-note=unlist(tvt[,9:28])
-Concentration=as.vector(note)
-data=data.frame(Steroid, Treatment ,  Concentration)
-data[,'Group'] = 0
-# data$Steroid #check the Xs etc out..
-data$Steroid [data$Steroid  == '17aOH-P4']='17a-OHP4'
-# groups$Abbreviation[groups$Abbreviation == '17a-OHP4']='17aOH-P4'
-rownames(groups2)=1:20
-for (i in as.numeric(rownames(groups2))) {data[data$Steroid %in% groups2$Abbreviation[i],'Group']=groups2$Group[i]}
-title = paste(Out,"'s Effect to Concentrations of Steroids", ' in ',Group,sep="")
-# if (Group=='Male') {lep=theme(legend.position = "none")} else if (Group=='Female') 
-# {lep=theme(legend.position = "none")} else if (Group=='All') {lep=theme_classic2()+theme(axis.text.x=element_text(angle=90,hjust=0.95,vjust=0.2,size = 14))}
-
-lep=theme_classic2()+theme(axis.text.x=element_text(angle=90,hjust=0.95,vjust=0.2,size = 14))
-# lep=theme(legend.position = "none")
-if (num==1.5) {e1=paste('Case (>',num,')',sep="");e2=paste('Control (<=',num,')',sep="")} else {e1=paste('Case (>',0,')',sep="");e2=paste('Control (=',0,')',sep="")}
-
-data=data[!is.na(data$Concentration),]
-# grouped boxplot: https://stackoverflow.com/questions/32539222/group-boxplot-data-while-keeping-their-individual-x-axis-labels-in-ggplot2-in-r
-p=ggplot(data, aes(x=Steroid, y=Concentration, fill=Treatment))+
-geom_boxplot(notch=F, notchwidth=0.5,outlier.shape=1,outlier.size=2, coef=1.5)+
-# coord_cartesian(ylim = c(0, 60000))+
-theme(axis.text=element_text(color="black"))+
-theme_classic2()+#https://stackoverflow.com/questions/34522732/changing-fonts-in-ggplot2
-# scale_x_discrete(guide = guide_axis(angle = 90))+ https://stackoverflow.com/questions/37488075/align-axis-label-on-the-right-with-ggplot2
-theme(axis.text.x=element_text(angle=90,hjust=0.95,vjust=0.2,size = 10.5))+#annotate(geom="text",family="Broadway",size=20)+#annotate(geom="text",family="Calibri",size = 14)+
-theme(panel.grid.minor=element_blank())+ #http://www.sthda.com/english/wiki/ggplot2-rotate-a-graph-reverse-and-flip-the-plot
-labs(size= "Type",x = "Steroids",y = "Log2 of Picomolar Concentrations ", title=title,size = 14)+ #log2 Autoscaled
-scale_fill_manual(values=c("orange","blue"),name=c(oute),labels=c(e1,e2))+#abels=c("Case (>5)", "Control (=<5)"))
-facet_grid(~Group, scales = "free_x", space = "free")+lep+
-theme(text=element_text(size=10.5,family="Calibri"), #change font size of all text
-        axis.text=element_text(size=14), #change font size of axis text
-        axis.title=element_text(size=14), #change font size of axis titles
-        plot.title=element_text(size=14), #change font size of plot title
-        legend.text=element_text(size=14), #change font size of legend text
-        legend.title=element_text(size=14))+theme(axis.text=element_text(color="black"))+stat_compare_means(hide.ns = TRUE,
-        label= "p.signif",method = "wilcox.test",  symnum.args = list(cutpoints = c(0, 0.001, 0.01, 0.05, 0.1, 1), 
-                           symbols = c("****", "***", "**", "*", "ns")),size=8,paired = F, label.y = 15.5) #https://github.com/kassambara/ggpubr/issues/69 
-  #https://datavizpyr.com/horizontal-boxplots-with-ggplot2-in-r/
-library(ragg)
-path="C:/Users/patati/Documents/GitHub/Steroid_Data_Analysis/" #oh, classical: https://forum.posit.co/t/r-markdown-html-document-doesnt-show-image/41629/2
-pngfile <- fs::path(path,paste0(Group,Out,'boxe',".png"))#fs::path(knitr::fig_path(),  "theming2.png")
-# ragg::agg_png(pngfile, width = 60, height = 36, units = "cm", res = 300,scaling = 2)
-#https://stackoverflow.com/questions/66429500/how-to-make-raggagg-png-device-work-with-ggsave
-# plot(p);dev.off()
-knitr::include_graphics(pngfile)
-# daiR::image_to_pdf(paste0(Group,Out,'boxe',".png"), pdf_name=paste0(pngfile,'.pdf')) #https://rdrr.io/cran/daiR/man/image_to_pdf.html #this is good!
-# my_image <- image_read(paste0(Group,Out,'boxe',".png"));my_svg <- image_convert(my_image, format="svg"); image_write(my_svg, paste(paste0(Group,Out,'boxe',".png") ,".svg"))
+boxplots <- function(tvt, Group, Outcome, Out, oute, other) {
+  # Filter data based on gender
+  tvt <- tvt %>%
+    filter(if (Group == 'Male') Gender == 1 else if (Group == 'Female') Gender == 0 else TRUE)
+  
+  # Prepare data for plotting
+  Steroid <- rep(colnames(tvt[, 9:28]), each = nrow(tvt))
+  data2 <- rep('Control', nrow(tvt))
+  num <- ifelse(Outcome == 'HOMA-IR', 1.5, min(tvt[[Outcome]]))
+  data2[tvt[[Outcome]] > num] <- 'Case'
+  Treatment <- data2
+  Concentration <- as.vector(unlist(tvt[, 9:28]))
+  data <- data.frame(Steroid, Treatment, Concentration)
+  data$Group <- 0
+  
+  # Correct steroid names if the level exists
+  if ("17aOH-P4" %in% levels(data$Steroid)) {
+    data <- data %>%
+      mutate(Steroid = fct_recode(Steroid, '17a-OHP4' = '17aOH-P4'))
+  }
+  
+  # Assign groups
+  rownames(groups2) <- 1:20
+  for (i in seq_len(nrow(groups2))) {
+    data[data$Steroid %in% groups2$Abbreviation[i], 'Group'] <- groups2$Group[i]
+  }
+  
+  # Set plot title
+  title <- paste(Out, "'s Effect on Concentrations of Steroids in ", Group, sep = "")
+  
+  # Define legend labels
+  e1 <- ifelse(num == 1.5, paste('Case (>', num, ')', sep = ""), paste('Case (>', 0, ')', sep = ""))
+  e2 <- ifelse(num == 1.5, paste('Control (<=', num, ')', sep = ""), paste('Control (=', 0, ')', sep = ""))
+  
+  # Remove rows with NA concentrations
+  data <- data %>% filter(!is.na(Concentration))
+  
+  # Create boxplot
+  p <- ggplot(data, aes(x = Steroid, y = Concentration, fill = Treatment)) +
+    geom_boxplot(notch = FALSE, notchwidth = 0.5, outlier.shape = 1, outlier.size = 2, coef = 1.5) +
+    theme_classic2() +
+    theme(axis.text.x = element_text(angle = 90, hjust = 0.95, vjust = 0.2, size = 10.5),
+          axis.text = element_text(color = "black"),
+          panel.grid.minor = element_blank(),
+          text = element_text(size = 10.5, family = "Calibri"),
+          axis.title = element_text(size = 14),
+          plot.title = element_text(size = 14),
+          legend.text = element_text(size = 14),
+          legend.title = element_text(size = 14)) +
+    labs(x = "Steroids", y = "Log2 of Picomolar Concentrations", title = title) +
+    scale_fill_manual(values = c("orange", "blue"), name = oute, labels = c(e1, e2)) +
+    facet_grid(~Group, scales = "free_x", space = "free") +
+    stat_compare_means(hide.ns = TRUE, label = "p.signif", method = "wilcox.test",
+                       symnum.args = list(cutpoints = c(0, 0.001, 0.01, 0.05, 0.1, 1),
+                                          symbols = c("****", "***", "**", "*", "ns")),
+                       size = 8, paired = FALSE, label.y = 15.5)
+  
+  # Save plot as PNG
+  path <- "C:/Users/patati/Documents/GitHub/Steroid_Data_Analysis/"
+  pngfile <- fs::path(path, paste0(Group, Out, 'boxe', ".png"))
+  knitr::include_graphics(pngfile)
 }
 
-tv_half_log22[,'11-KA4'][tv_half_log22[,'11-KA4']==min(tv_half_log22[,'11-KA4'])]=median(tv_half_log22[,'11-KA4'])
-other='261124';ie=tv_half_log22## 'Steatosis Grade','Fibrosis Stage','Necroinflammation','HOMA-IR'
-hupo=match(   colnames(ie)[colnames(ie) %in% groups2[,3]], groups2[,3] ) 
-colnames(ie)[colnames(ie) %in% groups2[,3]]=groups2[hupo,2]
+# Example usage
+tv_half_log22[, '11-KA4'][tv_half_log22[, '11-KA4'] == min(tv_half_log22[, '11-KA4'])] <- median(tv_half_log22[, '11-KA4'])
+other <- '261124'
+ie <- tv_half_log22
+hupo <- match(colnames(ie)[colnames(ie) %in% groups2[, 3]], groups2[, 3])
+colnames(ie)[colnames(ie) %in% groups2[, 3]] <- groups2[hupo, 2]
 windowsFonts(A = windowsFont("Calibri (Body)"))
 
 # The significance levels are: '****<0.001', '***<0.01', '**<0.05', '*<0.1'
@@ -386,7 +174,6 @@ Outcome='Fibrosis Stage';Out='Fibrosis'; oute='Fibrosis Stage';num=0;Group='All'
 # https://www.elsevier.es/en-revista-annals-hepatology-16-articulo-assessment-hepatic-fibrosis-necroinflammation-among-S1665268119314590 #So it is in grade
 Outcome='Necroinflammation';Out='Necroinflammation'; oute='Necroinflammation Grade';num=0;Group='All';boxplots(ie,Group,Outcome,Out,oute,other);Group='Female';boxplots(ie,Group,Outcome,Out,oute,other);Group='Male';boxplots(ie,Group,Outcome,Out,oute,other)
 Outcome='HOMA-IR';Out='HOMA-IR'; oute='HOMA-IR';num=1.5 ;Group='All';boxplots(ie,Group,Outcome,Out,oute,other);Group='Female';boxplots(ie,Group,Outcome,Out,oute,other);Group='Male';boxplots(ie,Group,Outcome,Out,oute,other)
-
 
 
 ```
@@ -409,6 +196,7 @@ colnames(NAFLD) <- gsub("#", ".", colnames(NAFLD))
 colnames(NAFLD)[colnames(NAFLD)=='X17aOH.P4']='X17.aOHP4' #oh...
 
 # This works with the autoscaled (raw if loge=1 and remove 1 in the means) data NAFLD as well...
+# Fyi: Copiloting this to make it more slim and commented does not work.
 pre_errors_2=function(NAFLD,Outcome,Group,name,ordera,oute,first,e,xlim) { # Group='Female'
   
   if (Group=='Male') {NAFLDo=NAFLD[NAFLD[,'SEX.1F.2M']==2,]} else if (Group=='Female') 
@@ -460,7 +248,7 @@ pre_errors_2=function(NAFLD,Outcome,Group,name,ordera,oute,first,e,xlim) { # Gro
   v2[,'Case']=df$result.1 #
   #https://stackoverflow.com/questions/31518150/gsub-in-r-is-not-replacing-dot
 
-  v2[,'pval0']=v2[,'pval']
+  v2[,'pval0']=v2[,'pval'] #Quite a lot of variables... maybe less is more?
   v2[,'pval1']=v2[,'pval']
   v2[,'Significance0']= v2[,'pval0']<0.1#
   v2[,'Significance0'][v2[,'Significance0']==TRUE]='Yes'
@@ -715,12 +503,10 @@ group_chords=function(vars,n_level,fig_name, big,rem,modi,colt,gend,colors,a,b,c
                        #(c(rep('#3283a8', a),rep('#a83277', b), rep('#a86932', c),  rep('#32a898', e), rep('#756BB1', f)), 
                        names = rownames(tes_t)); ##https://www.datanovia.com/en/blog/top-r-color-palettes-to-know-for-great-data-visualization/ 
   # insert 'color hex' in google
-  
   tes_t=tes_t[range,range];grid.col = grid.col[range] #tes_t=resulta
   g <- graph.adjacency(tes_t, mode="upper", weighted=TRUE, diag=FALSE)
   e <- get.edgelist(g); df <- as.data.frame(cbind(e,E(g)$weight)); #
   df[,3]=as.numeric(df[, 3])
-  
   # Edge.Thickness <- (abs(Correlation.Strength) * Thickness.Multiplier)
   
   # rango <- function(x){((x-min(x))/(max(x)-min(x)))*2-1} #just a function for the -1 to 1 thing..
@@ -731,21 +517,7 @@ group_chords=function(vars,n_level,fig_name, big,rem,modi,colt,gend,colors,a,b,c
   # if (gend=='All') {col_fun = colorRamp2(c(min(df$V3), 0,max(df$V3)), c("blue",'white', "orange"))} else {col_fun = colorRamp2(c(min(df$V3), 0,max(df$V3)), c("blue",'white', "orange"))}
   df=df[!df$V1 %in% rem,];df=df[!df$V2 %in% rem,] #e.g.rem=x4
   # df$V3=rango(df$V3);
-  
-  
-  # for (i in 1:2) {
-  # df[,i]=  gsub("\\.", "-", df[,i])
-  # df[,i] <- gsub("X11", "11", df[,i])
-  # df[,i] <- gsub("X17", "17", df[,i]); df[,i][df[,i]=="T-Epi-T"]="T/Epi-T"
-  # df[,i][df[,i]=="Steatosis.Grade"]="Steatosis Grade"
-  # df[,i][df[,i]=="Steatosis-Grade"]="Steatosis Grade"
-  # df[,i][df[,i]=="Fibrosis.Stage"]="Fibrosis Stage"
-  # df[,i][df[,i]=="Fibrosis-Stage"]="Fibrosis Stage"
-  # df[,i][df[,i]=="17aOH.P4"]="17a-OHP4"
-  # df[,i][df[,i]=="HOMA.IR"]="HOMA-IR"
-  # # df[,i][df[,i]=="Gender"]="Sex"
-  
-  # }
+
   
   classes=modi #modi=4
   namesh=unique(g1)    #[c(1:6)[1:6 != modi]];
@@ -804,7 +576,6 @@ a=length(x1)-2;b=length(x2);c=length(x3);
 d=length(x4);e=length(x5);f=length(x6);#Check inside function
 gend=c('Female');colors=c('white');group_chords(vars[[1]],n_level,fig_name,big,rem,modi,colt,gend,colors,a,b,c,d,e,f) #
 gend=c('Male');colors=c('black');group_chords(vars[[2]],n_level,fig_name,big,rem,modi,colt,gend,colors,a,b,c,d,e,f) #
-
 
 ```
 
@@ -887,10 +658,14 @@ cohd=function(NAFLD, tv,Group,Outcome) {
 if (Group=='Male') {NAFLDo=NAFLD[NAFLD[,'Gender']==max(NAFLD[,'Gender']),];tva=tv[tv[,'SEX.1F.2M']==max(tv[,'SEX.1F.2M']),]} else if (Group=='Female') 
 {NAFLDo=NAFLD[NAFLD[,'Gender']==min(NAFLD[,'Gender']),];tva=tv[tv[,'SEX.1F.2M']==min(tv[,'SEX.1F.2M']),]} else if (Group=='All') {NAFLDo=NAFLD;tva=tv}
 if (Outcome != 'HOMA-IR') {SG0=NAFLDo[NAFLDo[,Outcome] == min(NAFLDo[,Outcome]),]; SG1=NAFLDo[NAFLDo[,Outcome] > min(NAFLDo[,Outcome]),]} else if (Outcome == 'HOMA-IR') 
-  {SG0=NAFLDo[tva[,'HOMA-IR'] <= 1.5,]; SG1=NAFLDo[tva[,'HOMA-IR'] > 1.5,]}
- 
-  cd=c();for (i in 1:20) {cd=append(cd,cohen.d(SG1[,i+8],SG0[,i+8])$estimate)} 
- 
+{SG0=NAFLDo[tva[,'HOMA-IR'] <= 1.5,]; SG1=NAFLDo[tva[,'HOMA-IR'] > 1.5,]}
+  
+#There might have been a change in the function that requires: 
+  cd=c();i=1;for (i in 1:20) {group2 <- SG1[,i+8]; group1 <- SG0[,i+8]; 
+  data <- data.frame(value = c(group1, group2), 
+                   group = factor(rep(c("group1", "group2"), c(length(group1), length(group2))))); 
+  result <- cohen.d(value ~ group, data = data); cd=append(cd,result$cohen.d[2] )} 
+  
  return(cd)}
 
 d=c()
@@ -901,7 +676,7 @@ Outcome='Necroinflammation';Group='All'; a=cohd(NAFLD, tv,Group,Outcome);Group='
 Outcome='HOMA-IR';Group='All'; a=cohd(NAFLD, tv,Group,Outcome);Group='Female'; b=cohd(NAFLD, tv,Group,Outcome);Group='Male'; c=cohd(NAFLD, tv,Group,Outcome);d=cbind(d,cbind(a,b,c))
 rownames(d)=colnames(tv_all[,9:28])
 colnames(d)=rep(c('All','Female','Male'),4)
-write.csv(d,'cohens_da_tikka_v11924a.csv')
+write.csv(d,'cohens_da_tikka_v9125a.csv')
 n=d
 x=data.frame(n)
 row.names(x)=colnames(tv_all[,9:28])
@@ -917,26 +692,24 @@ op=groups[order(groups$Group),'Abbreviation']
 op=op[op %in% row.names(x)]
 x=x[op,]
 brks_heatmap <- function(mat, color_palette){
-     
        rng <- range(mat, na.rm = TRUE)
        lpal <- length(color_palette)
-       
          c(seq(rng[1], 0, length.out=ceiling(lpal/2) + 1),
                seq(rng[2]/dim(mat)[1], rng[2], length.out=floor(lpal/2)))
  }
 # #I do this in my computer and then load the figure, see below:
-# color_palette=brewer.pal(n = 11, name = 'RdBu')
-# color_palette=rev(color_palette)
-# color_palette=colorRampPalette(c('blue', 'white','orange'), alpha = TRUE)(150)
-# # library(grid)
-# jpeg(paste0("cohensd_",date,".jpg"), width=9, height=12, units="in", res=1000 );
-# setHook("grid.newpage", function() pushViewport(viewport(x=1,y=1,width=0.9, height=0.9, name="vp", just=c("right","top"))), action="prepend")
-# pheatmap(x,cluster_cols=FALSE,cluster_rows=FALSE,breaks = brks_heatmap(x, color_palette),color=color_palette,column_names_side = c("bottom"), angle_col = c("90"))
-# setHook("grid.newpage", NULL, "replace")
-# grid.text("Steatosis, Fibrosis, Necroinflammation, HOMA-IR", y=-0.07, x=0.4,gp=gpar(fontsize=16))
-# grid.text("Steroids (Androgens, Estrogens, Gluc., Mineraloc., Progestogens)", x=-0.07, rot=90, gp=gpar(fontsize=16))
-# #For quality/pltowise reasons I need to do this:
-# dev.copy(jpeg,paste0("cohensd_",date,".jpg"),width=9, height=12, units="in", res=1000);dev.off()
+color_palette=brewer.pal(n = 11, name = 'RdBu')
+color_palette=rev(color_palette)
+color_palette=colorRampPalette(c('blue', 'white','orange'), alpha = TRUE)(150)
+# library(grid)
+jpeg(paste0("cohensd_",date,".jpg"), width=9, height=12, units="in", res=1000 );
+setHook("grid.newpage", function() pushViewport(viewport(x=1,y=1,width=0.9, height=0.9, name="vp", just=c("right","top"))), action="prepend")
+pheatmap(x,cluster_cols=FALSE,cluster_rows=FALSE,breaks = brks_heatmap(x, color_palette),color=color_palette,column_names_side = c("bottom"), angle_col = c("90"))
+setHook("grid.newpage", NULL, "replace")
+grid.text("Steatosis, Fibrosis, Necroinflammation, HOMA-IR", y=-0.07, x=0.4,gp=gpar(fontsize=16))
+grid.text("Steroids (Androgens, Estrogens, Gluc., Mineraloc., Progestogens)", x=-0.07, rot=90, gp=gpar(fontsize=16))
+#For quality/pltowise reasons I need to do this:
+dev.copy(jpeg,paste0("cohensd_",date,".jpg"),width=9, height=12, units="in", res=1000);dev.off()
 
 knitr::include_graphics(paste0("cohensd_",date, ".jpg"))
 # daiR::image_to_pdf(paste0("cohensd_",date, ".jpg"), pdf_name=paste0(paste0("cohensd_",date, ".pdf")));
