@@ -583,87 +583,68 @@ gend=c('Male');colors=c('black');group_chords(vars[[2]],n_level,fig_name,big,rem
 
 # Making Variance Explained Plots
 ```{r, warning=FALSE,message=FALSE,fig.width=6.0,fig.align="left"}
-# Some info regarding of making the data:
 # This is it! https://bioconductor.org/packages/release/bioc/vignettes/scater/inst/doc/overview.html
-#
+# or
 # https://stats.stackexchange.com/questions/79399/calculate-variance-explained-by-each-predictor-in-multiple-regression-using-r
 # https://rdrr.io/github/MRCIEU/TwoSampleMR/man/get_r_from_pn.html
 # https://onlinestatbook.com/2/effect_size/variance_explained.html
 # https://stackoverflow.com/questions/10441437/why-am-i-getting-x-in-my-column-names-when-reading-a-data-frame
 # https://stackoverflow.com/questions/27044727/removing-characters-from-string-in-r
-varex_groups_plot <- function(tv_all, Group) {
-  an.error.occured <- FALSE
-  tv_all2 <- tv_all
-  
-  tryCatch(tv_all2[, 'Gender'], error = function(e) { an.error.occured <<- TRUE })
-  
-  if (an.error.occured) {
-    cond <- if (Group == 'female') {
-      tv_all2[, 'SEX.1F.2M'] == min(tv_all2[, 'SEX.1F.2M'])
-    } else if (Group == 'male') {
-      tv_all2[, 'SEX.1F.2M'] == max(tv_all2[, 'SEX.1F.2M'])
-    } else {
-      rep(TRUE, dim(tv_all2)[1])
-    }
-  } else {
-    cond <- if (Group == 'female') {
-      tv_all2[, 'Gender'] == min(tv_all2[, 'Gender'])
-    } else if (Group == 'male') {
-      tv_all2[, 'Gender'] == max(tv_all2[, 'Gender'])
-    } else {
-      rep(TRUE, dim(tv_all2)[1])
-    }
-  }
-  
-  tv_red <- tv_all2[cond, ]
-  hep <- tv_red
-  colnames(hep)[1:8] <- colnames(tv_red)[1:8]
-  
-  tv2 <- t(hep[, 9:dim(tv_red)[2]])
-  
-  sce <- SingleCellExperiment(tv2)
-  logcounts(sce) <- tv2
-  sce@colData <- DataFrame(hep[, 2:8])
-  names(colData(sce)) <- colnames(tv_all)[2:8]
-  names(colData(sce))[1] <- 'The Gender'
 
-  vars <- getVarianceExplained(sce, variables = names(colData(sce))[1:7])
-  colVars(vars)
+varex_groups_plot=function(tv_all2,Group) { # if (Group=='Female') {cond=tv_all[,'Gender']==1} else if 
+an.error.occured=FALSE
+tv_all2=tv_all
+tryCatch( { tv_all2[,'Gender'] }, error = function(e) {an.error.occured <<- TRUE})
+if(an.error.occured) {if (Group=='female') {cond=tv_all2[,'SEX.1F.2M']==min(tv_all2[,'SEX.1F.2M'])} else if (Group=='male') 
+  {cond=tv_all2[,'SEX.1F.2M']==max(tv_all2[,'SEX.1F.2M'])} else if (Group=='All'){cond=rep(TRUE,dim(tv_all2)[1])}} else {
+if (Group=='female') {cond=tv_all2[,'Gender']==min(tv_all2[,'Gender'])} else if (Group=='male') {cond=tv_all2[,'Gender']==max(tv_all2[,'Gender'])} else if (Group=='All')
+{cond=rep(TRUE,dim(tv_all2)[1])}}
+tv_red=c(); tv_red=tv_all2[cond,]   
+hep=tv_red
+colnames(hep)[1:8]=colnames(tv_red)[1:8]
+tv2=t(hep[,9:dim(tv_red)[2]])
+sce=SingleCellExperiment(tv2)
+logcounts(sce)=tv2
+sce@colData=DataFrame(hep[,2:8]) #it is DataFrame with big Ds and Fs
+names(colData(sce))=colnames(tv_all)[2:8]
+names(colData(sce))[1]='The Gender'
+vars <- getVarianceExplained(sce,variables=names(colData(sce))[1:7]);colVars(vars)
+windowsFonts(A = windowsFont("Calibri (Body)"))
+mypalette <- scales::hue_pal()(ncol(colData(sce)))
+names(mypalette) <- colnames(tv_all)[2:8]
+if (Group!='All') {vars=vars[,2:7]}
+p=plotExplanatoryVariables(vars)+theme(text=element_text(size=25,family="Calibri"))+theme(axis.text=element_text(size=20,family="Calibri"))#https://scales.arabpsychology.com/stats/how-to-change-font-size-in-ggplot2/
+# Nans and the levels are problems for consistent colors in the plot:
+p[[1]]=p[[1]][!is.na(p[[1]][,1]),]; p[[1]][,1]=as.vector(unlist(p[[1]][,1])) #uh huh... # p[[1]][,'Expl_Var']=droplevels(p[[1]][,'Expl_Var'])
+p[[1]]=p[[1]][order(p[[1]][,1]),]
 
-  windowsFonts(A = windowsFont("Calibri (Body)"))
-  mypalette <- scales::hue_pal()(ncol(colData(sce)))
-  names(mypalette) <- colnames(tv_all)[2:8]
-  
-  if (Group != 'All') {
-    vars <- vars[, 2:7]
-  }
-  
-  p <- plotExplanatoryVariables(vars) +
-    theme(text = element_text(size = 25, family = "Calibri")) +
-    theme(axis.text = element_text(size = 20, family = "Calibri"))
-  
-  p[[1]] <- p[[1]][!is.na(p[[1]][, 1]), ]
-  p[[1]][, 1] <- as.vector(unlist(p[[1]][, 1]))
-  p[[1]] <- p[[1]][order(p[[1]][, 1]), ]
+library(ragg)
+# Oh! https://www.tidyverse.org/blog/2020/08/taking-control-of-plot-scaling/
+# https://r4ds.had.co.nz/graphics-for-communication.html#figure-sizing
+path="C:/Users/patati/Documents/GitHub/new/" #oh, classical: https://forum.posit.co/t/r-markdown-html-document-doesnt-show-image/41629/2
+sips=paste0(Group,'vex',".png")
+pngfile <- fs::path(path,sips)#fs::path(knitr::fig_path(),  "theming2.png")
+agg_png(pngfile, width = 60, height = 36, units = "cm", res = 300,scaling = 2)
+plot(p)
+invisible(dev.off())
+knitr::include_graphics(pngfile)
+daiR::image_to_pdf(sips, pdf_name=paste0(sips,'.pdf')) #https://rdrr.io/cran/daiR/man/image_to_pdf.html #this is good!
+my_image <- image_read(sips);my_svg <- image_convert(my_image, format="svg"); image_write(my_svg, paste(sips,".svg"))
 
-  path <- "C:/Users/patati/Documents/GitHub/new/"
-  sips <- paste0(Group, 'vex', ".png")
-  pngfile <- fs::path(path, sips)
-  agg_png(pngfile, width = 60, height = 36, units = "cm", res = 300, scaling = 2)
-  plot(p)
-  invisible(dev.off())
-  knitr::include_graphics(pngfile)
-  daiR::image_to_pdf(sips, pdf_name = paste0(sips, '.pdf'))
-  my_image <- image_read(sips)
-  my_svg <- image_convert(my_image, format = "svg")
-  image_write(my_svg, paste(sips, ".svg"))
 }
 
-# Example usage:
-varex_groups_plot(tv_all, Group = 'All')
-varex_groups_plot(tv_all, Group = 'female')
-varex_groups_plot(tv_all, Group = 'male')
-
+# I'll be using the tv_all (logged and then scaled) values here, even though in the original function took 'lognormed' values, i.e.
+# 'logNormCounts' #tässä funktiossa ensin tehdään normeeraus ja sitten vasta log2..., ts./or: 
+# https://bioconductor.org/packages/devel/bioc/vignettes/SingleCellExperiment/inst/doc/intro.html
+# counts <- assay(sce); # libsizes <- colSums(counts); # size.factors <- libsizes/mean(libsizes) # logcounts(sce) <- log2(t(t(counts)/size.factors) + 1)
+# logcounts(sce)=scale(log2(tv2)) #depending on the order of the normalizing/scaling this will change...
+# So, the way to go is however:
+# https://bioinformatics.stackexchange.com/questions/22414/when-analysing-microarray-data-is-it-need-to-do-normalization-and-standardizati
+# https://bioinformatics.stackexchange.com/questions/22426/inconsistent-microarray-expression-levels-after-normalizing-with-log2
+# https://www.reddit.com/r/bioinformatics/comments/1ejs94m/log2_transformation_and_quantile_normalization/
+varex_groups_plot(tv_all,Group='All');
+varex_groups_plot(tv_all,Group='female');
+varex_groups_plot(tv_all,Group='male')
 
 
 ```
@@ -674,8 +655,8 @@ varex_groups_plot(tv_all, Group = 'male')
 #For calculating the effect sizes, I'll use the Cohen's d
 # https://www.statology.org/cohens-d-in-r/
 cohd=function(NAFLD, tv,Group,Outcome) {
-if (Group=='Male') {NAFLDo=NAFLD[NAFLD[,'Gender']==max(NAFLD[,'Gender']),];tva=tv[tv[,'SEX.1F.2M']==max(tv[,'SEX.1F.2M']),]} else if (Group=='Female') 
-{NAFLDo=NAFLD[NAFLD[,'Gender']==min(NAFLD[,'Gender']),];tva=tv[tv[,'SEX.1F.2M']==min(tv[,'SEX.1F.2M']),]} else if (Group=='All') {NAFLDo=NAFLD;tva=tv}
+if (Group=='Male') {NAFLDo=NAFLD[NAFLD[,'Gender']==max(NAFLD[,'Gender']),];tva=tv[tv[,'Gender']==max(tv[,'Gender']),]} else if (Group=='Female') 
+{NAFLDo=NAFLD[NAFLD[,'Gender']==min(NAFLD[,'Gender']),];tva=tv[tv[,'Gender']==min(tv[,'Gender']),]} else if (Group=='All') {NAFLDo=NAFLD;tva=tv}
 if (Outcome != 'HOMA-IR') {SG0=NAFLDo[NAFLDo[,Outcome] == min(NAFLDo[,Outcome]),]; SG1=NAFLDo[NAFLDo[,Outcome] > min(NAFLDo[,Outcome]),]} else if (Outcome == 'HOMA-IR') 
 {SG0=NAFLDo[tva[,'HOMA-IR'] <= 1.5,]; SG1=NAFLDo[tva[,'HOMA-IR'] > 1.5,]}
   
@@ -692,12 +673,10 @@ NAFLD=tv_all
 Outcome='Steatosis Grade';Group='All'; a=cohd(NAFLD, tv,Group,Outcome);Group='Female'; b=cohd(NAFLD, tv,Group,Outcome);Group='Male'; c=cohd(NAFLD, tv,Group,Outcome);d=cbind(d,cbind(a,b,c))
 Outcome='Fibrosis Stage';Group='All'; a=cohd(NAFLD, tv,Group,Outcome);Group='Female'; b=cohd(NAFLD, tv,Group,Outcome);Group='Male'; c=cohd(NAFLD, tv,Group,Outcome);d=cbind(d,cbind(a,b,c))
 Outcome='Necroinflammation';Group='All'; a=cohd(NAFLD, tv,Group,Outcome);Group='Female'; b=cohd(NAFLD, tv,Group,Outcome);Group='Male'; c=cohd(NAFLD, tv,Group,Outcome);d=cbind(d,cbind(a,b,c))
-Outcome='HOMA-IR';Group='All'; 
-a=cohd(NAFLD, tv,Group,Outcome);Group='Female'; 
-b=cohd(NAFLD, tv,Group,Outcome);Group='Male'; c=cohd(NAFLD, tv,Group,Outcome);d=cbind(d,cbind(a,b,c))
+Outcome='HOMA-IR';Group='All'; a=cohd(NAFLD, tv,Group,Outcome);Group='Female'; b=cohd(NAFLD, tv,Group,Outcome);Group='Male'; c=cohd(NAFLD, tv,Group,Outcome);d=cbind(d,cbind(a,b,c))
 rownames(d)=colnames(tv_all[,9:28])
 colnames(d)=rep(c('All','Female','Male'),4)
-write.csv(d,'cohens_da_tikka_v9125a3.csv')
+write.csv(d,'cohens_da_tikka_v9125a.csv')
 n=d
 x=data.frame(n)
 row.names(x)=colnames(tv_all[,9:28])
@@ -730,16 +709,11 @@ setHook("grid.newpage", NULL, "replace")
 grid.text("Steatosis, Fibrosis, Necroinflammation, HOMA-IR", y=-0.07, x=0.4,gp=gpar(fontsize=16))
 grid.text("Steroids (Androgens, Estrogens, Gluc., Mineraloc., Progestogens)", x=-0.07, rot=90, gp=gpar(fontsize=16))
 #For quality/pltowise reasons I need to do this:
-dev.copy(jpeg,paste0("cohensd_e2",date,".jpg"),width=9, height=12, units="in", res=1000);dev.off()
+dev.copy(jpeg,paste0("cohensd_aa",date,".jpg"),width=9, height=12, units="in", res=1000);dev.off()
 
-knitr::include_graphics(paste0("cohensd_e2",date, ".jpg"))
+knitr::include_graphics(paste0("cohensd_aa",date, ".jpg"))
 # daiR::image_to_pdf(paste0("cohensd_",date, ".jpg"), pdf_name=paste0(paste0("cohensd_",date, ".pdf")));
 # my_image <- image_read(paste0("cohensd_",date, ".jpg")); my_svg <- image_convert(my_image, format="svg"); image_write(my_svg, paste("cohensd_",date,".svg"))
-
-
-#Copilot on parempi kuin ChatGPT
-#Uus cohen.d päivitys hieman muuttaa outputtia (HOMA-IR miehet... parempi...?)
-
 
 ```
 
@@ -973,9 +947,6 @@ dev.off();eoh=paste("Square Correlation Plot of",ho,gm,hip1,"3.jpg")
 daiR::image_to_pdf(eoh, pdf_name=paste0(eoh,'.pdf'))
 my_image <- image_read(eoh);my_svg <- image_convert(my_image, format="svg"); image_write(my_svg, paste(eoh,".svg"))
 
-
-
-#Copilotilla ei järkee edelliseen, vaikka näyttää hieman siistimmältä
 
 ```
 
@@ -1632,10 +1603,6 @@ huus=function(tv,adj,sig.level,sick,sick_group,joo) {
 adj='nook'; sig.level=c(.001,0.01, 0.05); sick='no'; joo='joo' #sickGroup..
 metanorm_S_non_fdr=huus(tv_all,adj,sig.level,sick,sick_group,joo)
 
-#Ei mee tääkän ihan nopeesti läpi ChatGPT:llä. Nyt copilotkaan ei näy (14.1.25) Utussa.
-# Tää olis kiva saada, joten jätän tämän OS. Funktiota.R löytyy kansiosta, siellä lisää, yks minitoimiva on.
-
-
 ```
 ```{r, echo=FALSE, out.width="50%", fig.cap="Heatmap of LMEs (linear model estimates) from Steroids vs. BAs & Lipids & Covariates with All Subjects",fig.align="left"}
 knitr::include_graphics("Linear Model Estimate Plot ofees5 BAs_lipids_as_y vs. steroids_as_x All .jpg")
@@ -2180,97 +2147,6 @@ dev.off();
 # And now just showing the figure separately:
 knitr::include_graphics('network.jpg'); eoh='network.jpg'; daiR::image_to_pdf(eoh, pdf_name=paste0(eoh,'.pdf'));
 my_image <- image_read(eoh);my_svg <- image_convert(my_image, format="svg"); image_write(my_svg, paste(eoh,".svg"))
-
-
-#... alternative
-# Load necessary libraries
-library(dplyr)
-library(igraph)
-library(RColorBrewer)
-library(ragg)
-
-# Convert matrix to data frame
-tv_c <- as.data.frame(tv_all)
-
-# Check column names
-print(colnames(tv_c))
-
-# Preprocess the data
-# Remove columns only if they exist
-columns_to_remove <- c('Total_TG', 'PFAS', 'Perfluorodecyl.ethanoic.acid')
-existing_columns <- columns_to_remove[columns_to_remove %in% colnames(tv_c)]
-tv_c <- tv_c %>%
-  select(-one_of(existing_columns)) %>%
-  select(-one_of(x4))
-
-colnames(tv_c)[colnames(tv_c) == "17aOH-P4"] <- "17a-OHP4"
-dat <- tv_c %>%
-  select(-c(Gender, PatientNumber))
-
-# Calculate correlation matrix
-resulta <- (rcorr(as.matrix(dat), type = 'spearman'))$r
-
-# Thresholding and element-wise multiplication
-n_level <- 0.9
-Nrr <- qpNrr(resulta, verbose = FALSE)
-Nrr[is.na(Nrr)] <- 1
-cond <- as.matrix(Nrr < n_level)
-tes_t <- cond * resulta
-colnames(tes_t) <- rownames(tes_t)
-
-# Removing self-correlation
-diag(tes_t) <- 0
-
-# Create graph
-g <- graph_from_adjacency_matrix(tes_t, mode = "upper", weighted = TRUE, diag = FALSE)
-df <- as.data.frame(cbind(as_edgelist(g), E(g)$weight))
-df[, 3] <- as.numeric(df[, 3])
-hoi <- df[!duplicated(df[, c(1, 2)]), ]
-
-# Prepare nodes and links
-colnames(hoi) <- c("source", "target", "importance")
-
-# Ensure columns are character type
-hoi$source <- as.character(hoi$source)
-hoi$target <- as.character(hoi$target)
-
-# Remove rows with NA values
-links <- hoi %>% filter(!is.na(source) & !is.na(target))
-
-# Create nodes dataframe
-nodes <- data.frame(label = unique(c(links$source, links$target)))
-
-# Add categories to nodes
-nodes <- nodes %>%
-  mutate(carac = case_when(
-    label %in% x5 ~ "Contaminants",
-    label %in% x3 ~ "Bile Acids",
-    label %in% x6 ~ "Lipids",
-    label %in% x2 ~ "Steroids",
-    TRUE ~ "Other"
-  ))
-
-# Create igraph object
-network <- graph_from_data_frame(d = links, vertices = nodes, directed = FALSE)
-
-# Plotting
-coul <- c('#B2BEB5', 'Green', 'Red', 'Orange')
-my_color <- coul[as.numeric(as.factor(V(network)$carac))]
-
-jpeg('network.jpg', width = 4, height = 4.7, units = "in", quality = 100, pointsize = 7, res = 1000)
-plot(network, mode = "circle", vertex.color = my_color, vertex.size = 10, edge.arrow.size = 0.8, vertex.label.cex = 0.35, edge.width = as.numeric(E(network)$importance) * 6.00)
-legend("topright", legend = levels(as.factor(V(network)$carac)), col = coul, bty = "n", pch = 20, pt.cex = 1.3, cex = 1.3, text.col = coul, horiz = FALSE, inset = c(-0.01, 0.80))
-dev.off()
-
-# Show the figure
-knitr::include_graphics('network.jpg')
-eoh <- 'network.jpg'
-daiR::image_to_pdf(eoh, pdf_name = paste0(eoh, '.pdf'))
-my_image <- image_read(eoh)
-my_svg <- image_convert(my_image, format = "svg")
-image_write(my_svg, paste(eoh, ".svg"))
-
-
 ```
 
 
@@ -2377,131 +2253,6 @@ fn='All'; sick_group=rowSums(ccova)>4 #toth#
 # In addition, then there is also possibility for elaborations, i.e. the adjustments, of the models, 
 # but I'll leave it from here for the time being... (please do ask if needed: patati 'tilde' utu dot fi) :)
 # fyi: https://bookdown.org/content/b472c7b3-ede5-40f0-9677-75c3704c7e5c/more-than-one-mediator.html
-
-
-
-#...alternative... not working...
-# Function to perform mediation analysis using glm
-# loop_med_simplified1a <- function(Treatment, Mediator, Outcome, tv_all, Group, name, simss, t.val, test, sick, sick_group) {
-#   # Determine the condition based on the group
-#   cond <- switch(Group,
-#                  'female' = tv_all[,'Gender'] == min(tv_all[,'Gender']),
-#                  'male' = tv_all[,'Gender'] == max(tv_all[,'Gender']),
-#                  'All' = rep(TRUE, nrow(tv_all)))
-#   
-#   # Filter the data based on the condition and sick status
-#   tv_red <- if (sick == 'yes') tv_all[cond & as.vector(sick_group), ] else tv_all[cond, ]
-#   
-#   # Extract treatment, mediator, and outcome variables
-#   X <- tv_red[, Treatment]
-#   M <- tv_red[, Mediator]
-#   Y <- tv_red[, Outcome]
-#   
-#   # Combine the data into a single data frame
-#   Data <- data.frame(cbind(X, M, Y))
-#   colnames(Data) <- gsub(" ", "_", colnames(Data))
-#   
-#   # Calculate control and treatment values
-#   control.value <- colMins(as.matrix(X))
-#   treat.value <- colMaxs(as.matrix(X))
-#   
-#   # Initialize variables for storing results
-#   res <- data.frame()
-#   rn <- c()
-#   
-#   # Loop through each combination of treatment, mediator, and outcome
-#   for (i in seq_along(colnames(Y))) {
-#     for (j in seq_along(colnames(M))) {
-#       for (z in seq_along(colnames(X))) {
-#         # Define the formulas for the models
-#         fmla1 <- as.formula(paste(colnames(M)[j], "~", colnames(X)[z]))
-#         fmla2 <- as.formula(paste(colnames(Y)[i], "~", colnames(X)[z], "+", colnames(M)[j]))
-#         
-#         # Fit the models using glm
-#         b <- glm(fmla1, data = Data, family = gaussian())
-#         c <- glm(fmla2, data = Data, family = gaussian())
-#         
-#         # Perform mediation analysis
-#         med_oute <- switch(t.val,
-#                            'no' = mediate(b, c, treat = colnames(X)[z], mediator = colnames(M)[j], sims = simss),
-#                            'yes' = mediate(b, c, treat = colnames(X)[z], mediator = colnames(M)[j], sims = simss, control.value = control.value[z], treat.value = X[test, z]),
-#                            'minmax' = mediate(b, c, treat = colnames(X)[z], mediator = colnames(M)[j], sims = simss, control.value = control.value[z], treat.value = treat.value[z]))
-#         
-#         # Summarize the mediation analysis results
-#         med_out <- summary(med_oute)
-#         tmp <- c(med_out$d0, med_out$d0.p, med_out$d0.ci[1], med_out$d0.ci[2], med_out$z0, med_out$z0.p, med_out$z0.ci[1], med_out$z0.ci[2], med_out$n1, med_out$n1.p, med_out$n1.ci[1], med_out$n1.ci[2], med_out$tau.coef, med_out$tau.p, med_out$tau.ci[1], med_out$tau.ci[2])
-#         
-#         # Store the results
-#         res <- rbind(res, tmp)
-#         rn <- c(rn, paste(colnames(X)[z], colnames(M)[j], colnames(Y)[i], sep = " "))
-#       }
-#     }
-#   }
-#   
-#   # Set row and column names for the results
-#   rownames(res) <- rn
-#   colnames(res) <- c('ACME', 'd0.p', 'd0.ci_l', 'd0.ci_u', 'ADE', 'z0.p', 'z0.ci_l', 'z0.ci_u', 'Proportion Mediated', 'n1.p', 'n1.ci_l', 'n1.ci_u', 'Total Effect', 'tau.p', 'tau.ci_l', 'tau.ci_u')
-#   
-#   # Order the results by p-value
-#   res <- res[order(res[, 2]), ]
-#   
-#   # Write the results to an Excel file
-#   write.xlsx(res, file = paste(name, Group, date, '.xlsx'), append = FALSE, row.names = TRUE)
-#   
-#   return(res)
-# }
-# 
-# # Function to test the hypothesis using glm
-# the_essentials <- function(Treatment, Mediator, Outcome, tv, Group, name, simss, t.val, test, sick, sick_group, fn, lkm, date, joo, ip) {
-#   hoi1 <- paste("C:/Users/patati/Desktop/Turk/R/basic causal mediation with the counterfactuals/", fn, sep = '')
-#   
-#   # Check if the directory exists
-#   if (!dir.exists(hoi1)) {
-#     stop("The specified directory does not exist.")
-#   }
-#   
-#   setwd(hoi1)
-#   
-#   name <- paste(simss, 'basic_divisions')
-#   Group <- 'All'
-#   uh7ma <- tryCatch(loop_med_simplified1a(Treatment, Mediator, Outcome, tv_all, Group, name, simss, t.val, test, sick, sick_group), error = function(e) data.frame(0))
-#   save(uh7ma, file = paste(fn, 'all.RData'))
-#   
-#   Group <- 'female'
-#   uh7f <- tryCatch(loop_med_simplified1a(Treatment, Mediator, Outcome, tv_all, Group, name, simss, t.val, test, sick, sick_group), error = function(e) data.frame(0))
-#   save(uh7f, file = paste(fn, 'female.RData'))
-#   
-#   Group <- 'male'
-#   uh7m <- tryCatch(loop_med_simplified1a(Treatment, Mediator, Outcome, tv_all, Group, name, simss, t.val, test, sick, sick_group), error = function(e) data.frame(0))
-#   save(uh7m, file = paste(fn, 'male.RData'))
-# }
-# 
-# # Example usage
-# simss <- 100
-# name <- 'Jaot_OK_basica'
-# joo <- 'ei'
-# ip <- 1
-# ccova <- tv[, c("Steatosis.Grade.0.To.3", "Fibrosis.Stage.0.to.4", "Necroinflammation", "HOMA-IR")]
-# sick_group <- rowSums(ccova) > 4
-# file_names <- c("Steatosis", "Fibrosis", "Necroinflammation", "HOMAIR", 'Menopause')
-# lkm <- 30
-# joo <- 'ei'
-# ip <- 1
-# sick <- 'yes'
-# t.val <- 'no'
-# Group <- 'All'
-# 
-# # All
-# joo <- 'joo'
-# sick <- 'no'
-# ccova <- tv[, c("Steatosis.Grade.0.To.3", "Fibrosis.Stage.0.to.4", "Necroinflammation", "HOMA-IR")]
-# fn <- 'All'
-# sick_group <- rowSums(ccova) > 4
-# 
-# # Drive the analysis
-# the_essentials(Treatment, Mediator, Outcome, tv_all, Group, name, simss, t.val, test, sick, sick_group, fn, lkm, date, joo, ip)
-# 
-# uh7ma <- loop_med_simplified1a(Treatment, Mediator, Outcome, tv_all, Group, name, simss, t.val, test, sick, sick_group)
 
 ```
 
@@ -2958,8 +2709,7 @@ path="C:/Users/patati/Documents/GitHub/Steroid_Data_Analysis/"; setwd(path)
   
   
 # ACME:n kaa ei jakaudu symmetrisesti
-
-#Copilotointi ei oikein toimi edelliselle..  
+  
 
 ```
 ```{r, warning=FALSE,message=FALSE,fig.width=8.0,fig.align="left",fig.cap="Heatmap of 'Indirect' Effects PFAS vs. Steroids with All Subjects"}
@@ -3171,8 +2921,6 @@ p + geom_sankeyedge(aes(fill = Weight), position = pos) +
 # almam=reduced2(all_Male,Group,name,lkm); almam = na.omit(almam) #https://www.tutorialspoint.com/how-to-remove-rows-from-data-frame-in-r-that-contains-nan
 # plottings_sf(almam,date,sick,Group,d)
 
-#Ei tääkään ihan nyt mee copilotilla paremmaks.
-
 
 ```
 
@@ -3185,139 +2933,135 @@ p + geom_sankeyedge(aes(fill = Weight), position = pos) +
 # Demographics:
 # This is for nonscaled (or not-logged or the like 'raw') data only!
 
-# Demographics Function
-Demographics <- function(tv_all, Clini, Group) {
-  # Determine the condition based on the group
-  cond <- switch(Group,
-                 'female' = tv_all[,'SEX.1F.2M'] == min(tv_all[,'SEX.1F.2M']),
-                 'male' = tv_all[,'SEX.1F.2M'] == max(tv_all[,'SEX.1F.2M']),
-                 'All' = rep(TRUE, nrow(tv_all)))
+Demographics=function(tv_all,Clini,Group) {
+  # The gender (and all) groups (could be something else as well... you can expand... like the 'sick' groups)
+  if (Group=='female') {cond=tv_all[,'SEX.1F.2M']==min(tv_all[,'SEX.1F.2M'])} else if 
+  (Group=='male') {cond=tv_all[,'SEX.1F.2M']==max(tv_all[,'SEX.1F.2M'])} else if (Group=='All') {cond=rep(TRUE,dim(tv_all)[1])}
+  tv_red=c(); tv_red=tv_all[cond,]; Clini2=Clini[rownames(tv_red),]
   
-  # Filter the data based on the condition
-  tv_red <- tv_all[cond, ]
-  Clini2 <- Clini[rownames(tv_red), ]
+  # The demographics. Depending what is the aim of your study, you may need more here...:
+  N=dim(tv_red)[1]
+  AGE=median(tv_red[,'AGE']);AGEq1=quantile(tv_red[,'AGE'],0.25);AGEq3=quantile(tv_red[,'AGE'],0.75);
+  BMI=median(tv_red[,'BMI']);BMIq1=quantile(tv_red[,'BMI'],0.25);BMIq3=quantile(tv_red[,'BMI'],0.75)
+  PFAS=median(tv_red[,'PFAS']);PFASq1=quantile(tv_red[,'PFAS'],0.25);PFASq3=quantile(tv_red[,'PFAS'],0.75)
+  HDL=median(Clini2[,'HDL']);HDLq1=quantile(Clini2[,'HDL'],0.25);HDLq3=quantile(Clini2[,'HDL'],0.75)
+  #Sometimes the numbers are 'characters' in the table...:
+  LDL=median(as.numeric(Clini2[,'LDL']));LDLq1=quantile(as.numeric(Clini2[,'LDL'],0.25))[2];LDLq3=quantile(as.numeric(Clini2[,'LDL'],0.75))[4] 
   
-  # Calculate demographics
-  N <- nrow(tv_red)
-  AGE <- median(tv_red[,'AGE'])
-  AGEq1 <- quantile(tv_red[,'AGE'], 0.25)
-  AGEq3 <- quantile(tv_red[,'AGE'], 0.75)
-  BMI <- median(tv_red[,'BMI'])
-  BMIq1 <- quantile(tv_red[,'BMI'], 0.25)
-  BMIq3 <- quantile(tv_red[,'BMI'], 0.75)
-  PFAS <- median(tv_red[,'PFAS'])
-  PFASq1 <- quantile(tv_red[,'PFAS'], 0.25)
-  PFASq3 <- quantile(tv_red[,'PFAS'], 0.75)
-  HDL <- median(Clini2[,'HDL'])
-  HDLq1 <- quantile(Clini2[,'HDL'], 0.25)
-  HDLq3 <- quantile(Clini2[,'HDL'], 0.75)
-  LDL <- median(as.numeric(Clini2[,'LDL']))
-  LDLq1 <- quantile(as.numeric(Clini2[,'LDL']), 0.25)
-  LDLq3 <- quantile(as.numeric(Clini2[,'LDL']), 0.75)
-  SGmin <- min(tv_red[,'Steatosis.Grade.0.To.3'])
-  SGmax <- max(tv_red[,'Steatosis.Grade.0.To.3'])
-  FSmin <- min(tv_red[,'Fibrosis.Stage.0.to.4'])
-  FSmax <- max(tv_red[,'Fibrosis.Stage.0.to.4'])
-  NFmin <- min(tv_red[,'Necroinflammation'])
-  NFmax <- max(tv_red[,'Necroinflammation'])
-  HImin <- min(tv_red[,'HOMA-IR'])
-  HImax <- max(tv_red[,'HOMA-IR'])
-  HI <- median(tv_red[,'HOMA-IR'])
-  HIq1 <- quantile(tv_red[,'HOMA-IR'], 0.25)
-  HIq3 <- quantile(tv_red[,'HOMA-IR'], 0.75)
+  SGmin=min(tv_red[,'Steatosis.Grade.0.To.3']);SGmax=max(tv_red[,'Steatosis.Grade.0.To.3'])
+  FSmin=min(tv_red[,'Fibrosis.Stage.0.to.4']);FSmax=max(tv_red[,'Fibrosis.Stage.0.to.4'])
+  NFmin=min(tv_red[,'Necroinflammation']);NFmax=max(tv_red[,'Necroinflammation'])
+  HImin=min(tv_red[,'HOMA-IR']);HImax=max(tv_red[,'HOMA-IR']);
+  HI=median(tv_red[,'HOMA-IR']);HIq1=quantile(tv_red[,'HOMA-IR'],0.25);HIq3=quantile(tv_red[,'HOMA-IR'],0.75)
   
-  return(c(N, AGE, AGEq1, AGEq3, BMI, BMIq1, BMIq3, PFAS, PFASq1, PFASq3, HDL, HDLq1, HDLq3, LDL, LDLq1, LDLq3,
-           SGmin, SGmax, FSmin, FSmax, NFmin, NFmax, HImin, HImax, HI, HIq1, HIq3))
-}
+  return(c(N,AGE,AGEq1,AGEq3,BMI,BMIq1,BMIq3,PFAS,PFASq1,PFASq3,HDL,HDLq1,HDLq3,LDL,LDLq1,LDLq3,
+           SGmin,SGmax,FSmin,FSmax,NFmin,NFmax,HImin,HImax,HI,HIq1,HIq3))
+  }
 
-# Calculate demographics for each group
-Group <- 'All'; d_all <- Demographics(tv, Clini, Group)
-Group <- 'female'; d_female <- Demographics(tv, Clini, Group)
-Group <- 'male'; d_male <- Demographics(tv, Clini, Group)
+Group='All';    d_all=Demographics(tv,Clini,Group);
+Group='female'; d_female=Demographics(tv,Clini,Group);
+Group='male';   d_male=Demographics(tv,Clini,Group)
 
-# Combine results into a matrix
-d_totaali <- t(rbind(d_all, d_female, d_male))
-rownames(d_totaali) <- c('N', 'AGE', 'AGEq1', 'AGEq3', 'BMI', 'BMIq1', 'BMIq3', 'PFAS', 'PFASq1', 'PFASq3', 'HDL', 'HDLq1', 'HDLq3', 'LDL', 'LDLq1', 'LDLq3',
-                         'SGmin', 'SGmax', 'FSmin', 'FSmax', 'NFmin', 'NFmax', 'HImin', 'HImax', 'HI', 'HIq1', 'HIq3')
+d_totaali=t(rbind(d_all,d_female,d_male)); 
+# For the rownames, I selected the outcome variables of Demographics and added '' t to them:
+rownames(d_totaali)=c('N','AGE','AGEq1','AGEq3','BMI','BMIq1','BMIq3','PFAS','PFASq1','PFASq3','HDL','HDLq1','HDLq3','LDL','LDLq1','LDLq3',
+           'SGmin','SGmax','FSmin','FSmax','NFmin','NFmax','HImin','HImax','HI','HIq1','HIq3')
+
 d_totaali
 
-# Sample Size Functions
-# Function to determine sample sizes for binary outcomes
-sample_size <- function(NAFLD, Outcome, Group) { 
-  NAFLDo <- switch(Group,
-                   'Male' = NAFLD[NAFLD[,'SEX.1F.2M'] == 2, ],
-                   'Female' = NAFLD[NAFLD[,'SEX.1F.2M'] == 1, ],
-                   'All' = NAFLD)
-  
-  n0 <- nrow(NAFLDo[NAFLDo[, Outcome] == 0, ])
-  n1 <- nrow(NAFLDo[NAFLDo[, Outcome] > 0, ])
-  
-  return(c(n0, n1))
-}
+# The rest is better to do in Excel (perhaps manually via keeping the cells as 'text'):
+# setwd("C:/Users/patati/Desktop/Turku/R") 
+# write.xlsx(d_totaali, file ='Demographics_steroid data_5.xlsx', append = FALSE, row.names = TRUE)  
+#https://stackoverflow.com/questions/21847830/handling-java-lang-outofmemoryerror-when-writing-to-excel-from-r
 
-# Function to determine sample sizes for continuous outcomes
-sample_size2 <- function(NAFLD, Outcome, Group, sick_groupe) { 
-  sample_data <- c()
+# For determining the sample sizes in each case:
+#If you have case/control as >0/0 (homa.ir was converted as per 1.5), or then see the other function if you have the division
+sample_size=function(NAFLD,Outcome,Group) { 
+  if (Group=='Male') {NAFLDo=NAFLD[NAFLD[,'SEX.1F.2M']==2,]} else if (Group=='Female') {NAFLDo=NAFLD[NAFLD[,'SEX.1F.2M']==1,]} else if (Group=='All') {NAFLDo=NAFLD} 
+  sample_data=c();n0=c();n1=c()
   for (i in 1:2) {
-    NAFLDo <- switch(Group,
-                     'Male' = NAFLD[NAFLD[,'SEX.1F.2M'] == 2 & (i == 1 & !sick_groupe | i == 2 & sick_groupe), ],
-                     'Female' = NAFLD[NAFLD[,'SEX.1F.2M'] == 1 & (i == 1 & !sick_groupe | i == 2 & sick_groupe), ],
-                     'All' = NAFLD[(i == 1 & !sick_groupe | i == 2 & sick_groupe), ])
-    sample_data <- c(sample_data, nrow(NAFLDo))
+    if (i==1) 
+    {SG0=NAFLDo[NAFLDo[,Outcome] == 0,];n0=dim(SG0)[1]; sample_data=append(sample_data,n0)} else if (i==2) {SG0=NAFLDo[NAFLDo[,Outcome] > 0,];n1=dim(SG0)[1];sample_data=append(sample_data,n1)}
   }
-  return(sample_data)
-}
+  return(sample_data)} 
 
-# Prepare NAFLD data
-NAFLD <- tv[, 1:28]
-NAFLD[NAFLD[, 5] > 0, 5] <- 1
-NAFLD[NAFLD[, 6] > 0, 6] <- 1
-NAFLD[NAFLD[, 7] > 0, 7] <- 1
-NAFLD[NAFLD[, 8] <= 1.5, 8] <- 0
-NAFLD[NAFLD[, 8] > 1.5, 8] <- 1
+# Yes other one too... for continuous variables, such as HOMA-IR and age (~ menopause)
+sample_size2=function(NAFLD,Outcome,Group,sick_groupe) { 
+  sample_data=c();n0=c();n1=c();NAFLDo=data.frame()
+  for (i in 1:2) {
+    if (i==1) {if (Group=='Male') {NAFLDo=NAFLD[!sick_groupe & NAFLD[,'SEX.1F.2M']==2,]} else if (Group=='Female') 
+        {NAFLDo=NAFLD[!sick_groupe & NAFLD[,'SEX.1F.2M']==1,]} else if (Group=='All') {NAFLDo=NAFLD[!sick_groupe,]}; n0=dim(NAFLDo)[1];sample_data=append(sample_data,n0)} 
+    else if (i==2) {if (Group=='Male') {NAFLDo=NAFLD[sick_groupe & NAFLD[,'SEX.1F.2M']==2,]} else if (Group=='Female') 
+          {NAFLDo=NAFLD[sick_groupe & NAFLD[,'SEX.1F.2M']==1,]} else if (Group=='All') {NAFLDo=NAFLD[sick_groupe,]}; n1=dim(NAFLDo)[1];sample_data=append(sample_data,n1)}}
+  return(sample_data)} 
+
+#In case you do not have NAFLD data folder already......
+NAFLD=cbind(tv[,1:28])
+NAFLD[NAFLD[,c(5)]>0,5]=1;NAFLD[NAFLD[,c(6)]>0,6]=1;NAFLD[NAFLD[,c(7)]>0,7]=1;
+NAFLD[NAFLD[,c(8)] <= 1.5,8]=0;NAFLD[NAFLD[,c(8)]>1.5,8]=1; 
 colnames(NAFLD) <- gsub("-", ".", colnames(NAFLD))
 colnames(NAFLD) <- gsub("/", ".", colnames(NAFLD))
 colnames(NAFLD) <- gsub("11", "X11", colnames(NAFLD))
 colnames(NAFLD) <- gsub("17", "X17", colnames(NAFLD))
 colnames(NAFLD) <- gsub("#", ".", colnames(NAFLD))
-colnames(NAFLD)[colnames(NAFLD) == 'X17aOH.P4'] <- 'X17.aOHP4'
+colnames(NAFLD)[colnames(NAFLD)=='X17aOH.P4']='X17.aOHP4' #oh...
 
-# Calculate sample sizes for each outcome and group
-jappend <- c()
-outcomes <- c('Steatosis.Grade.0.To.3', 'Fibrosis.Stage.0.to.4', 'Necroinflammation', 'HOMA.IR')
-groups <- c('All', 'Female', 'Male')
+jappend=c(); 
 
-for (Outcome in outcomes) {
-  for (Group in groups) {
-    jappend <- c(jappend, sample_size(NAFLD, Outcome, Group))
-  }
-}
+Outcome='Steatosis.Grade.0.To.3';
+Group='All'; jappend=c(jappend,sample_size(NAFLD,Outcome,Group)); 
+Group='Female';jappend=c(jappend,sample_size(NAFLD,Outcome,Group))
+Group='Male'; jappend=c(jappend,sample_size(NAFLD,Outcome,Group))
 
-matrix(unlist(jappend), ncol = 8)
-# Mean and Quantile Calculation Function
-mean_q1q3 <- function(Group) {
-  cond <- switch(Group,
-                 'Female' = tv_all[,'Gender'] == min(tv_all[,'Gender']),
-                 'Male' = tv_all[,'Gender'] == max(tv_all[,'Gender']),
-                 'All' = rep(TRUE, nrow(tv_all)))
-  
-  tv_red <- tv[cond, ]
-  M <- tv_red[, Mediator]
-  
-  cM <- round(apply(M, 2, median, na.rm = TRUE), 0)
-  quants <- c(0.25, 0.75)
-  csd <- round(apply(M, 2, quantile, probs = quants, na.rm = TRUE), 0)
-  
-  tot <- rbind(cM, csd)
-  return(tot)
-}
+Outcome='Fibrosis.Stage.0.to.4'; 
+Group='All'; jappend=c(jappend,sample_size(NAFLD,Outcome,Group)) #
+Group='Female';jappend=c(jappend,sample_size(NAFLD,Outcome,Group))
+Group='Male'; jappend=c(jappend,sample_size(NAFLD,Outcome,Group))
 
-totQ <- mean_q1q3('All')
-femQ <- mean_q1q3('Female')
-menQ <- mean_q1q3('Male')
-tot3 <- cbind(t(totQ), t(femQ), t(menQ))
-print(tot3)
-#Above goes, but not below...
+Outcome='Necroinflammation'; Group='All'; 
+jappend=c(jappend,sample_size(NAFLD,Outcome,Group)) #not the very first though...
+Group='Female';jappend=c(jappend,sample_size(NAFLD,Outcome,Group))
+Group='Male'; jappend=c(jappend,sample_size(NAFLD,Outcome,Group))
+
+Outcome='HOMA.IR';# xlim=c(0.1,5.3)
+Group='All';jappend=c(jappend,sample_size(NAFLD,Outcome,Group)) #not the very first though...# xlim=c(0.1,1.7)
+Group='Female';jappend=c(jappend,sample_size(NAFLD,Outcome,Group))
+Group='Male'; jappend=c(jappend,sample_size(NAFLD,Outcome,Group))
+
+matrix(unlist(jappend),ncol=8) #rows are all female and male and columns case vs. control (all outcomes...)
+
+# For menopause
+# ccovae=tv[,c("AGE")]; c1=ccovae<56; c2=ccovae>44; sick_groupe=c1 & c2 
+# #tv[,c("AGE")][c1 & c2] # fn=file_names[5]; # the_essentials(Treatment, Mediator, Outcome,tv_all,Group,name,simss,t.val,test,sick,sick_groupe,fn,lkm,date,joo)
+# Group='All';jappend=c(jappend,sample_size2(NAFLD,Outcome,Group,sick_groupe)) #not the very first though...# xlim=c(0.1,1.7)
+# Group='Female';jappend=c(jappend,sample_size2(NAFLD,Outcome,Group,sick_groupe))
+# Group='Male'; jappend=c(jappend,sample_size2(NAFLD,Outcome,Group,sick_groupe))
+# 
+# For 'MASLD'
+# ccova=tv[,c("Steatosis.Grade.0.To.3" , "Fibrosis.Stage.0.to.4" ,"Necroinflammation" ,  "HOMA-IR")] 
+# fn='MASLD';sick_groupe=rowSums(ccova)>4 #toth#
+# Group='All';jappend=c(jappend,sample_size2(NAFLD,Outcome,Group,sick_groupe)) #not the very first though...# xlim=c(0.1,1.7)
+# Group='Female';jappend=c(jappend,sample_size2(NAFLD,Outcome,Group,sick_groupe))
+# Group='Male'; jappend=c(jappend,sample_size2(NAFLD,Outcome,Group,sick_groupe))
+
+# Determining the mean (+-Q) in all, female and male
+mean_q1q3=function(Group) {
+cM=c();csd=c();tot=c();tot2=c();tot3=c()
+if (Group=='Female') {cond=tv_all[,'Gender']==min(tv_all[,'Gender'])} else if (Group=='Male') {cond=tv_all[,'Gender']==max(tv_all[,'Gender'])} else if (Group=='All') {cond=rep(TRUE,dim(tv_all)[1])}
+tv_red=c(); 
+tv_red=tv[cond,]
+#Standard values did not five erros # hep=colnames(X)[!colnames(X) %in% c( "Benzylparaben" ,"Methylparaben")] # X=X[,hep]
+M <- tv_red[,Mediator]  #
+cM=round(apply(M, 2, median,na.rm = TRUE),0)
+quants <- c(0.25,0.75)
+csd=round(apply( M , 2 , quantile , probs = quants , na.rm = TRUE ),0)
+tot=rbind(cM,csd)
+tot2=cbind(tot2,tot)
+return(tot2)}
+
+totQ=mean_q1q3('All');femQ=mean_q1q3('Female');menQ=mean_q1q3('Male')
+tot3=cbind(t(totQ),t(femQ),t(menQ)); print(tot3)
+# write.xlsx(tot3, file ='steroid_mean_std.xlsx', append = FALSE, row.names = TRUE)  #https://stackoverflow.com/questions/21847830/handling-java-lang-outofmemoryerror-when-writing-to-excel-from-r
 
 # I wanted to check the steroids with highest ACMEs between healthy (all, all) and sick (all, all).
 # I needed to have the cutoffs and ways to see the overlaps. For that, I developed a function called 'the_combos'

@@ -1,0 +1,158 @@
+the_funal <- function(tv_all, Group, ok, fn, adj, sig.level, sick, sick_group, joo, tv_covscl) {
+  # Ensure 'tv_covscl' is a data frame
+  if (!is.data.frame(tv_covscl)) {
+    stop("'tv_covscl' must be a data frame.")
+  }
+
+  tv <- tv_covscl
+
+  # Ensure 'SEX.1F.2M' column exists and is valid
+  if (!("SEX.1F.2M" %in% colnames(tv))) {
+    stop("'SEX.1F.2M' column not found in the provided data.")
+  }
+
+  # Subset data based on gender
+  NAFLDo <- switch(Group,
+                   male = tv[tv[["SEX.1F.2M"]] == 2, ],
+                   female = tv[tv[["SEX.1F.2M"]] == 1, ],
+                   All = tv
+  )
+
+  # Check if subset has valid rows
+  if (nrow(NAFLDo) == 0) {
+    stop(paste("Subset data for group", Group, "is empty. Check the conditions and data."))
+  }
+
+  SG0 <- as.data.frame(NAFLDo[, -1])  # Ensure SG0 is a data frame and exclude the first column
+  colnames(SG0) <- make.names(colnames(SG0))  # Sanitize column names
+
+  hesh <- data.frame(y = character(), x = character(), Group = character(),
+                     Estimate = numeric(), p_value = numeric(), Std_Error = numeric(),
+                     stringsAsFactors = FALSE)
+
+  Treatments <- make.names(colnames(tv_all)[52:58])
+  Mediators <- make.names(colnames(tv_all)[9:28])
+  Outcomes <- make.names(colnames(tv_all)[c(29:51, 59:71)])
+  covariates <- c("BMI", "AGE")
+
+  # Function to run linear models and store results
+  run_model <- function(x, y, group) {
+    if (all(is.na(SG0[[x]])) || all(is.na(SG0[[y]]))) {
+      return(list(y = y, x = x, Group = group, Estimate = NA, p_value = NA, Std_Error = NA))
+    }
+
+    formula_str <- paste(y, "~", paste(c(x, covariates, if (group == "All") "SEX.1F.2M"), collapse = "+"))
+    model <- lm(as.formula(formula_str), data = SG0)
+    summary_model <- summary(model)
+
+    if (!is.null(summary_model$coefficients) && length(summary_model$coefficients) >= 2) {
+      return(list(y = y, x = x, Group = group,
+                  Estimate = summary_model$coefficients[2, "Estimate"],
+                  p_value = summary_model$coefficients[2, "Pr(>|t|)"],
+                  Std_Error = summary_model$coefficients[2, "Std. Error"]))
+    } else {
+      return(list(y = y, x = x, Group = group, Estimate = NA, p_value = NA, Std_Error = NA))
+    }
+  }
+
+  # Apply models to each combination of variables
+  for (x in colnames(SG0)[4:7]) {
+    for (y in Treatments) {
+      res <- run_model(x, y, Group)
+      hesh <- rbind(hesh, as.data.frame(res, stringsAsFactors = FALSE))
+    }
+  }
+
+  # Convert results to data frame
+  colnames(hesh) <- c("y", "x", "Group", "Estimate", "p_value", "Std_Error")
+  hesh$Estimate <- as.numeric(hesh$Estimate)
+  hesh$p_value <- as.numeric(hesh$p_value)
+  hesh$Std_Error <- as.numeric(hesh$Std_Error)
+
+  # Adjust p-values if specified
+  if (adj == 'ok') {
+    hesh$p_value <- p.adjust(hesh$p_value, method = 'BH')
+  }
+
+  # Filter and reshape data for output
+  covariate_filter <- hesh$x %in% covariates
+  mediator_filter <- hesh$y %in% Mediators
+  result <- hesh[covariate_filter & mediator_filter, ]
+
+  # Plotting
+  if (nrow(result) > 0) {
+    library(corrplot)
+    library(magick)
+
+    # Prepare correlation and significance matrices
+    cor_matrix <- xtabs(Estimate ~ y + x, data = result)
+    sig_matrix <- xtabs(p_value ~ y + x, data = result)
+
+    # Ensure matrices are correctly formatted and filled
+    cor_matrix <- as.matrix(as.data.frame.matrix(cor_matrix))
+    sig_matrix <- as.matrix(as.data.frame.matrix(sig_matrix))
+
+    # Clipping the correlation matrix values to a range
+    cor_matrix[cor_matrix > 0.5] <- 0.5
+    cor_matrix[cor_matrix < -0.5] <- -0.5
+
+    # Plot parameters
+    plot_title <- paste("Linear Model Estimate Plot", Group)
+    output_file <- paste0(fn, "_", Group, ".jpg")
+    jpeg(output_file, width = 2500, height = 4400, quality = 100, res = 300)
+
+    corrplot(cor_matrix,
+             method = "color",
+             type = "full",
+             order = "original",
+             col = colorRampPalette(c('blue', 'white', 'orange'), alpha = TRUE)(100),
+             p.mat = sig_matrix,
+             sig.level = c(0.001, 0.01, 0.05),
+             insig = "label_sig",
+             tl.col = "black",
+             tl.cex = 0.5,
+             cl.cex = 1.09,
+             pch.cex = 1.09,
+             diag = TRUE)
+    dev.off()
+
+    # Check if image was actually created
+    if (file.exists(output_file)) {
+      # Convert to PDF and SVG
+      image_to_pdf(output_file, pdf_name = paste0(output_file, ".pdf"))
+      my_image <- image_read(output_file)
+      my_svg <- image_convert(my_image, format = "svg")
+      image_write(my_svg, paste0(output_file, ".svg"))
+    } else {
+      stop("The image file was not created.")
+    }
+  } else {
+    message("No valid data for plotting.")
+  }
+
+  # Return processed data
+  return(list(results = result))
+}
+
+
+huus <- function(tv, adj, sig.level, sick, sick_group, joo) {
+  huus <- list()
+  heijaa <- c('All', 'female', 'male')
+  file_names <- c()
+
+  hyp <- 1  # Initialize hyp and hrt
+  hrt <- 1
+  oo <- "C:/Users/patati/Documents/GitHub/new/lme/"
+  
+  for (hyp in 1:2) {
+    for (hrt in 1:3) {
+      fn <- paste0(oo, "figure_", hyp, "_", heijaa[hrt])
+      result <- the_funal(tv, heijaa[hrt], hyp, fn, adj, sig.level, sick, sick_group, joo, tv_covscl)
+      huus <- append(huus, list(result))
+      file_names <- append(file_names, fn)
+    }
+  }
+
+  # Return results and file names
+  return(list(results = huus, files = file_names))
+}
