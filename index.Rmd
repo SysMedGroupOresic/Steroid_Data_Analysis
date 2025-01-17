@@ -196,7 +196,6 @@ colnames(NAFLD) <- gsub("#", ".", colnames(NAFLD))
 colnames(NAFLD)[colnames(NAFLD)=='X17aOH.P4']='X17.aOHP4' #oh...
 
 # This works with the autoscaled (raw if loge=1 and remove 1 in the means) data NAFLD as well...
-# Fyi: Copiloting this to make it more slim and commented does not work.
 pre_errors_2=function(NAFLD,Outcome,Group,name,ordera,oute,first,e,xlim) { # Group='Female'
   
   if (Group=='Male') {NAFLDo=NAFLD[NAFLD[,'SEX.1F.2M']==2,]} else if (Group=='Female') 
@@ -352,6 +351,8 @@ Group='Female';name11=paste("Forest plot of",Group, "Steroid Ratios in",Out);
 # pre_errors_2(NAFLD,Outcome,Group,name11,ordera=hel,oute,first,e,xlim)
 Group='Male'; name12=paste("Forest plot of",Group, "Steroid Ratios in",Out); 
 # pre_errors_2(NAFLD,Outcome,Group,name12,ordera=hel,oute,first,e,xlim)
+
+# Fyi: Revising with Copilot not working well to the above codes...
 
 ```
 
@@ -697,7 +698,7 @@ a=cohd(NAFLD, tv,Group,Outcome);Group='Female';
 b=cohd(NAFLD, tv,Group,Outcome);Group='Male'; c=cohd(NAFLD, tv,Group,Outcome);d=cbind(d,cbind(a,b,c))
 rownames(d)=colnames(tv_all[,9:28])
 colnames(d)=rep(c('All','Female','Male'),4)
-write.csv(d,'cohens_da_tikka_v9125a3.csv')
+write.csv(d,paste0('cohens_da_',thedate,'.csv'))
 n=d
 x=data.frame(n)
 row.names(x)=colnames(tv_all[,9:28])
@@ -731,15 +732,11 @@ grid.text("Steatosis, Fibrosis, Necroinflammation, HOMA-IR", y=-0.07, x=0.4,gp=g
 grid.text("Steroids (Androgens, Estrogens, Gluc., Mineraloc., Progestogens)", x=-0.07, rot=90, gp=gpar(fontsize=16))
 #For quality/pltowise reasons I need to do this:
 dev.copy(jpeg,paste0("cohensd_e2",date,".jpg"),width=9, height=12, units="in", res=1000);dev.off()
-
 knitr::include_graphics(paste0("cohensd_e2",date, ".jpg"))
 # daiR::image_to_pdf(paste0("cohensd_",date, ".jpg"), pdf_name=paste0(paste0("cohensd_",date, ".pdf")));
 # my_image <- image_read(paste0("cohensd_",date, ".jpg")); my_svg <- image_convert(my_image, format="svg"); image_write(my_svg, paste("cohensd_",date,".svg"))
 
-
-#Copilot on parempi kuin ChatGPT
-#Uus cohen.d päivitys hieman muuttaa outputtia (HOMA-IR miehet... parempi...?)
-
+# Fyi: Revising with Copilot not working well to the above codes...
 
 ```
 
@@ -975,7 +972,7 @@ my_image <- image_read(eoh);my_svg <- image_convert(my_image, format="svg"); ima
 
 
 
-#Copilotilla ei järkee edelliseen, vaikka näyttää hieman siistimmältä
+#Tiedoks: Copilotilla ei järkee edelliseen, vaikka näyttää hieman siistimmältä
 
 ```
 
@@ -1632,8 +1629,8 @@ huus=function(tv,adj,sig.level,sick,sick_group,joo) {
 adj='nook'; sig.level=c(.001,0.01, 0.05); sick='no'; joo='joo' #sickGroup..
 metanorm_S_non_fdr=huus(tv_all,adj,sig.level,sick,sick_group,joo)
 
-#Ei mee tääkän ihan nopeesti läpi ChatGPT:llä. Nyt copilotkaan ei näy (14.1.25) Utussa.
-# Tää olis kiva saada, joten jätän tämän OS. Funktiota.R löytyy kansiosta, siellä lisää, yks minitoimiva on.
+# Ei mee tääkän ihan nopeesti läpi ChatGPT:llä saati Copilotkaan.
+# Tää olis kiva saada paremmaks, joten jätän tämän OS. (Funktiota.R löytyy kansiosta, siellä lisää, yks minitoimiva on.)
 
 
 ```
