@@ -712,71 +712,137 @@ varex_groups_plot(tv_all, Group = 'male')
 
 # Making Heatmap with Effect Sizes
 ```{r, warning=FALSE,message=FALSE,fig.width=9.0,fig.align="left"}
-#For calculating the effect sizes, I'll use the Cohen's d
+
+# Function to calculate Cohen's d effect sizes
 # https://www.statology.org/cohens-d-in-r/
-cohd=function(NAFLD, tv,Group,Outcome) {
-if (Group=='Male') {NAFLDo=NAFLD[NAFLD[,'Gender']==max(NAFLD[,'Gender']),];tva=tv[tv[,'SEX.1F.2M']==max(tv[,'SEX.1F.2M']),]} else if (Group=='Female') 
-{NAFLDo=NAFLD[NAFLD[,'Gender']==min(NAFLD[,'Gender']),];tva=tv[tv[,'SEX.1F.2M']==min(tv[,'SEX.1F.2M']),]} else if (Group=='All') {NAFLDo=NAFLD;tva=tv}
-if (Outcome != 'HOMA-IR') {SG0=NAFLDo[NAFLDo[,Outcome] == min(NAFLDo[,Outcome]),]; SG1=NAFLDo[NAFLDo[,Outcome] > min(NAFLDo[,Outcome]),]} else if (Outcome == 'HOMA-IR') 
-{SG0=NAFLDo[tva[,'HOMA-IR'] <= 1.5,]; SG1=NAFLDo[tva[,'HOMA-IR'] > 1.5,]}
+cohd <- function(NAFLD, tv, Group, Outcome) {
   
-#There might have been a change in the function that requires: 
-  cd=c();i=1;for (i in 1:20) {group2 <- SG1[,i+8]; group1 <- SG0[,i+8]; 
-  data <- data.frame(value = c(group1, group2), 
-                   group = factor(rep(c("group1", "group2"), c(length(group1), length(group2))))); 
-  result <- cohen.d(value ~ group, data = data); cd=append(cd,result$cohen.d[2] )} 
+  # Filter data based on gender
+  if (Group == 'Male') {
+    NAFLDo <- NAFLD[NAFLD[, 'Gender'] == max(NAFLD[, 'Gender']), ]
+    tva <- tv[tv[, 'SEX.1F.2M'] == max(tv[, 'SEX.1F.2M']), ]
+  } else if (Group == 'Female') {
+    NAFLDo <- NAFLD[NAFLD[, 'Gender'] == min(NAFLD[, 'Gender']), ]
+    tva <- tv[tv[, 'SEX.1F.2M'] == min(tv[, 'SEX.1F.2M']), ]
+  } else {
+    NAFLDo <- NAFLD
+    tva <- tv}
   
- return(cd)}
+  # Check if the Outcome column exists
+  if (!Outcome %in% colnames(NAFLDo)) {
+    stop("The specified Outcome column does not exist in the data frame.")}
+  
+  # Filter data based on outcome
+  if (Outcome != 'HOMA-IR') {
+    SG0 <- NAFLDo[NAFLDo[, Outcome] == min(NAFLDo[, Outcome]), ]
+    SG1 <- NAFLDo[NAFLDo[, Outcome] > min(NAFLDo[, Outcome]), ]
+  } else {
+    SG0 <- NAFLDo[tva[, 'HOMA-IR'] <= 1.5, ]
+    SG1 <- NAFLDo[tva[, 'HOMA-IR'] > 1.5, ]}
+  
+  # Initialize vector to store Cohen's d values
+  cd <- numeric(20)
+  
+  # Calculate Cohen's d for each variable
+  for (i in 1:20) {
+    group1 <- SG0[, i + 8]
+    group2 <- SG1[, i + 8]
+    
+    data <- data.frame(
+      value = c(group1, group2),
+      group = factor(rep(c("group1", "group2"), c(length(group1), length(group2)))))
+    
+    result <- cohen.d(value ~ group, data = data)
+    cd[i] <- result$cohen.d[2]}
+  
+  return(cd)}
 
-d=c()
-NAFLD=tv_all
-Outcome='Steatosis Grade';Group='All'; a=cohd(NAFLD, tv,Group,Outcome);Group='Female'; b=cohd(NAFLD, tv,Group,Outcome);Group='Male'; c=cohd(NAFLD, tv,Group,Outcome);d=cbind(d,cbind(a,b,c))
-Outcome='Fibrosis Stage';Group='All'; a=cohd(NAFLD, tv,Group,Outcome);Group='Female'; b=cohd(NAFLD, tv,Group,Outcome);Group='Male'; c=cohd(NAFLD, tv,Group,Outcome);d=cbind(d,cbind(a,b,c))
-Outcome='Necroinflammation';Group='All'; a=cohd(NAFLD, tv,Group,Outcome);Group='Female'; b=cohd(NAFLD, tv,Group,Outcome);Group='Male'; c=cohd(NAFLD, tv,Group,Outcome);d=cbind(d,cbind(a,b,c))
-Outcome='HOMA-IR';Group='All'; 
-a=cohd(NAFLD, tv,Group,Outcome);Group='Female'; 
-b=cohd(NAFLD, tv,Group,Outcome);Group='Male'; c=cohd(NAFLD, tv,Group,Outcome);d=cbind(d,cbind(a,b,c))
-rownames(d)=colnames(tv_all[,9:28])
-colnames(d)=rep(c('All','Female','Male'),4)
-write.csv(d,paste0('cohens_da_',thedate,'.csv'))
-n=d
-x=data.frame(n)
-row.names(x)=colnames(tv_all[,9:28])
+# Initialize an empty vector
+d <- c()
 
-colnames(x)[1:3]=c("All_St.","Female_St.","Male_St.")
-colnames(x) <- gsub(".1", "_Fib.", colnames(x))
-colnames(x) <- gsub(".2", "_Nec.", colnames(x))
-colnames(x) <- gsub(".3", "_HI", colnames(x))
+# Define the dataset
+NAFLD <- tv_all
 
-groups=groups
-groups[groups=="17a-OHP4"]="17aOH-P4"
-op=groups[order(groups$Group),'Abbreviation']
-op=op[op %in% row.names(x)]
-x=x[op,]
-brks_heatmap <- function(mat, color_palette){
-       rng <- range(mat, na.rm = TRUE)
-       lpal <- length(color_palette)
-         c(seq(rng[1], 0, length.out=ceiling(lpal/2) + 1),
-               seq(rng[2]/dim(mat)[1], rng[2], length.out=floor(lpal/2)))
- }
-# #I do this in my computer and then load the figure, see below:
-color_palette=brewer.pal(n = 11, name = 'RdBu')
-color_palette=rev(color_palette)
-color_palette=colorRampPalette(c('blue', 'white','orange'), alpha = TRUE)(150)
-# library(grid)
-jpeg(paste0("cohensd_",date,".jpg"), width=9, height=12, units="in", res=1000 );
-setHook("grid.newpage", function() pushViewport(viewport(x=1,y=1,width=0.9, height=0.9, name="vp", just=c("right","top"))), action="prepend")
-pheatmap(x,cluster_cols=FALSE,cluster_rows=FALSE,breaks = brks_heatmap(x, color_palette),color=color_palette,column_names_side = c("bottom"), angle_col = c("90"))
+# Function to calculate Cohen's d for different groups and outcomes
+calculate_cohd <- function(outcome) {
+  Group <- 'All'
+  a <- cohd(NAFLD, tv, Group, outcome)
+  Group <- 'Female'
+  b <- cohd(NAFLD, tv, Group, outcome)
+  Group <- 'Male'
+  c <- cohd(NAFLD, tv, Group, outcome)
+  cbind(a, b, c)}
+
+# Calculate Cohen's d for different outcomes and combine results
+outcomes <- c('Steatosis Grade', 'Fibrosis Stage', 'Necroinflammation', 'HOMA-IR')
+for (outcome in outcomes) {
+  d <- cbind(d, calculate_cohd(outcome))}
+
+# Set row names
+rownames(d) <- colnames(tv_all[, 9:28])
+
+# Create column names with groups and outcomes
+colnames(d) <- unlist(lapply(outcomes, function(outcome) {
+  paste(c('All', 'Female', 'Male'), outcome, sep = "_")}))
+
+# Save the results to a CSV file
+write.csv(d, paste0('cohens_da_', thedate, '.csv'))
+
+# Convert the results to a data frame
+n <- d
+x <- data.frame(n)
+row.names(x) <- colnames(tv_all[, 9:28])
+
+# Adjust group names
+groups <- groups
+groups[groups == "17a-OHP4"] <- "17aOH-P4"
+op <- groups[order(groups$Group), 'Abbreviation']
+op <- op[op %in% row.names(x)]
+x <- x[op, ]
+
+# Function to create breaks for the heatmap
+brks_heatmap <- function(mat, color_palette) {
+  rng <- range(mat, na.rm = TRUE)
+  lpal <- length(color_palette)
+  c(seq(rng[1], 0, length.out = ceiling(lpal / 2) + 1),
+    seq(rng[2] / dim(mat)[1], rng[2], length.out = floor(lpal / 2)))}
+
+# Define color palette
+color_palette <- colorRampPalette(c('blue', 'white', 'orange'), alpha = TRUE)(150)
+
+# Save heatmap as JPEG
+jpeg(paste0("cohensd_e2", date, ".jpg"), width = 9, height = 12, units = "in", res = 1000)
+
+# Set viewport for the heatmap
+setHook("grid.newpage", function() pushViewport(viewport(x = 1, y = 1, width = 0.9, height = 0.9, name = "vp", just = c("right", "top"))), action = "prepend")
+
+# Generate heatmap
+pheatmap(x, cluster_cols = FALSE, cluster_rows = FALSE, breaks = brks_heatmap(x, color_palette), color = color_palette, column_names_side = "bottom", angle_col = 90)
+
+# Reset viewport hook
 setHook("grid.newpage", NULL, "replace")
-grid.text("Steatosis, Fibrosis, Necroinflammation, HOMA-IR", y=-0.07, x=0.4,gp=gpar(fontsize=16))
-grid.text("Steroids (Androgens, Estrogens, Gluc., Mineraloc., Progestogens)", x=-0.07, rot=90, gp=gpar(fontsize=16))
-#For quality/pltowise reasons I need to do this:
-dev.copy(jpeg,paste0("cohensd_e2",date,".jpg"),width=9, height=12, units="in", res=1000);dev.off()
-knitr::include_graphics(paste0("cohensd_e2",date, ".jpg"))
-# daiR::image_to_pdf(paste0("cohensd_",date, ".jpg"), pdf_name=paste0(paste0("cohensd_",date, ".pdf")));
-# my_image <- image_read(paste0("cohensd_",date, ".jpg")); my_svg <- image_convert(my_image, format="svg"); image_write(my_svg, paste("cohensd_",date,".svg"))
 
-# Fyi: Revising with Copilot not working well to the above codes...
+# Add text annotations
+grid.text("Steatosis, Fibrosis, Necroinflammation, HOMA-IR", y = -0.07, x = 0.4, gp = gpar(fontsize = 16))
+grid.text("Steroids (Androgens, Estrogens, Gluc., Mineraloc., Progestogens)", 
+          x = -0.07, rot = 90, gp = gpar(fontsize = 16))
+
+# Save the plot again for quality reasons
+dev.copy(jpeg, paste0("cohensd_e2", date, ".jpg"), width = 9, height = 12, units = "in", res = 1000)
+dev.off()
+
+# Include the image in the document
+knitr::include_graphics(paste0("cohensd_e2", date, ".jpg"));dev.off()
+
+# Convert image to PDF
+daiR::image_to_pdf(paste0("cohensd_e2", date, ".jpg"), pdf_name = paste0("cohensd_e2", date, ".pdf"));#dev.off()
+
+# Convert image to SVG
+my_image <- image_read(paste0("cohensd_e2", date, ".jpg"))
+my_svg <- image_convert(my_image, format = "svg")
+image_write(my_svg, paste0("cohensd_e2", date, ".svg"))
+
+# Fyi: Revising with Copilot the above codes works partially...
 
 ```
 
