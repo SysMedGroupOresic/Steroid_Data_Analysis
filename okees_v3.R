@@ -95,8 +95,8 @@ resultam <- filter_significant(resultam)
 update_names <- function(result, ok) {
   colnames(result)[colnames(result) == 'Gender'] <- 'Sex(F-M+)'
   rownames(result)[rownames(result) == 'Gender'] <- 'Sex(F-M+)'
-  colnames(result)[2:dim(result)[2]] <- ok[3:dim(result)[2]]
-  rownames(result)[2:dim(result)[2]] <- ok[3:dim(result)[2]]
+  # colnames(result)[2:dim(result)[2]] <- ok[3:dim(result)[2]]
+  # rownames(result)[2:dim(result)[2]] <- ok[3:dim(result)[2]]
   return(result)
 }
 

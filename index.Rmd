@@ -181,7 +181,7 @@ Outcome='HOMA-IR';Out='HOMA-IR'; oute='HOMA-IR';num=1.5 ;Group='All';boxplots(ie
 
 
 # Making Forest Plots
-```{r, warning=FALSE,message=FALSE,fig.width=6.0,fig.align="left"} 
+```{r, warning=FALSE,message=FALSE,fig.width=6.0,fig.align="left",results='hide'} 
 
 # Define the NAFLD dataset by selecting the first 28 columns from tv
 NAFLD <- tv[, 1:28]
@@ -340,7 +340,7 @@ pre_errors_2=function(NAFLD,Outcome,Group,name,ordera,oute,first,e,xlim) { # Gro
   for (i in seq_along(stripr)) {
     j <- which(grepl('rect', g$grobs[[stripr[i]]]$grobs[[1]]$childrenOrder))
     g$grobs[[stripr[i]]]$grobs[[1]]$children[[j]]$gp$fill <- fills[i]}
-  grid::grid.draw(g)
+  # grid::grid.draw(g)
   
   # Save plot as JPEG and convert to PDF and SVG
   jpeg(paste(name, "divi.jpg"), width = 7500, height = 11000, quality = 100, pointsize = 16, res = 1000)
@@ -390,7 +390,6 @@ Group='Female';name11=paste("Forest plot of",Group, "Steroid Ratios in",Out);
 pre_errors_2(NAFLD,Outcome,Group,name11,ordera=hel,oute,first,e,xlim)
 Group='Male'; name12=paste("Forest plot of",Group, "Steroid Ratios in",Out); 
 pre_errors_2(NAFLD,Outcome,Group,name12,ordera=hel,oute,first,e,xlim)
-
 # Fyi: I was able to revise some of the above codes with Copilot...
 
 
@@ -439,184 +438,256 @@ path="C:/Users/patati/Documents/GitHub/Steroid_Data_Analysis/"; knitr::include_g
 ```{r, warning=FALSE,message=FALSE,fig.width=9.0,fig.align="left"}
 # First the correlations for the chord diagrams (both male and female as well as total subjects):
 
-tv_c=tvauxe
+# Copy tvauxe to tv_c
+tv_c = tvauxe
 
-hupo=match(   colnames(tv_c)[colnames(tv_c) %in% groups2[,3]], groups2[,3] ) 
-# do ni; https://www.geeksforgeeks.org/how-to-find-index-of-element-in-vector-in-r/
-# tvauxe=tv_c
-colnames(tv_c)[colnames(tv_c) %in% groups2[,3]]=groups2[hupo,2]
-ok=colnames(tv_c)
+# Match column names in tv_c with the third column in groups2 and get their indices
+hupo = match(colnames(tv_c)[colnames(tv_c) %in% groups2[, 3]], groups2[, 3])
+# Replace matched column names in tv_c with corresponding values from the second column in groups2
+colnames(tv_c)[colnames(tv_c) %in% groups2[, 3]] = groups2[hupo, 2]
+ok = colnames(tv_c)
 
-tv_c=data.frame(tv_c); #colnames(tv_c)=colnames(tv_covscl)
-tv_c=tv_c[,!colnames(tv_c) %in% c('Total_TG','PFAS',"Perfluorodecyl.ethanoic.acid")]
-tvf=tv_c[tv_c[,'Gender']==min(tv_c[,'Gender']),1:dim(tv_c)[2]]
-tvm=tv_c[tv_c[,'Gender']==max(tv_c[,'Gender']),1:dim(tv_c)[2]]
+# Convert tv_c to a data frame
+tv_c = data.frame(tv_c)
+# Remove specific columns from tv_c
+tv_c = tv_c[, !colnames(tv_c) %in% c('Total_TG', 'PFAS', "Perfluorodecyl.ethanoic.acid")]
 
-tvtest=list(tv_c,tvf,tvm)
-for (i in 1:3) {colnames(tvtest[[i]]) <- gsub("\\.", "-", colnames(tvtest[[i]]))
-colnames(tvtest[[i]]) <- gsub("X11", "11", colnames(tvtest[[i]]))
-colnames(tvtest[[i]]) <- gsub("X17", "17", colnames(tvtest[[i]]))
-colnames(tvtest[[i]])[colnames(tvtest[[i]])=="T-Epi-T"]="T/Epi-T"
-colnames(tvtest[[i]])[colnames(tvtest[[i]])=="Steatosis-Grade"]="Steatosis Grade"
-colnames(tvtest[[i]])[colnames(tvtest[[i]])=="Fibrosis-Stage"]="Fibrosis Stage"
-colnames(tvtest[[i]])[colnames(tvtest[[i]])=="17aOH-P4"]="17a-OHP4"
-colnames(tvtest[[i]])[colnames(tvtest[[i]])=="HOMA IR"]="HOMA-IR"}
-tv_c=tvtest[[1]]; tvf=tvtest[[2]]; tvm=tvtest[[3]];
-x4[x4=="X7.oxo.DCA_S"]="X7-oxo-DCA_S"
+# Separate data by gender
+tvf = tv_c[tv_c[, 'Gender'] == min(tv_c[, 'Gender']), 1:dim(tv_c)[2]]
+tvm = tv_c[tv_c[, 'Gender'] == max(tv_c[, 'Gender']), 1:dim(tv_c)[2]]
 
-dat = tv_c;dat= dat %>% select(-c('PatientNumber'))  #this is quite nice way to delete columns, please remember...
-resulta <- (rcorr(as.matrix(dat), type = c('spearman')))$r #compare pearson # intersect(colnames(resulta), rownames(resulta)) 
-colnames(resulta)=ok[2:dim(tv_c)[2]];rownames(resulta)=ok[2:dim(tv_c)[2]];
-#https://stackoverflow.com/questions/45271448/r-finding-intersection-between-two-vectors
+# Create a list of data frames for total, female, and male subjects
+tvtest = list(tv_c, tvf, tvm)
 
-dat=tvf; dat= dat %>% select(-c('PatientNumber','Gender')) #this is quite nice way to delete columns, please remember...
-resultaf <- (rcorr(as.matrix(dat), type = c('spearman')))$r;
-colnames(resultaf)=ok[3:dim(tv_c)[2]];rownames(resultaf)=ok[3:dim(tv_c)[2]];
+# Clean up column names in each data frame in tvtest
+for (i in 1:3) {
+  colnames(tvtest[[i]]) <- gsub("\\.", "-", colnames(tvtest[[i]]))
+  colnames(tvtest[[i]]) <- gsub("X11", "11", colnames(tvtest[[i]]))
+  colnames(tvtest[[i]]) <- gsub("X17", "17", colnames(tvtest[[i]]))
+  colnames(tvtest[[i]])[colnames(tvtest[[i]]) == "T-Epi-T"] = "T/Epi-T"
+  colnames(tvtest[[i]])[colnames(tvtest[[i]]) == "Steatosis-Grade"] = "Steatosis Grade"
+  colnames(tvtest[[i]])[colnames(tvtest[[i]]) == "Fibrosis-Stage"] = "Fibrosis Stage"
+  colnames(tvtest[[i]])[colnames(tvtest[[i]]) == "17aOH-P4"] = "17a-OHP4"
+  colnames(tvtest[[i]])[colnames(tvtest[[i]]) == "HOMA IR"] = "HOMA-IR"
+}
 
-dat=tvm; dat= dat %>% select(-c('PatientNumber','Gender')) #this is quite nice way to delete columns, please remember...
-resultam <- (rcorr(as.matrix(dat), type = c('spearman')))$r #
-colnames(resultam)=ok[3:dim(tv_c)[2]];rownames(resultam)=ok[3:dim(tv_c)[2]];
+# Assign cleaned data frames back to tv_c, tvf, and tvm
+tv_c = tvtest[[1]]
+tvf = tvtest[[2]]
+tvm = tvtest[[3]]
 
+# Rename specific value in x4
+x4[x4 == "X7.oxo.DCA_S"] = "X7-oxo-DCA_S"
 
+# Calculate Spearman correlations for total subjects
+dat = tv_c
+dat = dat %>% select(-c('PatientNumber'))  # Remove 'PatientNumber' column
+resulta <- (rcorr(as.matrix(dat), type = c('spearman')))$r  # Calculate correlation matrix
+colnames(resulta) = ok[2:dim(tv_c)[2]]
+rownames(resulta) = ok[2:dim(tv_c)[2]]
 
-#Check the columns away
-at=colnames(resulta)[1:(length(x1)-1)] #clinicals
-bt=colnames(resulta)[(length(at)+1):(length(at)+length(x2))] #Steroids
-ct=colnames(resulta)[(length(at)+length(bt)+1):(length(at)+length(bt)+length(x3))] #BA_l
-dt=colnames(resulta)[(length(at)+length(bt)+length(ct)+1):(length(at)+length(bt)+length(ct)+length(x4))] #BA_s
-et=colnames(resulta)[(length(at)+length(bt)+length(ct)+length(dt)+1):(length(at)+length(bt)+length(ct)+length(dt)+length(x5))] #PFAS: change here
-ft=colnames(resulta)[(length(at)+length(bt)+length(ct)+length(dt)+length(et)+1):(length(at)+length(bt)+length(ct)+length(dt)+length(et)+length(x6))] #
-atl=length(at);btl=length(bt);ctl=length(ct);dtl=length(dt);etl=length(et);ftl=length(ft)
+# Calculate Spearman correlations for female subjects
+dat = tvf
+dat = dat %>% select(-c('PatientNumber', 'Gender'))  # Remove 'PatientNumber' and 'Gender' columns
+resultaf <- (rcorr(as.matrix(dat), type = c('spearman')))$r
+colnames(resultaf) = ok[3:dim(tv_c)[2]]
+rownames(resultaf) = ok[3:dim(tv_c)[2]]
 
-n_level=0.01; ## muuta tätä, # hist(as.numeric(Nrr)) #https://www.geeksforgeeks.org/elementwise-matrix-multiplication-in-r/
+# Calculate Spearman correlations for male subjects
+dat = tvm
+dat = dat %>% select(-c('PatientNumber', 'Gender'))  # Remove 'PatientNumber' and 'Gender' columns
+resultam <- (rcorr(as.matrix(dat), type = c('spearman')))$r
+colnames(resultam) = ok[3:dim(tv_c)[2]]
+rownames(resultam) = ok[3:dim(tv_c)[2]]
 
-Nrr=qpNrr(resulta, verbose=FALSE);Nrr[is.na(Nrr)]=1; cond=data.frame(as.matrix(Nrr<n_level));RN=data.frame(resulta);tes_t=cond*RN;tes_t=as.matrix(tes_t);resulta=tes_t 
-Nrr=qpNrr(resultaf, verbose=FALSE);Nrr[is.na(Nrr)]=1;cond=data.frame(as.matrix(Nrr<n_level));RN=data.frame(resultaf);tes_t=cond*RN;tes_t=as.matrix(tes_t);resultaf=tes_t
-Nrr=qpNrr(resultam, verbose=FALSE);Nrr[is.na(Nrr)]=1;cond=data.frame(as.matrix(Nrr<n_level));RN=data.frame(resultam);tes_t=cond*RN;tes_t=as.matrix(tes_t);resultam=tes_t
+# Define column groups for different variables
+at = colnames(resulta)[1:(length(x1) - 1)]  # Clinicals
+bt = colnames(resulta)[(length(at) + 1):(length(at) + length(x2))]  # Steroids
+ct = colnames(resulta)[(length(at) + length(bt) + 1):(length(at) + length(bt) + length(x3))]  # BA_l
+dt = colnames(resulta)[(length(at) + length(bt) + length(ct) + 1):(length(at) + length(bt) + length(ct) + length(x4))]  # BA_s
+et = colnames(resulta)[(length(at) + length(bt) + length(ct) + length(dt) + 1):(length(at) + length(bt) + length(ct) + length(dt) + length(x5))]  # PFAS
+ft = colnames(resulta)[(length(at) + length(bt) + length(ct) + length(dt) + length(et) + 1):(length(at) + length(bt) + length(ct) + length(dt) + length(et) + length(x6))]  #
 
-colnames(resulta)[colnames(resulta) == 'Gender'] <- 'Sex(F-M+)';rownames(resulta)[rownames(resulta) == 'Gender'] <- 'Sex(F-M+)'
-# colnames(resultaf)[colnames(resultaf) == 'Gender'] <- 'Sex(F-M+)';rownames(resultaf)[rownames(resultaf) == 'Gender'] <- 'Sex(F-M+)'
-# colnames(resultam)[colnames(resultam) == 'Gender'] <- 'Sex(F-M+)';rownames(resultam)[rownames(resultam) == 'Gender'] <- 'Sex(F-M+)'
-# 
-colnames(resulta)[2:dim(resulta)[2]]=ok[3:dim(tv_c)[2]];rownames(resulta)[2:dim(resulta)[2]]=ok[3:dim(tv_c)[2]]; #joo ei näy monet condeista 0.01:llä: resulta[,4:7]
-colnames(resultaf)[2:dim(resultaf)[2]]=ok[4:dim(tv_c)[2]];rownames(resultaf)[2:dim(resultaf)[2]]=ok[4:dim(tv_c)[2]];
-colnames(resultam)[2:dim(resultam)[2]]=ok[4:dim(tv_c)[2]];rownames(resultam)[2:dim(resultam)[2]]=ok[4:dim(tv_c)[2]];
-# # 
+# Store lengths of each group
+atl = length(at)
+btl = length(bt)
+ctl = length(ct)
+dtl = length(dt)
+etl = length(et)
+ftl = length(ft)
 
-#FYI:  data.frame(words = unlist(colnames(resulta)))
-#https://stackoverflow.com/questions/32834067/how-to-split-a-text-document-or-string-of-text-in-r-so-that-each-word-is-its-o
-# colnames(resultaf)=colnames(tv_c)[3:dim(tv_c)[2]];rownames(resultaf)=colnames(tv_c)[3:dim(tv_c)[2]]; 
-# colnames(resultam)=colnames(tv_c)[3:dim(tv_c)[2]];rownames(resultam)=colnames(tv_c)[3:dim(tv_c)[2]]; 
+# Set significance level for correlations
+n_level = 0.01
 
-#And then using a function for making the female and male chord and all subjects' diagrams... 
-#This function takes elements from: 
-# https://jokergoo.github.io/circlize_book/book/advanced-layout.html#combine-circular-plots
-# https://stackoverflow.com/questions/31943102/rotate-labels-in-a-chorddiagram-r-circlize
-# https://jokergoo.github.io/circlize_book/book/the-chorddiagram-function.html#orders-of-links
+# Filter correlations based on significance level for total subjects
+Nrr = qpNrr(resulta, verbose = FALSE)
+Nrr[is.na(Nrr)] = 1
+cond = data.frame(as.matrix(Nrr < n_level))
+RN = data.frame(resulta)
+tes_t = cond * RN
+tes_t = as.matrix(tes_t)
+resulta = tes_t
 
-group_chords=function(vars,n_level,fig_name, big,rem,modi,colt,gend,colors,a,b,c,d,e,f) {
+# Filter correlations based on significance level for female subjects
+Nrr = qpNrr(resultaf, verbose = FALSE)
+Nrr[is.na(Nrr)] = 1
+cond = data.frame(as.matrix(Nrr < n_level))
+RN = data.frame(resultaf)
+tes_t = cond * RN
+tes_t = as.matrix(tes_t)
+resultaf = tes_t
+
+# Filter correlations based on significance level for male subjects
+Nrr = qpNrr(resultam, verbose = FALSE)
+Nrr[is.na(Nrr)] = 1
+cond = data.frame(as.matrix(Nrr < n_level))
+RN = data.frame(resultam)
+tes_t = cond * RN
+tes_t = as.matrix(tes_t)
+resultam = tes_t
+
+# Rename 'Gender' column to 'Sex(F-M+)' in correlation matrices
+colnames(resulta)[colnames(resulta) == 'Gender'] <- 'Sex(F-M+)'
+rownames(resulta)[rownames(resulta) == 'Gender'] <- 'Sex(F-M+)'
+
+# Update column and row names in correlation matrices
+colnames(resulta)[2:dim(resulta)[2]] = ok[3:dim(tv_c)[2]]
+rownames(resulta)[2:dim(resulta)[2]] = ok[3:dim(tv_c)[2]]
+colnames(resultaf)[2:dim(resultaf)[2]] = ok[4:dim(tv_c)[2]]
+rownames(resultaf)[2:dim(resultaf)[2]] = ok[4:dim(tv_c)[2]]
+colnames(resultam)[2:dim(resultam)[2]] = ok[4:dim(tv_c)[2]]
+rownames(resultam)[2:dim(resultam)[2]] = ok[4:dim(tv_c)[2]]
+
+# Function to create chord diagrams for different groups
+group_chords <- function(vars, n_level, fig_name, big, rem, modi, colt, gend, colors, a, b, c, d, e, f) {
+  classes <- 5
+  tot <- rownames(resulta)[2:dim(resulta)[1]]
+  range <- 1:(a + b + c + e + f)
+  layout(matrix(1:1, 1, 1))
+  title <- 'Sex'
+  genders <- gend
+  windowsFonts(A = windowsFont("Calibri (Body)"))
+  i <- 1
+  tes_t <- vars    
   
-  classes=5;
-  tot=rownames(resulta)[2:dim(resulta)[1]];
-  range=1:(a+b+c+e+f)
-  layout(matrix(1:1, 1, 1)); 
-  title='Sex'#
-  genders= gend 
-  windowsFonts(A = windowsFont("Calibri (Body)")) 
-  i=1
-  tes_t=vars #vars[[1]]
-  if (gend=='All') {colnames(tes_t)=rownames(resulta);rownames(tes_t)=rownames(resulta)} else {colnames(tes_t)=rownames(resultaf);rownames(tes_t)=rownames(resultaf)}
+  # Set column and row names based on gender
+    if (gend == 'All') {
+    colnames(tes_t) <- rownames(resulta)
+    rownames(tes_t) <- rownames(resulta) } else {
+    colnames(tes_t) <- rownames(resultaf)
+    rownames(tes_t) <- rownames(resultaf)}
   
-  g1=c(rep('Clinical', a),rep('Steroids', b), rep('BA_liver', c),rep('Contaminants', e),rep('Lipids', f)) #rep('BA_serum', d)
-  
-  # removing self-correlation; 
-  tes_t[1:a,1:a]=0
-  tes_t[(a+1):(a+b),(a+1):(a+b)]=0
-  tes_t[(a+b+1):(a+b+c),(a+b+1):(a+b+c)]=0
-  tes_t[(a+b+c+1):(a+b+c+e),(a+b+c+1):(a+b+c+e)]=0
-  tes_t[(a+b+c+e+1):(a+b+c+e+f),(a+b+c+e+1):(a+b+c+e+f)]=0 #if you have more groups... make this automatic, now it is not (18.1.24), yes:
-  # https://jokergoo.github.io/circlize_book/book/the-chorddiagram-function.html#orders-of-links 
-  
-  
-  group = structure(g1, names = colnames(tes_t));#group
-  grid.col = structure(c(rep('#93c29f', a),rep('#a83277', b), rep('red', c),  rep('grey', e), rep('black', f)),
-                       # c(rep('blue', a),rep('red', b), rep('green', c),  rep('orange', e), rep('#756BB1', f)),
-                       #(c(rep('#3283a8', a),rep('#a83277', b), rep('#a86932', c),  rep('#32a898', e), rep('#756BB1', f)), 
-                       names = rownames(tes_t)); ##https://www.datanovia.com/en/blog/top-r-color-palettes-to-know-for-great-data-visualization/ 
-  # insert 'color hex' in google
-  tes_t=tes_t[range,range];grid.col = grid.col[range] #tes_t=resulta
-  g <- graph.adjacency(tes_t, mode="upper", weighted=TRUE, diag=FALSE)
-  e <- get.edgelist(g); df <- as.data.frame(cbind(e,E(g)$weight)); #
-  df[,3]=as.numeric(df[, 3])
-  # Edge.Thickness <- (abs(Correlation.Strength) * Thickness.Multiplier)
-  
-  # rango <- function(x){((x-min(x))/(max(x)-min(x)))*2-1} #just a function for the -1 to 1 thing..
-  rango <- function(x){((x-min(x))/(max(x)-min(x)))*2} #just a function for the -1 to 1 thing..
-  # if (gend=='All') {col_fun = colorRamp2(c(-0.8, 0, 0.8), c("blue",'white', "orange"))} else {col_fun = colorRamp2(c(-1, 0,1), c("blue",'white', "orange"))} #
-  col_fun=colorRamp2(c(-1, 0,1), c("blue",'white', "orange"),transparency = 0.25)
-  # col_fun = colorRamp2(range(mat), c("#FFEEEE", "#FF0000"), transparency = 0.5)
-  # if (gend=='All') {col_fun = colorRamp2(c(min(df$V3), 0,max(df$V3)), c("blue",'white', "orange"))} else {col_fun = colorRamp2(c(min(df$V3), 0,max(df$V3)), c("blue",'white', "orange"))}
-  df=df[!df$V1 %in% rem,];df=df[!df$V2 %in% rem,] #e.g.rem=x4
-  # df$V3=rango(df$V3);
 
   
-  classes=modi #modi=4
-  namesh=unique(g1)    #[c(1:6)[1:6 != modi]];
-  cola=unique(grid.col)#[c(1:6)[1:6 != modi]]
+  # Define groups for different variables
+  g1 <- c(rep('Clinical', a), rep('Steroids', b), rep('BA_liver', c), rep('Contaminants', e), rep('Lipids', f))
   
-  # if (gend=='All') {
-  # ccu=df[,3] > 0.2
-  # ccu2=df[,3] < -0.2
-  # cx=ccu | ccu2} else {
-  #    ccu=df[,3] > 0.25
-  # ccu2=df[,3] < -0.25
-  # cx=ccu | ccu2}
-
-  lgd_group = Legend(at = gend, type = "points", legend_gp = gpar(col = colors),  title_position = "topleft", title = title)
-
-  lgd_points = Legend(at = namesh, type = "points", legend_gp = gpar(col = cola), title_position = "topleft", title = "Class")
-  lgd_lines = Legend(at = c("Positive", "Negative"), type = "points", legend_gp = gpar(col = c('orange','blue')), title_position = "topleft", title = "Correlation")
-  lgd_edges= Legend(at = c(-1,1), col_fun = col_fun,  title_position = "topleft", title = "Edges") #lgd_edges= Legend(at = c(round(min(df$V3),1), round(max(df$V3),1)), col_fun = col_fun,  title_position = "topleft", title = "Edges")
-  lgd_list_vertical = packLegend(lgd_group,lgd_points,  lgd_lines,lgd_edges) #lgd_lines,
-  circos.par(gap.after = 1.5,start.degree = 90) #https://jokergoo.github.io/circlize_book/book/the-chorddiagram-function.html
-    chordDiagram(df, annotationTrack = c("grid"),  grid.col=grid.col, directional = FALSE,symmetric = TRUE, scale=FALSE, #link.decreasing = FALSE,
-                 link.lwd = 0.3, link.border = "white",
-                 # link.arr.width=abs(df[,3])*rango(df[,3])*50, #this is for arrows
-                 order = rownames(tes_t), preAllocateTracks = 1, col = col_fun,transparency = 0.25,big.gap = 10, small.gap = 1) #link.zindex = rank(df[,3]), link.visible = cx)
-    circos.trackPlotRegion(track.index = 1, panel.fun = function(x, y) {
-      xlim = get.cell.meta.data("xlim"); ylim = get.cell.meta.data("ylim")
-      sector.name = get.cell.meta.data("sector.index")
-      circos.text(mean(xlim), ylim[1] + .1, sector.name, facing = "clockwise", niceFacing = TRUE, adj = c(0, 0.5))
-      circos.axis(h = "top", labels.cex = 0.000001, major.tick.length = 0.2, sector.index = sector.name, track.index = 2)}, bg.border = NA) #https://stackoverflow.com/questions/31943102/rotate-labels-in-a-chorddiagram-r-circlize
-    windowsFonts(A = windowsFont("Calibri (Body)"))
-    draw(lgd_list_vertical, x = unit(5, "mm"), y = unit(5, "mm"), just = c("left", "bottom"))#}
-  # These ten above lines have been already done, and now just show separately
-  dev.copy(jpeg,paste0(gend,n_level,'hiee.jpg'),width=12, height=12, units="in", res=1000);dev.off() # This is already done
-
-knitr::include_graphics(paste0(gend,n_level,'hiee.jpg'))
-daiR::image_to_pdf(paste0(gend,n_level,'hiee.jpg'), pdf_name=paste0(paste0(gend,n_level,'hie'),'.pdf')) #https://rdrr.io/cran/daiR/man/image_to_pdf.html #this is good!
-my_image <- image_read(paste0(gend,n_level,'hiee.jpg'));my_svg <- image_convert(my_image, format="svg"); image_write(my_svg, paste(paste0(gend,n_level,'hie.jpg') ,".svg"))
-
-
+  # Remove self-correlations within each group
+  tes_t[1:a, 1:a] <- 0
+  tes_t[(a + 1):(a + b), (a + 1):(a + b)] <- 0
+  tes_t[(a + b + 1):(a + b + c), (a + b + 1):(a + b + c)] <- 0
+  tes_t[(a + b + c + 1):(a + b + c + e), (a + b + c + 1):(a + b + c + e)] <- 0
+  tes_t[(a + b + c + e + 1):(a + b + c + e + f), (a + b + c + e + 1):(a + b + c + e + f)] <- 0
+  
+  # Define group structure and color palette
+  group <- structure(g1, names = colnames(tes_t))
+  grid.col <- structure(c(rep('#93c29f', a), rep('#a83277', b), rep('red', c), rep('grey', e), rep('black', f)),
+                        names = rownames(tes_t))
+  
+  # Filter and adjust correlation matrix
+  tes_t <- tes_t[range, range]
+  grid.col <- grid.col[range]
+  g <- graph.adjacency(tes_t, mode = "upper", weighted = TRUE, diag = FALSE)
+  e <- get.edgelist(g)
+  df <- as.data.frame(cbind(e, E(g)$weight))
+  df[, 3] <- as.numeric(df[, 3])
+  
+  # Define color function for edges
+  col_fun <- colorRamp2(c(-1, 0, 1), c("blue", 'white', "orange"), transparency = 0.25)
+  
+  # Remove specified elements from the data frame
+  df <- df[!df$V1 %in% rem, ]
+  df <- df[!df$V2 %in% rem, ]
+  
+  # Define legends for the plot
+  lgd_group <- Legend(at = gend, type = "points", legend_gp = gpar(col = colors), title_position = "topleft", title = title)
+  lgd_points <- Legend(at = unique(g1), type = "points", legend_gp = gpar(col = unique(grid.col)), title_position = "topleft", title = "Class")
+  lgd_lines <- Legend(at = c("Positive", "Negative"), type = "points", legend_gp = gpar(col = c('orange', 'blue')), title_position = "topleft", title = "Correlation")
+  lgd_edges <- Legend(at = c(-1, 1), col_fun = col_fun, title_position = "topleft", title = "Edges")
+  lgd_list_vertical <- packLegend(lgd_group, lgd_points, lgd_lines, lgd_edges)
+  
+  # Set parameters for the chord diagram
+  circos.par(gap.after = 1.5, start.degree = 90)
+  chordDiagram(df, annotationTrack = c("grid"), grid.col = grid.col, directional = FALSE, symmetric = TRUE, scale = FALSE,
+               link.lwd = 0.3, link.border = "white", order = rownames(tes_t), preAllocateTracks = 1, col = col_fun, transparency = 0.25, big.gap = 10, small.gap = 1)
+  
+  # Add text and axis to the plot
+  circos.trackPlotRegion(track.index = 1, panel.fun = function(x, y) {
+    xlim <- get.cell.meta.data("xlim")
+    ylim <- get.cell.meta.data("ylim")
+    sector.name <- get.cell.meta.data("sector.index")
+    circos.text(mean(xlim), ylim[1] + .1, sector.name, facing = "clockwise", niceFacing = TRUE, adj = c(0, 0.5))
+    circos.axis(h = "top", labels.cex = 0.000001, major.tick.length = 0.2, sector.index = sector.name, track.index = 2)
+  }, bg.border = NA)
+  
+  # Set font and draw legends
+  windowsFonts(A = windowsFont("Calibri (Body)"))
+  draw(lgd_list_vertical, x = unit(5, "mm"), y = unit(5, "mm"), just = c("left", "bottom"))
+  
+  # Save the plot as a JPEG file
+  dev.copy(jpeg, paste0(gend, n_level, 'hiee.jpg'), width = 12, height = 12, units = "in", res = 1000)
+  dev.off()
+  
+  # Include the plot in the report and convert to PDF and SVG
+  knitr::include_graphics(paste0(gend, n_level, 'hiee.jpg'))
+  daiR::image_to_pdf(paste0(gend, n_level, 'hiee.jpg'), pdf_name = paste0(paste0(gend, n_level, 'hie'), '.pdf'))
+  my_image <- image_read(paste0(gend, n_level, 'hiee.jpg'))
+  my_svg <- image_convert(my_image, format = "svg")
+  image_write(my_svg, paste(paste0(gend, n_level, 'hie.jpg'), ".svg"))
 }
 
 # All variables
-n_level=0.01; circos.clear(); vars=list(resulta)
-big='Yes';title='All Variables' # 
-rem=x4; modi=5; colt='black'
-a=length(x1)-1;b=length(x2);c=length(x3);d=length(x4);e=length(x5);f=length(x6);#Check inside function
-gend=c('All');colors=c('blue');
-group_chords(vars[[1]],n_level,fig_name,big,rem,modi,colt,gend,colors,a,b,c,d,e,f) #this drives the function
-# https://jokergoo.github.io/circlize_book/book/the-chorddiagram-function.html#orders-of-links
+n_level = 0.01
+circos.clear()
+vars = list(resulta)
+big = 'Yes'
+title = 'All Variables'
+rem = x4
+modi = 5
+colt = 'black'
+a = length(x1) - 1
+b = length(x2)
+c = length(x3)
+d = length(x4)
+e = length(x5)
+f = length(x6)
+gend = c('All')
+colors = c('blue')
+group_chords(vars[[1]], n_level, fig_name, big, rem, modi, colt, gend, colors, a, b, c, d, e, f)
 
 # Genderwise:
-vars=list(resultaf,resultam); #
-big='No';title='Genders Separated'; #or 'Yes'  for the big plot alone
-rem=x4; modi=4; colt='black';colors=c('white','black');#rem=x3; modi=5; colt='green';
-a=length(x1)-2;b=length(x2);c=length(x3);
-d=length(x4);e=length(x5);f=length(x6);#Check inside function
-gend=c('Female');colors=c('white');group_chords(vars[[1]],n_level,fig_name,big,rem,modi,colt,gend,colors,a,b,c,d,e,f) #
-gend=c('Male');colors=c('black');group_chords(vars[[2]],n_level,fig_name,big,rem,modi,colt,gend,colors,a,b,c,d,e,f) #
+vars = list(resultaf, resultam)
+big = 'No'
+title = 'Genders Separated'
+rem = x4
+modi = 4
+colt = 'black'
+colors = c('white', 'black')
+a = length(x1) - 2
+b = length(x2)
+c = length(x3)
+d = length(x4)
+e = length(x5)
+f = length(x6)
+gend = c('Female')
+colors = c('white')
+group_chords(vars[[1]], n_level, fig_name, big, rem, modi, colt, gend, colors, a, b, c, d, e, f)
+gend = c('Male')
+colors = c('black')
+group_chords(vars[[2]], n_level, fig_name, big, rem, modi, colt, gend, colors, a, b, c, d, e, f)
+
+#Copiloting is not working very well here, so I just let it comment some of the lines ...
+
 
 ```
 
@@ -633,85 +704,106 @@ gend=c('Male');colors=c('black');group_chords(vars[[2]],n_level,fig_name,big,rem
 # https://stackoverflow.com/questions/10441437/why-am-i-getting-x-in-my-column-names-when-reading-a-data-frame
 # https://stackoverflow.com/questions/27044727/removing-characters-from-string-in-r
 varex_groups_plot <- function(tv_all, Group) {
+  # Initialize error flag
   an.error.occured <- FALSE
   tv_all2 <- tv_all
   
-  tryCatch(tv_all2[, 'Gender'], error = function(e) { an.error.occured <<- TRUE })
+  # Check if 'Gender' column exists
+  tryCatch({
+    tv_all2[, 'Gender']
+  }, error = function(e) {
+    an.error.occured <<- TRUE
+  })
   
-  if (an.error.occured) {
-    cond <- if (Group == 'female') {
+  # Determine condition based on Group and presence of 'Gender' column
+  cond <- if (an.error.occured) {
+    if (Group == 'female') {
       tv_all2[, 'SEX.1F.2M'] == min(tv_all2[, 'SEX.1F.2M'])
     } else if (Group == 'male') {
       tv_all2[, 'SEX.1F.2M'] == max(tv_all2[, 'SEX.1F.2M'])
     } else {
-      rep(TRUE, dim(tv_all2)[1])
+      rep(TRUE, nrow(tv_all2))
     }
   } else {
-    cond <- if (Group == 'female') {
+    if (Group == 'female') {
       tv_all2[, 'Gender'] == min(tv_all2[, 'Gender'])
     } else if (Group == 'male') {
       tv_all2[, 'Gender'] == max(tv_all2[, 'Gender'])
     } else {
-      rep(TRUE, dim(tv_all2)[1])
+      rep(TRUE, nrow(tv_all2))
     }
   }
   
+  # Filter data based on condition
   tv_red <- tv_all2[cond, ]
   hep <- tv_red
   colnames(hep)[1:8] <- colnames(tv_red)[1:8]
   
-  tv2 <- t(hep[, 9:dim(tv_red)[2]])
+  # Transpose the data for SingleCellExperiment
+  tv2 <- t(hep[, 9:ncol(tv_red)])
   
+  # Create SingleCellExperiment object
   sce <- SingleCellExperiment(tv2)
   logcounts(sce) <- tv2
   sce@colData <- DataFrame(hep[, 2:8])
-  names(colData(sce)) <- colnames(tv_all)[2:8]
-  names(colData(sce))[1] <- 'The Gender'
+  colnames(colData(sce)) <- colnames(tv_all)[2:8]
+  colnames(colData(sce))[1] <- 'The Gender'
 
-  vars <- getVarianceExplained(sce, variables = names(colData(sce))[1:7])
+  # Calculate variance explained
+  vars <- getVarianceExplained(sce, variables = colnames(colData(sce))[1:7])
   colVars(vars)
 
+  # Set font and color palette
   windowsFonts(A = windowsFont("Calibri (Body)"))
   mypalette <- scales::hue_pal()(ncol(colData(sce)))
   names(mypalette) <- colnames(tv_all)[2:8]
   
+  # Adjust vars if Group is not 'All'
   if (Group != 'All') {
     vars <- vars[, 2:7]
   }
   
+  # Plot explanatory variables
   p <- plotExplanatoryVariables(vars) +
     theme(text = element_text(size = 25, family = "Calibri")) +
     theme(axis.text = element_text(size = 20, family = "Calibri"))
   
+  # Clean up plot data
   p[[1]] <- p[[1]][!is.na(p[[1]][, 1]), ]
   p[[1]][, 1] <- as.vector(unlist(p[[1]][, 1]))
   p[[1]] <- p[[1]][order(p[[1]][, 1]), ]
 
+  # Save plot as PNG
   path <- "C:/Users/patati/Documents/GitHub/Steroid_Data_Analysis/"
   sips <- paste0(Group, 'vex', ".png")
   pngfile <- fs::path(path, sips)
   agg_png(pngfile, width = 60, height = 36, units = "cm", res = 300, scaling = 2)
   plot(p)
   invisible(dev.off())
+  
+  # Include plot in report
   knitr::include_graphics(pngfile)
+  
+  # Convert image to PDF and SVG
   daiR::image_to_pdf(sips, pdf_name = paste0(sips, '.pdf'))
   my_image <- image_read(sips)
   my_svg <- image_convert(my_image, format = "svg")
   image_write(my_svg, paste(sips, ".svg"))
+  p
+  
 }
-
 # Example usage:
 varex_groups_plot(tv_all, Group = 'All')
 varex_groups_plot(tv_all, Group = 'female')
 varex_groups_plot(tv_all, Group = 'male')
 
-
+#Copilot helped with the commenting here.
 
 ```
 
 
 # Making Heatmap with Effect Sizes
-```{r, warning=FALSE,message=FALSE,fig.width=9.0,fig.align="left"}
+```{r, warning=FALSE,message=FALSE,fig.width=9.0,fig.align="left", results='hide'}
 
 # Function to calculate Cohen's d effect sizes
 # https://www.statology.org/cohens-d-in-r/
@@ -849,7 +941,7 @@ image_write(my_svg, paste0("cohensd_e2", date, ".svg"))
 
 
 # Making Heatmaps with Correlations
-```{r, warning=FALSE,message=FALSE,fig.width=9.0,fig.align="left"}
+```{r, warning=FALSE,message=FALSE,fig.width=9.0,fig.align="left",results='hide'}
 
 #The correlations (ok):
 #Correlation matrices:
@@ -1076,11 +1168,12 @@ dev.off();eoh=paste("Square Correlation Plot of",ho,gm,hip1,"3.jpg")
 daiR::image_to_pdf(eoh, pdf_name=paste0(eoh,'.pdf'))
 my_image <- image_read(eoh);my_svg <- image_convert(my_image, format="svg"); image_write(my_svg, paste(eoh,".svg"))
 
-
-
-#Tiedoks: Copilotilla ei järkee edelliseen, vaikka näyttää hieman siistimmältä
+#Tiedoks: Copilotilla ei järkee edelliseen, vaikka näyttää hieman siistimmältä.
 
 ```
+
+<!-- {r, echo=FALSE, out.width="50%", fig.cap="Square Correlation Plot of steroids vs. all others except PFAS",fig.align="left"} -->
+<!-- knitr::include_graphics("Square Correlation Plot ofrr steroids vs. all others except PFAS All transpose 3.jpg .svg") -->
 
 
 # Making Heatmaps with Linear Model Estimates
@@ -1302,7 +1395,8 @@ the_funal=function(tv,Group,ok,fn,adj,sig.level,sick,sick_group,joo) { #  ok,aa,
   
   #This in case you want to print to your local computer: ... :)
   # main_dir <- paste0(c("C://Users//patati//Desktop//Turku//R//",fn),collapse="")
-  # setwd(main_dir)
+  main_dir <- paste0(c("C://Users//patati//Documents//GitHub//Steroid_Data_Analysis//"),collapse="")
+  setwd(main_dir)
   
   meds=names(table(hoi[,1]))[!names(table(hoi[,1])) %in% c(x3,x5,x6)]
   covas=c('Steatosis.Grade','Fibrosis.Stage','Necroinflammation','HOMA.IR','AGE','BMI')
@@ -1503,217 +1597,6 @@ dev.off();
   } 
   
 
-# #     #,is.corr = FALSE
-#   hoi=hopiu
-#     rsa=c();rs1=c();rs2=c()
-# 
-#     hoi[,1] <- gsub("\\.", "-",hoi[,1])
-#      hoi[,1] <- gsub("X11", "11",hoi[,1])
-#      hoi[,1] <- gsub("X17", "17",hoi[,1])
-#      hoi[,1][hoi[,1]=="T-Epi-T"]="T/Epi-T"
-#      hoi[,1][hoi[,1]=="T-E-T"]="T/Epi-T"
-#      # hoi[,1][hoi[,1]=="Steatosis-Grade"]="Steatosis Grade"
-#      # hoi[,1][hoi[,1]=="Fibrosis-Stage"]="Fibrosis Stage"
-#      # hoi[,1][hoi[,1]=="17aOH-P4"]="17a-OHP4"
-# 
-# # #
-#     x2[x2=="17aOH-P4"]="17a-OHP4"
-#     c1=hoi[,1] %in% x2
-#     hoi2=hoi[c1,] # This gives you the PFAS (x5) ok. Tää tulee suoraan tällä PFAS 7:lle ekalle
-#     c2=hoi2[,2] %in% c(x3,x6)#names(table(hoi[,1]))[!names(table(hoi[,1])) %in% c(x3,x5,x6)] #vaikeemman kautta
-# #     # hyy=c1 & c2
-#     hoi3=hoi2[c2,] #Likewise...
-#     # hoi2=hoi2[1:182,]
-#     # a=hoi2[1:42,1];b=hoi2[1:42,2]
-#     # hoi2[1:42,]=cbind(b,a,hoi2[1:42,3:5])
-#     # hoi2=hoi2[,c(2,1,3:5)]
-#     # hoi4=rbind(hoi2,hoi3)
-#     rownames(hoi3)=1:dim(hoi3)[1]
-# 
-# 
-#     i=4;
-#     rse=c()
-#     for (i in 4:5) {
-# 
-#       rse=hoi3[,c(1,2,i)]
-#       rse=rse[order(rse[,1]),]
-#       rs=reshape(rse,idvar="x",timevar="y",direction="wide")
-#       rownames(rs)=rs[,1]
-#       rs=rs[,-1]
-# 
-#       library(stringr)
-#       colnames(rs)=str_sub(colnames(rs),3,-1)
-#       colnames(rs) <- gsub("\\.", "-", colnames(rs))
-#       colnames(rs) <- gsub("X11", "11", colnames(rs))
-#       colnames(rs) <- gsub("X17", "17", colnames(rs))
-#       colnames(rs)[colnames(rs)=="T-Epi-T"]="T/Epi-T"
-#       colnames(rs)[colnames(rs)=="T-E-T"]="T/Epi-T"
-#       colnames(rs)[colnames(rs)=="Steatosis-Grade"]="Steatosis Grade"
-#       colnames(rs)[colnames(rs)=="Fibrosis-Stage"]="Fibrosis Stage"
-#       colnames(rs)[colnames(rs)=="17aOH-P4"]="17a-OHP4"
-#       heps=c(groups[,2])
-#       heps <- gsub("\\.", " ", heps)
-#       heps[heps=="HOMA IR"]="HOMA-IR"
-#       heps[heps=="17aOH-P4"]="17a-OHP4"
-#       ccc=match(heps,colnames(rs))
-# 
-#       # rs=rs[,ccc]
-# 
-#       rsa=rbind(rsa,rs)
-#     }
-# 
-#     rs1a=rsa[1:length(c(x3,x6)),];
-#     rs2a=rsa[(length(c(x3,x6))+1):dim(rsa)[1],]
-#     rs1=rs1a;rs2=rs2a;rownames(rs2)=str_sub(rownames(rs2),1,-2) #not obvious
-#     width=3500; height=1700
-# 
-#     order="original"; range='orig';corre='no_renorm'; type='full'; method='color'; #ga='All';gf='Female';gm='Male' #color square
-#     cl.offset=1.0;cl.length=5;cl.cex = 1.05;pch.cex=1.05;pch=14;cl.pos = 'r';#cl.pos = 'b' ;#pch.cex=0.95,1.3; height=6300; pos 'b' cl.pos = 'b'
-#     ho=Group; hip1='Steroids_x vs. bal_as_y'
-#     rs1 <- mutate_all(rs1, function(x) as.numeric(as.character(x)))
-#     rs2 <- mutate_all(rs2, function(x) as.numeric(as.character(x)))
-#     # rs1=rango(rs1,-0.5,0.5) #check if needed
-# 
-#     rs1=t(as.matrix(rs1))
-#     rs2=t(as.matrix(rs2))
-# 
-#     Outcome=colnames(tv_covNS)[c(29:51,59:71)];
-# Outcome=Outcome[c(1,23,2:22,24:length(Outcome))]
-# rs1=rs1[,Outcome[Outcome %in% colnames(rs1) ]];rs2=rs2[,Outcome[Outcome %in% colnames(rs2) ]]
-# 
-# 
-# rs1=rs1[groups[,'Abbreviation'],]
-# rs2=rs2[groups[,'Abbreviation'],]
-# 
-# 
-#   order="original"; range='orig';corre='no_renorm'; type='full'; method='color'; #ga='All';gf='Female';gm='Male' #color square
-#   cl.offset=1.0;cl.length=5;cl.cex = 1.4;pch.cex=1.5;pch=20;cl.pos = 'r';#cl.pos = 'b' ;#pch.cex=0.95,1.3; height=6300; pos 'b' cl.pos = 'b'
-#   ho=Group;hip1='Steroids_y vs Bile Acids and Lipids_x'
-#   col=colorRampPalette(c('blue','white','orange'), alpha = TRUE)(150)
-# #I have driven these separately for html:
-# 
-#   hist(as.numeric(unlist(rs1)),breaks=30,ylim=c(0.0,40))  #xlim=c(0.04,0.4),
-# resulta1[rs1 >= 0.24] = 0.3 #max(rs1)
-# resulta1[rs1 < -0.24] = -0.3 #min(rs1)
-# # resulta1[resulta1 > 1]  = 1
-# # resulta1[resulta1 < -1] = -1 #col.lim=c(-0.4,0.4)) 
-#   
-# jpeg(paste("Linear Model Estimate Plot of_s",hip1,Group,".jpg"), width = width, height = height, quality = 100,pointsize = 16, res=300);
-# 
-# corrplot(rs1, type = type, order = order,method=method, p.mat=rs2, tl.col = "black", cl.cex = cl.cex,pch.cex=pch.cex,pch.col='black',pch=pch,
-# sig.level = c(.001, .01, .05),cl.pos =  'r', insig = "label_sig",cl.offset=cl.offset,cl.length=cl.length, tl.cex=1.0, #tl.pos='n',
-# tl.srt = 90, diag = TRUE,col =col ,is.corr = FALSE,col.lim=c(-0.3,0.3)); #colorRampPalette(c('blue','white', 'orange'), alpha = TRUE)(100) is.corr = TRUE or false
-# 
-# # https://cran.r-project.org/web/packages/corrplot/vignettes/corrplot-intro.html#change-color-spectra-color-legend-and-text-legend
-# dev.off();     eoh=paste("Linear Model Estimate Plot of_s",hip1,Group,".jpg"); daiR::image_to_pdf(eoh, pdf_name=paste0(eoh,'.pdf'));my_image <- image_read(eoh);my_svg <- image_convert(my_image, format="svg"); image_write(my_svg, paste(eoh,".svg"))
-# 
-#   hoi=hopiu
-#     rsa=c();rs1=c();rs2=c()
-# 
-#     hoi[,1] <- gsub("\\.", "-",hoi[,1])
-#      hoi[,1] <- gsub("X11", "11",hoi[,1])
-#      hoi[,1] <- gsub("X17", "17",hoi[,1])
-#      hoi[,1][hoi[,1]=="T-Epi-T"]="T/Epi-T"
-#      hoi[,1][hoi[,1]=="T-E-T"]="T/Epi-T"
-#      # hoi[,1][hoi[,1]=="Steatosis-Grade"]="Steatosis Grade"
-#      # hoi[,1][hoi[,1]=="Fibrosis-Stage"]="Fibrosis Stage"
-#      # hoi[,1][hoi[,1]=="17aOH-P4"]="17a-OHP4"
-# 
-# # #
-#     x2[x2=="17aOH-P4"]="17a-OHP4"
-#     c1=hoi[,1] %in% x5
-#     hoi2=hoi[c1,] # This gives you the PFAS (x5) ok. Tää tulee suoraan tällä PFAS 7:lle ekalle
-#     c2=hoi2[,2] %in% c(x3,x6)#names(table(hoi[,1]))[!names(table(hoi[,1])) %in% c(x3,x5,x6)] #vaikeemman kautta
-# #     # hyy=c1 & c2
-#     hoi3=hoi2[c2,] #Likewise...
-#     # hoi2=hoi2[1:182,]
-#     # a=hoi2[1:42,1];b=hoi2[1:42,2]
-#     # hoi2[1:42,]=cbind(b,a,hoi2[1:42,3:5])
-#     # hoi2=hoi2[,c(2,1,3:5)]
-#     # hoi4=rbind(hoi2,hoi3)
-#     rownames(hoi3)=1:dim(hoi3)[1]
-# 
-# 
-#     i=4;
-#     rse=c()
-#     for (i in 4:5) {
-# 
-#       rse=hoi3[,c(1,2,i)]
-#       rse=rse[order(rse[,1]),]
-#       rs=reshape(rse,idvar="x",timevar="y",direction="wide")
-#       rownames(rs)=rs[,1]
-#       rs=rs[,-1]
-# 
-#       library(stringr)
-#       colnames(rs)=str_sub(colnames(rs),3,-1)
-#       # colnames(rs) <- gsub("\\.", "-", colnames(rs))
-#       # colnames(rs) <- gsub("X11", "11", colnames(rs))
-#       # colnames(rs) <- gsub("X17", "17", colnames(rs))
-#       # colnames(rs)[colnames(rs)=="T-Epi-T"]="T/Epi-T"
-#       # colnames(rs)[colnames(rs)=="T-E-T"]="T/Epi-T"
-#       # colnames(rs)[colnames(rs)=="Steatosis-Grade"]="Steatosis Grade"
-#       # colnames(rs)[colnames(rs)=="Fibrosis-Stage"]="Fibrosis Stage"
-#       # colnames(rs)[colnames(rs)=="17aOH-P4"]="17a-OHP4"
-#       # heps=c(groups[,2])
-#       # heps <- gsub("\\.", " ", heps)
-#       # heps[heps=="HOMA IR"]="HOMA-IR"
-#       # heps[heps=="17aOH-P4"]="17a-OHP4"
-#       # ccc=match(heps,colnames(rs))
-# 
-#       # rs=rs[,ccc]
-# 
-#       rsa=rbind(rsa,rs)
-#     }
-# 
-#     rs1a=rsa[1:length(c(x3,x6)),];
-#     rs2a=rsa[(length(c(x3,x6))+1):dim(rsa)[1],]
-#     rs1=rs1a;rs2=rs2a;rownames(rs2)=str_sub(rownames(rs2),1,-2) #not obvious
-#     width=3200; height=1600
-# 
-#     order="original"; range='orig';corre='no_renorm'; type='full'; method='color'; #ga='All';gf='Female';gm='Male' #color square
-#     cl.offset=1.0;cl.length=5;cl.cex = 1.05;pch.cex=1.05;pch=10;cl.pos = 'r';#cl.pos = 'b' ;#pch.cex=0.95,1.3; height=6300; pos 'b' cl.pos = 'b'
-#     ho=Group; hip1='Steroids_x vs. bal_as_y'
-#     rs1 <- mutate_all(rs1, function(x) as.numeric(as.character(x)))
-#     rs2 <- mutate_all(rs2, function(x) as.numeric(as.character(x)))
-#     # rs1=rango(rs1,-0.5,0.5) #check if needed
-# 
-#     rs1=t(as.matrix(rs1))
-#     rs2=t(as.matrix(rs2))
-# 
-#     Outcome=colnames(tv_covNS)[c(29:51,59:71)];
-# Outcome=Outcome[c(1,23,2:22,24:length(Outcome))]
-# rs1=rs1[,Outcome[Outcome %in% colnames(rs1) ]];rs2=rs2[,Outcome[Outcome %in% colnames(rs2) ]]
-# 
-# 
-# # rs1=rs1[groups[,'Abbreviation'],]
-# # rs2=rs2[groups[,'Abbreviation'],]
-# 
-# 
-#   order="original"; range='orig';corre='no_renormaadasdfd'; type='full'; method='color'; #ga='All';gf='Female';gm='Male' #color square
-#   cl.offset=1.0;cl.length=5;cl.cex = 1.4;pch.cex=1.5;pch=14;cl.pos = 'r';#cl.pos = 'b' ;#pch.cex=0.95,1.3; height=6300; pos 'b' cl.pos = 'b'
-#   ho=Group;hip1='Steroids_y vs Bile Acids and Lipidds_x'
-#   col=colorRampPalette(c('blue','white','orange'), alpha = TRUE)(150)
-# #I have driven these separately for html:
-# 
-#   
-# hist(as.numeric(unlist(rs1)),breaks=30,ylim=c(0.0,40))  #xlim=c(0.04,0.4),
-# 
-# resulta1[rs1 >= 0.26] = 0.3 #max(rs1)
-# resulta1[rs1 < -0.26] = -0.3 #min(rs1)
-# # resulta1[resulta1 > 1]  = 1
-# # resulta1[resulta1 < -1] = -1 #col.lim=c(-0.4,0.4))   
-#   
-# jpeg(paste("Linear Model Estimate Plot of_sss",hip1,Group,".jpg"), width = width, height = height, quality = 100,pointsize = 14, res=300);
-# 
-# corrplot(rs1, type = type, order = order,method=method, p.mat=rs2, tl.col = "black", cl.cex = cl.cex,pch.cex=pch.cex,pch.col='black',pch=pch,
-# sig.level = c(.001, .01, .05),cl.pos =  'r', insig = "label_sig",cl.offset=cl.offset,cl.length=cl.length, tl.cex=1.0, #tl.pos='n',
-# tl.srt = 90, diag = TRUE,col =col ,is.corr = FALSE,col.lim=c(-0.3,0.3) ); #colorRampPalette(c('blue','white', 'orange'), alpha = TRUE)(100) is.corr = TRUE or false
-# 
-# # https://cran.r-project.org/web/packages/corrplot/vignettes/corrplot-intro.html#change-color-spectra-color-legend-and-text-legend
-# dev.off();eoh=paste("Linear Model Estimate Plot of_sss",hip1,Group,".jpg"); daiR::image_to_pdf(eoh, pdf_name=paste0(eoh,'.pdf'));my_image <- image_read(eoh);my_svg <- image_convert(my_image, format="svg"); image_write(my_svg, paste(eoh,".svg"))
-
-  
-  # https://scales.arabpsychology.com/stats/how-to-remove-the-last-character-from-a-string-in-r-2-examples/
   return(list(hopiu))
 }
 
@@ -1723,7 +1606,7 @@ rango = function(x,mi,ma) {(ma-mi)/(max(x)-min(x))*(x-min(x))+mi}
 #To apply to all groups at one go:
 huus=function(tv,adj,sig.level,sick,sick_group,joo) {
   huus=c();huusa=c();heijaa=c('All','female','male'); ok=c('big','small')  ; jj=c()
-  hyp=1;hrt=1;oo="C:/Users/patati/Documents/GitHub/Steroid_Data_Analysis/lme/"
+  hyp=1;hrt=1;#oo="C:/Users/patati/Documents/GitHub/Steroid_Data_Analysis/lme/"
   for (hyp in 1:2) {
     for (hrt in 1:3) {
       # the_funal=function(tv,Group,ok,aa,bb,fn,adj)
@@ -1733,13 +1616,14 @@ huus=function(tv,adj,sig.level,sick,sick_group,joo) {
 
 # Driving the function with the parameters as follows:
 adj='nook'; sig.level=c(.001,0.01, 0.05); sick='no'; joo='joo' #sickGroup..
-metanorm_S_non_fdr=huus(tv_all,adj,sig.level,sick,sick_group,joo)
+metanorm_S_non_fdr=huus(tv_all,adj,sig.level,sick,sick_group,joo) #This prints to your current folder 'Steroid_Data_Analysis
 
 # Ei mee tääkän ihan nopeesti läpi ChatGPT:llä saati Copilotkaan.
 # Tää olis kiva saada paremmaks, joten jätän tämän OS. (Funktiota.R löytyy kansiosta, siellä lisää, yks minitoimiva on.)
 
 
 ```
+
 ```{r, echo=FALSE, out.width="50%", fig.cap="Heatmap of LMEs (linear model estimates) from Steroids vs. BAs & Lipids & Covariates with All Subjects",fig.align="left"}
 knitr::include_graphics("Linear Model Estimate Plot ofees5 BAs_lipids_as_y vs. steroids_as_x All .jpg")
 ```
@@ -2113,6 +1997,7 @@ huus2=function(tv_all,hopiu) {
 # metanorm_S_fdr_non_tot=ldply(metanorm_S_non_fdr, data.frame) #Making the above ok for the next:
 # non_fdr_check=huus2(tv_covscl,metanorm_S_fdr_non_tot) # This plots all the combinations, so it takes some time
 
+#The above code in this segment does not get easily better with Copilot-
 
 data <- tv_covscl
 plot3d(y=data[,'PFOA'],x=data[,'T/Epi-T'],z=data[,'PE'], #data[,'PFHxS'],x=data[,'T/Epi-T'],z=data[,'PE']
@@ -2208,7 +2093,7 @@ knitr::include_graphics('Correlations plotted male C4_L P5 .jpg')
 
 
 # Making Network Plot
-```{r, warning=FALSE,message=FALSE,fig.width=10.0,fig.align="left"}
+```{r, warning=FALSE,message=FALSE,fig.width=10.0,fig.align="left",results='hide'}
 # Following the previous work for doing the network plot (https://r-graph-gallery.com/network.html)
 # Here the main data of the plot takes correlations:
 tv_c=tv_all#[,9:dim(tv_covscl)[2]] #tv_half_log22 #cbind(tv[,1:8], tv_half_log2) #check also not logged and then the auto one
@@ -2277,105 +2162,52 @@ plot(network, mode = "circle",vertex.color=my_color, vertex.size = 10,
      edge.arrow.size = 0.8,vertex.label.cex = 0.35,edge.width=as.numeric(E(network)$importance)*6.00 )
 legend("topright", legend=levels(as.factor(V(network)$carac))  ,
        col = coul , bty = "n", pch=20 , pt.cex = 1.3, cex = 1.3, text.col=coul ,
-       horiz = FALSE, inset = c(-0.01, 0.80))
+       horiz = FALSE, inset = c(0.65, 0.8))
 dev.off(); 
+my_image <- image_read(eoh);my_svg <- image_convert(my_image, format="svg"); image_write(my_svg, paste(eoh,".svg"))
 
 # And now just showing the figure separately:
 knitr::include_graphics('network.jpg'); eoh='network.jpg'; daiR::image_to_pdf(eoh, pdf_name=paste0(eoh,'.pdf'));
-my_image <- image_read(eoh);my_svg <- image_convert(my_image, format="svg"); image_write(my_svg, paste(eoh,".svg"))
-
-
-#... alternative
+#... alternative with copilot not ok:
 # Load necessary libraries
-library(dplyr)
-library(igraph)
-library(RColorBrewer)
-library(ragg)
 
-# Convert matrix to data frame
-tv_c <- as.data.frame(tv_all)
+# # Convert matrix to data frame
+# tv_c <- as.data.frame(tv_all)
+# 
+# # Check column names
+# print(colnames(tv_c))
+# 
+# # Preprocess the data
+# # Remove columns only if they exist
+# columns_to_remove <- c('Total_TG', 'PFAS', 'Perfluorodecyl.ethanoic.acid')
+# existing_columns <- columns_to_remove[columns_to_remove %in% colnames(tv_c)]
+# tv_c <- tv_c %>%
+#   select(-one_of(existing_columns)) %>%
+#   select(-one_of(x4))
+# 
+# colnames(tv_c)[colnames(tv_c) == "17aOH-P4"] <- "17a-OHP4"
+# dat <- tv_c %>%
+#   select(-c(Gender, PatientNumber))
+# 
+# # Calculate correlation matrix
+# resulta <- (rcorr(as.matrix(dat), type = 'spearman'))$r
+# 
+# # Thresholding and element-wise multiplication
+# n_level <- 0.9
+# Nrr <- qpNrr(resulta, verbose = FALSE)
+# Nrr[is.na(Nrr)] <- 1
+# cond <- as.matrix(Nrr < n_level)
+# tes_t <- cond * resulta
+# colnames(tes_t) <- rownames(tes_t)
+# 
+# # Removing self-correlation
+# diag(tes_t) <- 0
 
-# Check column names
-print(colnames(tv_c))
 
-# Preprocess the data
-# Remove columns only if they exist
-columns_to_remove <- c('Total_TG', 'PFAS', 'Perfluorodecyl.ethanoic.acid')
-existing_columns <- columns_to_remove[columns_to_remove %in% colnames(tv_c)]
-tv_c <- tv_c %>%
-  select(-one_of(existing_columns)) %>%
-  select(-one_of(x4))
-
-colnames(tv_c)[colnames(tv_c) == "17aOH-P4"] <- "17a-OHP4"
-dat <- tv_c %>%
-  select(-c(Gender, PatientNumber))
-
-# Calculate correlation matrix
-resulta <- (rcorr(as.matrix(dat), type = 'spearman'))$r
-
-# Thresholding and element-wise multiplication
-n_level <- 0.9
-Nrr <- qpNrr(resulta, verbose = FALSE)
-Nrr[is.na(Nrr)] <- 1
-cond <- as.matrix(Nrr < n_level)
-tes_t <- cond * resulta
-colnames(tes_t) <- rownames(tes_t)
-
-# Removing self-correlation
-diag(tes_t) <- 0
-
-# Create graph
-g <- graph_from_adjacency_matrix(tes_t, mode = "upper", weighted = TRUE, diag = FALSE)
-df <- as.data.frame(cbind(as_edgelist(g), E(g)$weight))
-df[, 3] <- as.numeric(df[, 3])
-hoi <- df[!duplicated(df[, c(1, 2)]), ]
-
-# Prepare nodes and links
-colnames(hoi) <- c("source", "target", "importance")
-
-# Ensure columns are character type
-hoi$source <- as.character(hoi$source)
-hoi$target <- as.character(hoi$target)
-
-# Remove rows with NA values
-links <- hoi %>% filter(!is.na(source) & !is.na(target))
-
-# Create nodes dataframe
-nodes <- data.frame(label = unique(c(links$source, links$target)))
-
-# Add categories to nodes
-nodes <- nodes %>%
-  mutate(carac = case_when(
-    label %in% x5 ~ "Contaminants",
-    label %in% x3 ~ "Bile Acids",
-    label %in% x6 ~ "Lipids",
-    label %in% x2 ~ "Steroids",
-    TRUE ~ "Other"
-  ))
-
-# Create igraph object
-network <- graph_from_data_frame(d = links, vertices = nodes, directed = FALSE)
-
-# Plotting
-coul <- c('#B2BEB5', 'Green', 'Red', 'Orange')
-my_color <- coul[as.numeric(as.factor(V(network)$carac))]
-
-jpeg('network.jpg', width = 4, height = 4.7, units = "in", quality = 100, pointsize = 7, res = 1000)
-plot(network, mode = "circle", vertex.color = my_color, vertex.size = 10, edge.arrow.size = 0.8, vertex.label.cex = 0.35, edge.width = as.numeric(E(network)$importance) * 6.00)
-legend("topright", legend = levels(as.factor(V(network)$carac)), col = coul, bty = "n", pch = 20, pt.cex = 1.3, cex = 1.3, text.col = coul, horiz = FALSE, inset = c(-0.01, 0.80))
-dev.off()
-
-# Show the figure
-knitr::include_graphics('network.jpg')
-eoh <- 'network.jpg'
-daiR::image_to_pdf(eoh, pdf_name = paste0(eoh, '.pdf'))
-my_image <- image_read(eoh)
-my_svg <- image_convert(my_image, format = "svg")
-image_write(my_svg, paste(eoh, ".svg"))
+# Copilot is not helping much here.
 
 
 ```
-
 
 # Making Causal Mediation Analysis
 ```{r, warning=FALSE,message=FALSE,fig.align="left"}
@@ -3565,10 +3397,10 @@ hoi_sick=cmt[[1]];hoi_healthy=cmt[[2]]
 
 # So the differences between contaminants (in the sick vs. healthy 'mediation') are:
 table(hoi_sick[,1])[rev(order(table(hoi_sick[,1])))];table(hoi_healthy[,1])[rev(order(table(hoi_healthy[,1])))]
-# Differences Between Steroids
-table(hoi_sick[,2])[rev(order(table(hoi_sick[,2])))];table(hoi_healthy[,2])[rev(order(table(hoi_healthy[,2])))]
-# Differences Between BAs/Lipids
-table(hoi_sick[,3])[rev(order(table(hoi_sick[,3])))];table(hoi_healthy[,3])[rev(order(table(hoi_healthy[,3])))]
+# Differences Between Steroids...
+# table(hoi_sick[,2])[rev(order(table(hoi_sick[,2])))];table(hoi_healthy[,2])[rev(order(table(hoi_healthy[,2])))]
+# Differences Between BAs/Lipids...
+# table(hoi_sick[,3])[rev(order(table(hoi_sick[,3])))];table(hoi_healthy[,3])[rev(order(table(hoi_healthy[,3])))]
 
 ```
 
