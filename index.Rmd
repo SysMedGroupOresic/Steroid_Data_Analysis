@@ -1183,212 +1183,56 @@ my_image <- image_read(eoh);my_svg <- image_convert(my_image, format="svg"); ima
 
 # Eli maksimilla vedetään... eli pitäis olla ok, sillä skaalattu vastaa korrelaatiota tss. skaalaus vielä miehiin...
 the_funal=function(tv,Group,ok,fn,adj,sig.level,sick,sick_group,joo) { #  ok,aa,bb
-  tv=tv_covscl
-  if (Group=='male') {NAFLDo=tv[tv[,'Gender']==max(tv[,'Gender']),]} else if (Group=='female') 
-  {NAFLDo=tv[tv[,'Gender']==min(tv[,'Gender']),]} else if (Group=='All') {NAFLDo=tv}
-  SG0=NAFLDo[,c(2:dim(tv)[2])]
-  #https://stackoverflow.com/questions/10688137/how-to-fix-spaces-in-column-names-of-a-data-frame-remove-spaces-inject-dots
-  oknames=colnames(SG0)
-  SG0=data.frame(SG0)
-  colnames(SG0)
-  colnames(SG0[,8:27]) <- gsub("-", ".", colnames(SG0[,8:27]))
-  colnames(SG0[,8:27]) <- gsub("/", ".", colnames(SG0[,8:27]))
-  hesh=c()
+  tv <- tv_covscl
+  if (Group == 'male') {
+    NAFLDo <- tv[tv[, 'Gender'] == max(tv[, 'Gender']), ]
+  } else if (Group == 'female') {
+    NAFLDo <- tv[tv[, 'Gender'] == min(tv[, 'Gender']), ]
+  } else if (Group == 'All') {
+    NAFLDo <- tv
+  }
   
-  Treatment=colnames(tv_all)[52:58];
-  Mediator=colnames(tv_all)[9:28];
-  Outcome=colnames(tv_all)[c(29:51,59:71)];
+  SG0 <- NAFLDo[, c(2:dim(tv)[2])]
+  oknames <- colnames(SG0)
+  SG0 <- data.frame(SG0)
+  colnames(SG0[, 8:27]) <- gsub("-", ".", colnames(SG0[, 8:27]))
+  colnames(SG0[, 8:27]) <- gsub("/", ".", colnames(SG0[, 8:27]))
   
-  xnam <- colnames(SG0)[c(4:7)]
-  Treatment2=Treatment
-  y <- Treatment2 
-  hoesh=c()
+  hesh <- data.frame()
   
-  j=1;i=1;p.val=c()
-  for (i in 1:length(xnam)) {
-    for (j in 1:length(y)) {
-      if (Group!='All')  {fmla <- as.formula(paste(paste(c(y[j]," ~ "), collapse= ""), paste(c(xnam[i],'BMI','AGE'), collapse= "+")))} else if (Group=='All') 
-      {fmla <- as.formula(paste(paste(c(y[j]," ~ "), collapse= ""), paste(c(xnam[i],'BMI','AGE','Gender'), collapse= "+")))} #https://stats.stackexchange.com/questions/190763/how-to-decide-which-glm-family-to-use
-      poissone=lm( fmla, data=SG0) # anova(poissone);# poissone
-      p.val=c();p.val <- anova(poissone)$'Pr(>F)'[1]
-      ps=summary(poissone);
-      pss=ps[[4]] #https://gettinggeneticsdone.blogspot.com/2011/01/rstats-function-for-extracting-f-test-p.html
-      hoesh=c(y[j],xnam[i],Group,pss[2,1],pss[2,4],pss[2,2])
-
-      jeps=SG0# 
-      r=as.numeric(hoesh[4]) #This was previuosly 'hösh', but for some reason it started to not work. Suom. tää oli aikasemmin 'hösh', mutta sitten tuli ongelmia. Hi hii.
-      p=as.numeric(hoesh[5])
-      rsadj=as.numeric(hoesh[6])
-      colnames(jeps)=colnames(tv)[2:dim(tv)[2]]
-      Treatment=hoesh[2]
-      Mediator=hoesh[1]
-      rm(hoesh)
-     
-      hesh=rbind(hesh,c(y[j],xnam[i],Group,r,pss[2,4],rsadj))
-    }}
+  Treatment <- colnames(tv_all)[52:58]
+  Mediator <- colnames(tv_all)[9:28]
+  Outcome <- colnames(tv_all)[c(29:51, 59:71)]
+  Treatment2 <- Treatment  # Define Treatment2
   
-
-  j=1;i=1; rm(xnam,y)
-  xnam <- colnames(SG0)[c(2)]
-  y <- Treatment2#colnames(SG0)[c(70:76)]
-  for (i in 1:length(xnam)) {
-    for (j in 1:length(y)) {
-      if (Group!='All')  {fmla <- as.formula(paste(paste(c(y[j]," ~ "), collapse= ""), paste(c(xnam[i],'BMI','AGE'), collapse= "+")))} else if (Group=='All') 
-      {fmla <- as.formula(paste(paste(c(y[j]," ~ "), collapse= ""), paste(c(xnam[i],'BMI','AGE','Gender'), collapse= "+")))} #https://stats.stackexchange.com/questions/190763/how-to-decide-which-glm-family-to-use
-      poissone=lm( fmla, data=SG0) # anova(poissone);# poissone
-      p.val=c();p.val <- anova(poissone)$'Pr(>F)'[1]
-      ps=summary(poissone);
-      pss=ps[[4]] # Some pondering what to put as p values:
-      # uh=c();uh=summary(poissone)$fstatistic # https://gettinggeneticsdone.blogspot.com/2011/01/rstats-function-for-extracting-f-test-p.html
-      # p.val <- pf(uh[1], df1 = uh[2], df2 = uh[3],lower.tail=F)
-      hoesh=c(y[j],xnam[i],Group,pss[2,1],pss[2,4],pss[2,2])
-      
-      jeps=SG0# 
-      r=as.numeric(hoesh[4])
-      p=as.numeric(hoesh[5])
-      rsadj=as.numeric(hoesh[6])
-      colnames(jeps)=colnames(tv)[2:dim(tv)[2]]
-      Treatment=hoesh[2]
-      Mediator=hoesh[1]
-      rm(hoesh)
-      
-      hesh=rbind(hesh,c(y[j],xnam[i],Group,r,pss[2,4],rsadj))}}
+  xnam_list <- list(colnames(SG0)[c(4:7)], colnames(SG0)[c(2)], colnames(SG0)[c(3)], Treatment2, c(x3, x6), c('AGE', 'BMI', colnames(SG0)[c(4:7)]), c(x3, x6))
+  y_list <- list(Treatment2, Treatment2, Treatment2, colnames(SG0[, 8:27]), colnames(SG0[, 8:27]), colnames(SG0[, 8:27]), colnames(tv_all)[52:58])
   
-  j=1;i=1; rm(xnam,y)
-  xnam <- colnames(SG0)[c(3)];y <- Treatment2#colnames(SG0)[c(70:76)]
-  for (i in 1:length(xnam)) {
-    for (j in 1:length(y)) {
-      if (Group!='All')  {fmla <- as.formula(paste(paste(c(y[j]," ~ "), collapse= ""), paste(c(xnam[i],'BMI','AGE'), collapse= "+")))} else if (Group=='All') 
-      {fmla <- as.formula(paste(paste(c(y[j]," ~ "), collapse= ""), paste(c(xnam[i],'BMI','AGE','Gender'), collapse= "+")))} 
-      #https://stats.stackexchange.com/questions/190763/how-to-decide-which-glm-family-to-use
-      poissone=lm( fmla, data=SG0) # anova(poissone);# poissone
-      p.val=c();p.val <- anova(poissone)$'Pr(>F)'[1]
-      ps=summary(poissone);
-      pss=ps[[4]] # fmla <- as.formula(paste(paste(c(colnames(SG0[,8:27])[j]," ~ "), collapse= ""), paste(c(xnam[i],'BMI','AGE','Gender'), collapse= "+")))
-      uh=c();uh=summary(poissone)$fstatistic # https://gettinggeneticsdone.blogspot.com/2011/01/rstats-function-for-extracting-f-test-p.html
-      hoesh=c(y[j],xnam[i],Group,pss[2,1],pss[2,4],pss[2,2])
-      jeps=SG0# 
-      r=as.numeric(hoesh[4])
-      p=as.numeric(hoesh[5])
-      rsadj=as.numeric(hoesh[6])
-      colnames(jeps)=colnames(tv)[2:dim(tv)[2]]
-      Treatment=hoesh[2]
-      Mediator=hoesh[1]
-      rm(hoesh)
-      
-      hesh=rbind(hesh,c(y[j],xnam[i],Group,r,pss[2,4],rsadj))}}
+  for (k in 1:length(xnam_list)) {
+    xnam <- xnam_list[[k]]
+    y <- y_list[[k]]
+    for (i in 1:length(xnam)) {
+      for (j in 1:length(y)) {
+        if (Group != 'All') {
+          fmla <- as.formula(paste(paste(c(y[j], " ~ "), collapse = ""), paste(c(xnam[i], 'BMI', 'AGE'), collapse = "+")))
+        } else if (Group == 'All') {
+          fmla <- as.formula(paste(paste(c(y[j], " ~ "), collapse = ""), paste(c(xnam[i], 'BMI', 'AGE', 'Gender'), collapse = "+")))
+        }
+        poissone <- lm(fmla, data = SG0)
+        pss <- summary(poissone)[[4]]
+        hoesh <- c(y[j], xnam[i], Group, pss[2, 1], pss[2, 4], pss[2, 2])
+        hesh <- rbind(hesh, hoesh)
+      }
+    }
+  }
   
-
-  j=1;i=1; rm(xnam,y)
-  xnam <- Treatment2
-  y = colnames(SG0[,8:27])
-  for (i in 1:length(xnam)) {
-    for (j in 1:length(y)) {
-      if (Group!='All')  {fmla <- as.formula(paste(paste(c(y[j]," ~ "), collapse= ""), paste(c(xnam[i],'BMI','AGE'), collapse= "+")))} else if (Group=='All') 
-      {fmla <- as.formula(paste(paste(c(y[j]," ~ "), collapse= ""), paste(c(xnam[i],'BMI','AGE','Gender'), collapse= "+")))} #https://stats.stackexchange.com/questions/190763/how-to-decide-which-glm-family-to-use
-      poissone=lm( fmla, data=SG0) 
-      p.val=c();p.val <- anova(poissone)$'Pr(>F)'[1]
-      ps=summary(poissone);
-      pss=ps[[4]] # 
-      uh=c();uh=summary(poissone)$fstatistic # https://gettinggeneticsdone.blogspot.com/2011/01/rstats-function-for-extracting-f-test-p.html
-      hoesh=c(y[j],xnam[i],Group,pss[2,1],pss[2,4],pss[2,2])
-      jeps=SG0# 
-      r=as.numeric(hoesh[4])
-      p=as.numeric(hoesh[5])
-      rsadj=as.numeric(hoesh[6])
-      colnames(jeps)=colnames(tv)[2:dim(tv)[2]]
-      Treatment=hoesh[2]
-      Mediator=hoesh[1]
-      hesh=rbind(hesh,c(y[j],xnam[i],Group,r,pss[2,4],rsadj))}}
-
-  # # 1)  steroids=BA/lipid
+  hesh <- as.data.frame(hesh)
+  colnames(hesh) <- c('y', 'x', 'Gender', 'r', 'p', 'var_x')
   
-  # if (Group!='All') {
-  j=1;i=1; rm(xnam,y)
-  xnam <- c(x3,x6) # Group='All'Treatment2
-  y <- c(colnames(SG0[,8:27])); #colnames(SG0)[c(4:7)]
-  
-  for (i in 1:length(xnam)) {
-    for (j in 1:length(y)) {
-      # j=10
-      if (Group!='All')  {fmla <- as.formula(paste(paste(c(y[j]," ~ "), collapse= ""), paste(c(xnam[i],'BMI','AGE'), collapse= "+")))} else if (Group=='All')
-      {fmla <- as.formula(paste(paste(c(y[j]," ~ "), collapse= ""), paste(c(xnam[i],'BMI','AGE','Gender'), collapse= "+")))} #https://stats.stackexchange.com/questions/190763/how-to-decide-which-glm-family-to-use
-      poissone=lm( fmla, data=SG0) # anova(poissone);# poissone
-      p.val=c();
-      p.val <- anova(poissone)$'Pr(>F)'[1]
-      ps=summary(poissone);
-      pss=ps[[4]] # fmla <- as.formula(paste(paste(c(colnames(SG0[,8:27])[j]," ~ "), collapse= ""), paste(c(xnam[i],'BMI','AGE','Gender'), collapse= "+")))
-      uh=summary(poissone)$fstatistic # https://gettinggeneticsdone.blogspot.com/2011/01/rstats-function-for-extracting-f-test-p.html
-      p.vala <- pf(uh[1], df1 = uh[2], df2 = uh[3],lower.tail=F)
-      hoesh=c(y[j],xnam[i],Group,pss[2,1],pss[2,4],pss[2,2])
-
-      jeps=SG0# 
-      r=as.numeric(hoesh[4])
-      p=as.numeric(hoesh[5])
-      rsadj=as.numeric(hoesh[6])
-      colnames(jeps)=colnames(tv)[2:dim(tv)[2]]
-      Treatment=hoesh[2]
-      Mediator=hoesh[1]
-      rm(hoesh)
-
-      hesh=rbind(hesh,c(y[j],xnam[i],Group,r,pss[2,4],rsadj))}}
-
-  # ja 2) steroid = covar
-  j=1;i=1; rm(xnam,y)
-  xnam <- c('AGE','BMI',colnames(SG0)[c(4:7)]); 
-  y <- c(colnames(SG0[,8:27])) # Group='All'
-  
-  for (i in 1:length(xnam)) {
-    for (j in 1:length(y)) {
-      if (Group!='All')  {fmla <- as.formula(paste(paste(c(y[j]," ~ "), collapse= ""), paste(c(xnam[i],'BMI','AGE'), collapse= "+")))} else if (Group=='All') 
-      {fmla <- as.formula(paste(paste(c(y[j]," ~ "), collapse= ""), paste(c(xnam[i],'BMI','AGE','Gender'), collapse= "+")))} #https://stats.stackexchange.com/questions/190763/how-to-decide-which-glm-family-to-use
-      poissone=lm( fmla, data=SG0) # anova(poissone);# poissone
-      p.val=c();p.val <- anova(poissone)$'Pr(>F)'[1]
-      ps=summary(poissone);
-      pss=ps[[4]] # fmla <- as.formula(paste(paste(c(colnames(SG0[,8:27])[j]," ~ "), collapse= ""), paste(c(xnam[i],'BMI','AGE','Gender'), collapse= "+")))
-      hoesh=c(y[j],xnam[i],Group,pss[2,1],pss[2,4],pss[2,2])
-
-      jeps=SG0# 
-      r=as.numeric(hoesh[4])
-      p=as.numeric(hoesh[5])
-      rsadj=as.numeric(hoesh[6])
-      colnames(jeps)=colnames(tv)[2:dim(tv)[2]]
-      Treatment=hoesh[2]
-      Mediator=hoesh[1]
-      rm(hoesh)
-      
-      hesh=rbind(hesh,c(y[j],xnam[i],Group,r,pss[2,4],rsadj))}}
-
-  # ja 2) steroid = covar
-  j=1;i=1; rm(xnam,y)
-  xnam <- c(x3,x6) # Group='All'Treatment2
-  y <- colnames(tv_all)[52:58];
-
-  for (i in 1:length(xnam)) {
-    for (j in 1:length(y)) {
-      if (Group!='All')  {fmla <- as.formula(paste(paste(c(y[j]," ~ "), collapse= ""), paste(c(xnam[i],'BMI','AGE'), collapse= "+")))} else if (Group=='All')
-      {fmla <- as.formula(paste(paste(c(y[j]," ~ "), collapse= ""), paste(c(xnam[i],'BMI','AGE','Gender'), collapse= "+")))} #https://stats.stackexchange.com/questions/190763/how-to-decide-which-glm-family-to-use
-      poissone=lm( fmla, data=SG0) # anova(poissone);# poissone
-      p.val=c();p.val <- anova(poissone)$'Pr(>F)'[1]
-      ps=summary(poissone);
-      pss=ps[[4]] # fmla <- as.formula(paste(paste(c(colnames(SG0[,8:27])[j]," ~ "), collapse= ""), paste(c(xnam[i],'BMI','AGE','Gender'), collapse= "+")))
-      hoesh=c(y[j],xnam[i],Group,pss[2,1],pss[2,4],pss[2,2])
-
-      jeps=SG0#
-      r=as.numeric(hoesh[4])
-      p=as.numeric(hoesh[5])
-      rsadj=as.numeric(hoesh[6])
-      colnames(jeps)=colnames(tv)[2:dim(tv)[2]]
-      Treatment=hoesh[2]
-      Mediator=hoesh[1]
-      rm(hoesh)
-
-      hesh=rbind(hesh,c(y[j],xnam[i],Group,r,pss[2,4],rsadj))}}
-  
-  
-    
   hesa=hesh
   hoi=as.data.frame(hesh)
+  
+  
   hopiu=hoi
   colnames(hopiu)=c('y','x','Gender','r','p','var_x')
   colnames(hoi)=c('y','x','Gender','r','p','var_x')
