@@ -62,8 +62,212 @@ invisible(lapply(packages, library, character.only = TRUE))
 ```{r, warning=FALSE,message=FALSE}
 
 #First set your data folder:
-setwd("C:/Users/patati/Documents/GitHub/Steroid_Data_Analysis")# or:"C:/Users/patati/Desktop/Turku/R" #check the wd with: here::here() #or getwd()
-load("thereal.RData") #This is so to say real data, and it is not available here (at the site).
+# setwd("C:/Users/patati/Documents/GitHub/Steroid_Data_Analysis")# or:"C:/Users/patati/Desktop/Turku/R" #check the wd with: here::here() #or getwd()
+# load("thereal.RData") #This is so to say real data, and it is not available here (at the site).
+
+# It is easier to load the ready stiched data in one go with .RData file than one by one as below, but
+# for educational purposes I put some examples what may need to be done to get your data in ok form 
+# for later purposes
+setwd("C:/Users/patati/Desktop/Turku/R")
+NAFLD=read_excel("NAFLD_SteroidStudy.xlsx",sheet = "LFAT_steroidsDATA") # This is partly auxiliary
+oknames=colnames(NAFLD); NAFLD=data.frame(NAFLD)
+
+#The names of the steroid groups need to be imported early on:
+groups=read.csv("groups_17823.csv", header = TRUE, sep=";")
+groups=groups[,c('Group','Abbreviation')]
+groups=groups[groups[,'Abbreviation']!='F',]
+groups=groups[order(groups[,'Group']),]
+groups[,'Abbreviation'][groups[,'Abbreviation']=='17aOH-P4']='17a-OHP4'
+GVZ=groups
+
+ForSteroidNames=read_excel("NAFLD_SteroidStudy_for groups.xlsx",sheet = "Steroid name abbreviations") # This is partly auxiliary
+groups2=data.frame(ForSteroidNames)[,1:4]; g1=read.csv("groups_17823.csv", header = TRUE, sep=";")
+groups2=cbind(g1[,'Group'], groups2[,c('Abbreviation','Abbreviation_old','Name')])
+groups2=groups2[groups2[,'Abbreviation']!='FF',]; colnames(groups2)[1]="Group";
+groups2=groups2[order(groups2[,'Group']),]
+groups2[,'Abbreviation'][groups2[,'Abbreviation']=='17aOH-P4']='17a-OHP4'
+
+#P4 was found from elsewhere to have the following characteristics:
+NAFLD[,'P4'] = as.numeric(NAFLD[,'P4'])
+NAFLD[,'P4'][is.na(NAFLD[,'P4'])] = 22557.3330346846#median(NAFLD[,'P4'], na.rm=TRUE) 
+NAFLD[,5:7][NAFLD[,5:7]==0.01]=0; colnames(NAFLD)=oknames
+MASLD=read_excel("Combined.Matrix.For.Pauli.2023.10.17.Excel.Formatv2.xlsx") # This is the main file
+oknames=colnames(MASLD); MASLD=data.frame(MASLD); colnames(MASLD)=oknames   # All kinds of tricks are needed for getting the right data format
+rownames(MASLD)=MASLD[,1]
+MASLD[,'P4'] = as.numeric(MASLD[,'P4']) #The same comment as above
+MASLD[,'P4'][is.na(MASLD[,'P4'])] = 22557.3330346846 
+eva=c('Grade(0-3)', 'Stage(0-4)','Necroinflammation')
+MASLD[,eva][MASLD[,eva]==0.01]=0; 
+td=c('11-KDHT','AN','DHT','17a-OHP5','E2','P5','DOC')
+val=c(103,252,51,200,26.5,253,10); vale=c(100,250,50,200,25,250,10)
+for (i in 1:7) {MASLD[,td][i][MASLD[,td][i]==val[i]]=vale[i]} 
+
+# These (E) are ok as per lab:
+ME=read.csv('E_tikka231023.csv',header=TRUE, sep=";")
+ME2=rownames(MASLD[MASLD[,'E']==106000,]) 
+to=ME[which(ME[,1] %in% ME2),'patient.number']
+te=ME[which(ME[,1] %in% ME2),'E']
+MASLD[as.character(to),'E']=te
+# These (11-KA4) will perhaps change in the lab (sometime after 24.10.23):
+M11=read.csv('11KA4_tikka231023.csv',header=TRUE, sep=";")
+# M11[,1][c(1:5,9)];MASLD[as.character(M11[,1][c(1:5,9)]),'11-KA4'] #These were denoted with 'big interference'
+MASLD[as.character(M11[,1][c(1:5,9)]),'11-KA4'] = NA #Alternatively: median(MASLD[!rownames(MASLD) %in% as.character(M11[,1][c(1:5,9)]),'11-KA4'])
+a=MASLD[order(MASLD[,'BMI']),'BMI']
+b=NAFLD[order(NAFLD[,'BMI']),'BMI']
+them=unique(b[! b %in% a])
+NAFLD=NAFLD[order(NAFLD[,'BMI']),] 
+NAFLD=NAFLD[NAFLD[,'BMI']!=them,]
+MASLD=MASLD[order(MASLD[,'BMI']),]
+#https://appsilon.com/imputation-in-r/ #https://www.datasciencemadesimple.com/get-minimum-value-of-a-column-in-r-2/?expand_article=1
+# New data import withouth changing the conames: https://readxl.tidyverse.org/articles/column-names.html
+Bali=data.frame(read_excel("Liver_bile_acids_PFAS.xlsx",sheet = "Liver_BA",.name_repair = "minimal")); row.names(Bali)=Bali[,1]
+Pfase=data.frame(read_excel("Liver_bile_acids_PFAS.xlsx",sheet = "PFAS_serum",.name_repair = "minimal")); rownames(Pfase)=as.vector(unlist(Pfase[,1]))
+Base=data.frame(read_excel("Liver_bile_acids_PFAS.xlsx",sheet = "Serum_BA",.name_repair = "minimal"));rownames(Base)=as.vector(unlist(Base[,1]))
+C4=data.frame(read_excel("Liver_bile_acids_PFAS.xlsx",sheet = "C4",.name_repair = "minimal")); rownames(C4)=as.vector(unlist(C4[,1]))
+Clini=data.frame(read_excel("Matching clinical data_all.xlsx",sheet = "Sheet1",.name_repair = "minimal")); rownames(Clini)=as.vector(unlist(Clini[,1]));
+#https://www.analyticsvidhya.com/blog/2021/06/hypothesis-testing-parametric-and-non-parametric-tests-in-statistics/
+MASLD[1:2,2:27] #or head(MASLD);
+
+# The below ordering needs to be changed...
+Bali=Bali[as.character(MASLD$PatientNumber),];Bali[1:3,2:10] #https://stackoverflow.com/questions/54264980/r-how-to-set-row-names-attribute-as-numeric-from-character I did otherway around
+Base=Base[as.character(MASLD$PatientNumber),];#Base[1:3,2:10]
+Clini=Clini[as.character(MASLD$PatientNumber),];#Clini[1:3,2:10] # Many of these are irrelevant here... so not opening them, they would exhaust this file
+C4=C4[as.character(MASLD$PatientNumber),];#C4[1:3,]
+Pfase=Pfase[as.character(MASLD$PatientNumber),];Pfase[1:3,2:10]
+
+# Menopause markers:
+menopause=read_excel("Putative_metabolic_markers_menopause.xlsx",sheet='menopause markers',.name_repair = "minimal"); #rownames(Clini)=as.vector(unlist(Clini[,1]));
+menopause=menopause[8:dim(menopause)[1],]; menopause=menopause[,-15]; menopause[2,2:14]=menopause[1,2:14]; menopause=data.frame(menopause); menopause[2,13:14]=c('v1','v2'); #dim(menopause)
+colnames(menopause)=c('row_names',menopause[2,2:dim(menopause)[2]]); menopause=menopause[3:dim(menopause)[1],];rownames(menopause)=as.vector(unlist(menopause[,1]));
+menopause=menopause[as.character(MASLD$PatientNumber),]
+colnames(Pfase)[colnames(Pfase)=='PFHxA.1']='PFHxA_Branched'
+Pfase=Pfase[,colnames(Pfase)!='Benzylparaben.1']
+Pfase[Pfase[,'Benzylparaben']>10,'Benzylparaben']=NA 
+
+Jeihou=data.frame(read_excel("Copy of BA_liverfat_RawData.xls",.name_repair = "minimal")); row.names(Jeihou)=Jeihou[,1];Jeihou=Jeihou[as.character(MASLD$PatientNumber),]
+u=Jeihou[Jeihou[,'GHDGA']=='<LLOQ',1]; a=u[!is.na(u)]; b=rownames(Bali[Bali[,'GHDGA']==1,]);
+uu=Jeihou[Jeihou[,'GHDGA']=='No Result',1]; aa=uu[!is.na(uu)]; 
+Bali[as.character(a),'GHDGA']=min(Bali[,'GHDGA'],na.rm=TRUE)/2
+heps=Bali[Bali[,'GHDGA']==1,1] 
+Bali[as.character(heps),'GHDGA']=NA
+#https://www.datasciencemadesimple.com/get-minimum-value-of-a-column-in-r-2/?expand_article=1
+mat=Bali[,c('TbMCA','ToMCA','TDCA','TDHCA','TLCA')]
+mat[!mat>1]=10000
+mat[mat==2]=10000 #Colmins did not work so I used (i.e. colmins ei toiminut ja käytin):
+hip=do.call(pmin, lapply(1:nrow(mat), function(i)mat[i,])) #https://stackoverflow.com/questions/13676878/fastest-way-to-get-min-from-every-column-in-a-matrix
+hou=c('TbMCA','ToMCA','TDCA','TDHCA','TLCA')
+for (i in 1:5) {Bali[Bali[,hou[i]]==1,hou[i]]=hip[i]}
+for (i in 1:5) {Bali[Bali[,hou[i]]==2,hou[i]]=hip[i]}
+
+# An imputation for the missing values:
+C4[is.na(C4[,2]),2]=median(C4[!is.na(C4[,2]),2]) #assuming that these were not below quantitation and replacing with median
+#https://www.geeksforgeeks.org/performing-logarithmic-computations-in-r-programming-log-log10-log1p-and-log2-functions/
+#https://stackoverflow.com/questions/50476717/i-want-to-align-match-two-unequal-columns
+
+#Matching two unequal columns.. match the names of one original column (dat2) to ones that are missing (dat1 with to other) #Not sure if this should be this difficult...
+tv=cbind(MASLD[,1],NAFLD[,2:7],Clini[,'HOMA.IR'],MASLD[,colnames(NAFLD[,8:27])],Bali[,2:dim(Bali)[2]], C4[,2:dim(C4)[2]],Base[,2:dim(Base)[2]],Pfase[,(2:(dim(Pfase)[2]))], MASLD[,'PFAS']);
+colnames(tv)[colnames(tv)=='C4[, 2:dim(C4)[2]]']='C4';colnames(tv)[colnames(tv)=='Clini[, \"HOMA.IR\"]']='HOMA-IR'
+colnames(tv)[colnames(tv)=='MASLD[, \"PFAS\"]']='PFAS';
+colnames(tv)[colnames(tv)=="MASLD[, 1]" ]='PatientNumber';#colnames(tv)#
+rownames(tv)=unlist(Bali[,1]); 
+hep=colnames(tv)[!colnames(tv) %in% c( "Benzylparaben" ,"Methylparaben")] 
+
+# Not sure when it is the best time to take not needed variables away, perhaps at the very end?
+tv=tv[,hep]
+# Here I add the lipids. In the future, I need to divide all the groups in their own components e.g. dataframe called 'lipids' so that adding them will be more straightforward:
+tv=cbind(tv,MASLD[,(dim(MASLD)[2]-13):dim(MASLD)[2]]) 
+# hupo=match(   colnames(tv)[colnames(tv) %in% groups2[,3]], groups2[,3] ) # do ni; https://www.geeksforgeeks.org/how-to-find-index-of-element-in-vector-in-r/
+# tvauxe=tv
+# colnames(tv)[colnames(tv) %in% groups2[,3]]=groups2[hupo,2]
+
+
+# The basic preprocessing is just the below lines:
+tve=tv[,2:dim(tv)[2]]; tve[tve == 0] <- NA; #Almost all variables are here
+tv_half <- tve %>% mutate(replace(., is.na(.), min(., na.rm = T)/2)) #https://mdatools.com/docs/preprocessing--autoscaling.html
+tv_half_log2 <- log2(tv_half);
+tv_auto <- prep.autoscale(as.matrix(tv_half_log2), center = TRUE, scale = TRUE);  #https://svkucheryavski.gitbooks.io/mdatools/content/preprocessing/text.html
+tv_all=cbind(tv[,1],tv_auto); 
+
+# Changing the column names needs to have separate variables for each type of variable (contaminant, steroid, etc.)
+x1=colnames(tv_all[,c(1:8)]); v2=dim(NAFLD)[2]+1
+x2=colnames(tv_all[,9:v2]);v3=(dim(Bali)[2]+v2);x3=colnames(tv_all[,(v2+1):(v3)]);v4=(dim(Base)[2])+v3
+x4=colnames(tv_all[,(v3+1):(v4-1)]);x5=colnames(tv_all[,(v4):(dim(tv_all)[2])]); 
+x3 <- paste(x3, "_L", sep="") #https://stackoverflow.com/questions/6984796/how-to-paste-a-string-on-each-element-of-a-vector-of-strings-using-apply-in-r
+x4=gsub("(-[0-9]*)*.1", "", x4) #https://stackoverflow.com/questions/18997297/remove-ending-of-string-with-gsub
+x4 <- paste(x4, "_S", sep="")# https://rdrr.io/bioc/qpgraph/man/qpNrr.html
+x5a=x5[1:9]
+x6=x5[10:length(x5)] #Dividing to lipids
+x5=x5a  #Making sure that PFAS are separate
+nm = c(x1,x2,x3,x4,x5,x6); nm=c('PatientNumber','Gender','AGE','BMI','Steatosis Grade','Fibrosis Stage','Necroinflammation','HOMA-IR',nm[9:length(nm)])
+colnames(tv_all)=nm; #tv_all[1:5,1:30]; #NAFLD[1:2,1:28];
+colnames(tv_all)[colnames(tv_all)=='MASLD[, \"PFAS\"]']='PFAS';
+# This (deletion) is good to do after all the previous:
+x5=x5[x5!='PFAS'];x5=x5[x5!='Perfluorodecyl.ethanoic.acid']; x6=x6[x6!='Total_TG'] # x1;x2;x3;x4;x5;
+tv_all=tv_all[,!colnames(tv_all) %in% c('Total_TG','PFAS',"Perfluorodecyl.ethanoic.acid")]
+
+# In case you would need just the logged values:
+tv_half_log22=cbind(tv[,1],tv_half_log2);
+x1=colnames(tv_half_log22[,c(1:8)]); v2=dim(NAFLD)[2]+1
+x2=colnames(tv_half_log22[,9:v2]);v3=(dim(Bali)[2]+v2);
+x3=colnames(tv_half_log22[,(v2+1):(v3)]);v4=(dim(Base)[2])+v3
+x3=x3[c(length(x3),1:(length(x3)-1))]
+x4=colnames(tv_half_log22[,(v3+1):(v4-1)]);
+x5=colnames(tv_half_log22[,(v4):(dim(tv_half_log22)[2])]);
+x3 <- paste(x3, "_L", sep="") 
+#https://stackoverflow.com/questions/6984796/how-to-paste-a-string-on-each-element-of-a-vector-of-strings-using-apply-in-r
+x4=gsub("(-[0-9]*)*.1", "", x4) #https://stackoverflow.com/questions/18997297/remove-ending-of-string-with-gsub
+x4 <- paste(x4, "_S", sep="")# https://rdrr.io/bioc/qpgraph/man/qpNrr.html
+x5a=x5[1:9]
+x6=x5[10:length(x5)] #dividing to lipids
+x5=x5a  #making sure that PFAS are separate
+nm = c(x1,x2,x3,x4,x5,x6); nm=c('PatientNumber','Gender','AGE','BMI','Steatosis Grade','Fibrosis Stage','Necroinflammation','HOMA-IR',nm[9:length(nm)])
+colnames(tv_half_log22)=nm; #tv_half_log22[1:5,1:30]; #NAFLD[1:2,1:28];
+colnames(tv_half_log22)[colnames(tv_half_log22)=='MASLD[, \"PFAS\"]']='PFAS';
+# This (deletion) is good to do after all the previous:
+x5=x5[x5!='PFAS'];x5=x5[x5!='Perfluorodecyl.ethanoic.acid']; x6=x6[x6!='Total_TG'] # x1;x2;x3;x4;x5;
+tv_half_log22=tv_half_log22[,!colnames(tv_half_log22) %in% c('Total_TG','PFAS',"Perfluorodecyl.ethanoic.acid")]
+
+# This needs to be done early on:
+colnames(tv)[colnames(tv)=='17aOH-P4']='17a-OHP4'
+colnames(tv_half_log22)[colnames(tv_half_log22)=='17aOH-P4']='17a-OHP4'
+colnames(tv_all)[colnames(tv_all)=='17aOH-P4']='17a-OHP4'
+
+tv_all=tv_all[,!colnames(tv_all) %in% c('Total_TG','PFAS','Perfluorodecyl.ethanoic.acid')]
+tv_all=tv_all[,!colnames(tv_all) %in% x4]
+
+# In case you would need nonscaled covariates and scaled/logged all other variables:
+tv_covscl=tv_all
+tv_covNS=cbind(tv[,1:8],tv_all[,9:dim(tv_all)[2]])
+tv_LOG_covscl=tv_half_log22
+tv_LOG_covNS=cbind(tv[,1:8],tv_half_log22[,9:dim(tv_half_log22)[2]])
+colnames(tv_covNS)[1:8]=colnames(tv_all)[1:8]
+colnames(tv_LOG_covNS)[1:8]=colnames(tv_all)[1:8]
+# This is needed occasionally:
+tv_c=tv_covscl 
+# https://stackoverflow.com/questions/6984796/how-to-paste-a-string-on-each-element-of-a-vector-of-strings-using-apply-in-r
+# https://stackoverflow.com/questions/18997297/remove-ending-of-string-with-gsub # https://rdrr.io/bioc/qpgraph/man/qpNrr.html
+
+hupo=match(   colnames(tv_c)[colnames(tv_c) %in% groups2[,3]], groups2[,3] ) 
+# do ni; https://www.geeksforgeeks.org/how-to-find-index-of-element-in-vector-in-r/
+tvauxe=tv_c
+colnames(tv_c)[colnames(tv_c) %in% groups2[,3]]=groups2[hupo,2]
+
+# This needs to be done also soon, to gather all the treatment etc. variable names separately...: 
+Treatment=colnames(tv_all)[52:58];
+Mediator=colnames(tv_all)[9:28];
+Outcome=colnames(tv_all)[c(29:51,59:71)]; ##https://sparkbyexamples.com/r-programming/r-remove-from-vector-with-examples/
+
+Outcome=Outcome[!Outcome %in% c('Total_TG','PFAS','Perfluorodecyl.ethanoic.acid')]
+Outcome=Outcome[! Outcome %in% x4] #https://sparkbyexamples.com/r-programming/r-remove-from-vector-with-examples/
+Mediator[Mediator=="17aOH-P4"]="17a-OHP4"
+Treatment=Treatment[!Treatment %in% c('Perfluorodecyl.ethanoic.acid')]
+
+# tvauxe2=tv_LOG_covscl
+# hupo=match(   colnames(tv_LOG_covscl)[colnames(tv_LOG_covscl) %in% groups2[,3]], groups2[,3] ) 
+# colnames(tv_LOG_covscl)[colnames(tv_LOG_covscl) %in% groups2[,3]]=groups2[hupo,2]
+
+# save.image('forACMES_thereal.RData')
+setwd("C:/Users/patati/Documents/GitHub/Steroid_Data_Analysis")
 
 ```
 
@@ -1501,325 +1705,349 @@ knitr::include_graphics("Linear Model Estimate Plot of_sa5 Steroids_y vs. PFAS_a
 ```{r, warning=FALSE,message=FALSE,fig.width=10.0,fig.align="left"}
 # This should be as good as it gets... eli  maksimilla vedetään... eli pitäis olla ok, sillä skaalattu vastaa korrelaatiota tss. skaalaus vielä miehiin...
 # This looks similar as the linear model code, but is not exactly so. With this you can draw a scatter plot for each individual combination of two variables within dataset
-the_fun_figs=function(tv_all,Group,hopiu,aa,bb,fn) { #  ok,aa,bb
-  if (Group=='male') {NAFLDo=tv_all[tv_all[,'Gender']==max(tv_all[,'Gender']),]} else if (Group=='female') 
-  {NAFLDo=tv_all[tv_all[,'Gender']==min(tv_all[,'Gender']),]} else if (Group=='All') {NAFLDo=tv_all}
-  SG0=NAFLDo[,c(2:dim(tv_all)[2])]
-  #https://stackoverflow.com/questions/10688137/how-to-fix-spaces-in-column-names-of-a-data-frame-remove-spaces-inject-dots
-  oknames=colnames(SG0)
-  SG0=data.frame(SG0)
-  colnames(SG0)
-  colnames(SG0[,8:27]) <- gsub("-", ".", colnames(SG0[,8:27]))
-  colnames(SG0[,8:27]) <- gsub("/", ".", colnames(SG0[,8:27]))
-  hesh=c()
-  xnam <- colnames(SG0)[c(4:7)]
-  Treatment=colnames(tv_all)[52:58];
-  y <- Treatment;#colnames(SG0)[c(70:76)]
-  TreatmentN=Treatment
+the_fun_figs=function(tv_all, Group, hopiu, aa, bb, fn) {
+  # Filter data based on the specified group
+  if (Group == 'male') {
+    NAFLDo = tv_all[tv_all[,'Gender'] == max(tv_all[,'Gender']),]
+  } else if (Group == 'female') {
+    NAFLDo = tv_all[tv_all[,'Gender'] == min(tv_all[,'Gender']),]
+  } else if (Group == 'All') {
+    NAFLDo = tv_all
+  }
   
-  # Group='All'
-  j=1;i=1;p.val=c()
+  # Select relevant columns from the filtered data
+  SG0 = NAFLDo[, c(2:dim(tv_all)[2])]
+  
+  # Fix column names by replacing spaces and special characters
+  oknames = colnames(SG0)
+  SG0 = data.frame(SG0)
+  colnames(SG0[, 8:27]) <- gsub("-", ".", colnames(SG0[, 8:27]))
+  colnames(SG0[, 8:27]) <- gsub("/", ".", colnames(SG0[, 8:27]))
+  
+  hesh = c()
+  xnam = colnames(SG0)[c(4:7)]
+  Treatment = colnames(tv_all)[52:58]
+  y = Treatment
+  TreatmentN = Treatment
+  
+  # Loop through each combination of xnam and y to calculate correlations
   for (i in 1:length(xnam)) {
     for (j in 1:length(y)) {
-      # https://gettinggeneticsdone.blogspot.com/2011/01/rstats-function-for-extracting-f-test-p.html
-
-      hösh=hopiu[hopiu[,1]==y[j] & hopiu[,2]==xnam[i] & hopiu[,3]==Group,]
-
-      # #printtaus tässä...
-      jeps=SG0#
-      r=as.numeric(hösh[4][1,])
-      p.val=as.numeric(hösh[5][1,])
-      rsadj=as.numeric(hösh[6][1,])
-      colnames(jeps)=colnames(tv_all)[2:dim(tv_all)[2]]
-      Treatment=as.character(hösh[2][1,])
-      Mediator=as.character(hösh[1][1,])
-
+      # Extract relevant rows from hopiu based on conditions
+      hösh = hopiu[hopiu[, 1] == y[j] & hopiu[, 2] == xnam[i] & hopiu[, 3] == Group,]
+      
+      # Prepare data for plotting
+      jeps = SG0
+      r = as.numeric(hösh[4][1,])
+      p.val = as.numeric(hösh[5][1,])
+      rsadj = as.numeric(hösh[6][1,])
+      colnames(jeps) = colnames(tv_all)[2:dim(tv_all)[2]]
+      Treatment = as.character(hösh[2][1,])
+      Mediator = as.character(hösh[1][1,])
+      
+      # Clean up Mediator names
       Mediator <- gsub("\\.", "-", Mediator)
       Mediator <- gsub("X", "", Mediator)
-      
-      if (Mediator=="T-Epi-T") {Mediator[Mediator=="T-Epi-T"]="T/Epi-T"}
-      Treatment2=Treatment
-      colnames(jeps)[colnames(jeps) == 'HOMA-IR']='HOMA.IR'
+      if (Mediator == "T-Epi-T") {
+        Mediator[Mediator == "T-Epi-T"] = "T/Epi-T"
+      }
+      Treatment2 = Treatment
+      colnames(jeps)[colnames(jeps) == 'HOMA-IR'] = 'HOMA.IR'
       colnames(jeps) <- gsub(" ", "\\.", colnames(jeps))
-      main_dir <- paste0(c("C://Users//patati//Desktop//Turku//R//",fn,Group,"/"),collapse="")# setting up the sub directory
-      sub_dir <-Treatment #paste0(c("\\",Treatment),collapse="")#Treatment2[i] # check if sub directory exists: #https://www.geeksforgeeks.org/r-check-if-a-directory-exists-and-create-if-it-does-not/
-      if (file.exists(file.path(main_dir, sub_dir))){setwd(file.path(main_dir, sub_dir))} else {dir.create(file.path(main_dir, sub_dir)); setwd(file.path(main_dir, sub_dir))}
-      if (Mediator!="T/Epi-T") {jpeg(paste("Correlations plotted",Group,Treatment2,Mediator,".jpg"), width = 1000, height = 1000, quality = 100,pointsize = 20, res=300);} else {
-        jpeg(paste("Correlations plotted_alle",Treatment2,'T.Epi.T',".jpg"), width = 1000, height = 1000, quality = 100,pointsize = 20, res=300);}
       
-      # equation1=function(x){coef(poissone)[2]*x+coef(poissone)[1]+coef(poissone)[3]}
+      # Set up directory for saving plots
+      main_dir <- paste0(c("C://Users//patati//Desktop//Turku//R//", fn, Group, "/"), collapse = "")
+      sub_dir <- Treatment
+      if (file.exists(file.path(main_dir, sub_dir))) {
+        setwd(file.path(main_dir, sub_dir))
+      } else {
+        dir.create(file.path(main_dir, sub_dir))
+        setwd(file.path(main_dir, sub_dir))
+      }
       
-      xcx=jeps[,Treatment];
-      ycy=jeps[,Mediator];väh=round(sd(ycy)/2,2)
-      a=ggplot(jeps, aes(y=ycy, x=xcx)) +
+      # Save plots as JPEG files
+      if (Mediator != "T/Epi-T") {
+        jpeg(paste("Correlations plotted", Group, Treatment2, Mediator, ".jpg"), width = 1000, height = 1000, quality = 100, pointsize = 20, res = 300)
+      } else {
+        jpeg(paste("Correlations plotted_alle", Treatment2, 'T.Epi.T', ".jpg"), width = 1000, height = 1000, quality = 100, pointsize = 20, res = 300)
+      }
+      
+      # Plot correlations using ggplot2
+      xcx = jeps[, Treatment]
+      ycy = jeps[, Mediator]
+      väh = round(sd(ycy) / 2, 2)
+      a = ggplot(jeps, aes(y = ycy, x = xcx)) +
         geom_point() +
         xlab(Treatment) +
         ylab(Mediator) +
-        # stat_function(fun=equation1,geom="line",color='black')+
-        geom_smooth(method="lm",col="black") + #https://ggplot2.tidyverse.org/reference/geom_smooth.html
-        annotate("text", x=min(xcx),y=max(ycy),hjust=0,vjust=0, label=paste0("r = ", round(r,5))) +
-        annotate("text", x=min(xcx),y=max(ycy)-väh,hjust=0,vjust=0, label=paste0("p = ", round(p.val, 5))) +
+        geom_smooth(method = "lm", col = "black") +
+        annotate("text", x = min(xcx), y = max(ycy), hjust = 0, vjust = 0, label = paste0("r = ", round(r, 5))) +
+        annotate("text", x = min(xcx), y = max(ycy) - väh, hjust = 0, vjust = 0, label = paste0("p = ", round(p.val, 5))) +
         theme_classic()
-
+      
       print(a)
       dev.off()
-    }}
+    }
+  }
   
-  # getwd()
-  
-  j=1;i=1; rm(xnam,y)
+  # Repeat the process for different combinations of xnam and y
   xnam <- colnames(SG0)[c(2)]
-  y <- TreatmentN#colnames(SG0)[c(70:76)]
+  y <- TreatmentN
   for (i in 1:length(xnam)) {
     for (j in 1:length(y)) {
-    # https://gettinggeneticsdone.blogspot.com/2011/01/rstats-function-for-extracting-f-test-p.html
-      hösh=hopiu[hopiu[,1]==y[j] & hopiu[,2]==xnam[i] & hopiu[,3]==Group,]
-
-      # #printtaus tässä...
-      jeps=SG0#
-      r=as.numeric(hösh[4][1,])
-      p.val=as.numeric(hösh[5][1,])
-      rsadj=as.numeric(hösh[6][1,])
-      colnames(jeps)=colnames(tv_all)[2:dim(tv_all)[2]]
-      Treatment=as.character(hösh[2][1,])
-      Mediator=as.character(hösh[1][1,])
-      rm(hösh)
-      
+      hösh = hopiu[hopiu[, 1] == y[j] & hopiu[, 2] == xnam[i] & hopiu[, 3] == Group,]
+      jeps = SG0
+      r = as.numeric(hösh[4][1,])
+      p.val = as.numeric(hösh[5][1,])
+      rsadj = as.numeric(hösh[6][1,])
+      colnames(jeps) = colnames(tv_all)[2:dim(tv_all)[2]]
+      Treatment = as.character(hösh[2][1,])
+      Mediator = as.character(hösh[1][1,])
       Mediator <- gsub("\\.", "-", Mediator)
       Mediator <- gsub("X", "", Mediator)
-      
-      if (Mediator=="T-Epi-T") {Mediator[Mediator=="T-Epi-T"]="T/Epi-T"}
-      colnames(jeps)[colnames(jeps) == 'HOMA-IR']='HOMA.IR'
+      if (Mediator == "T-Epi-T") {
+        Mediator[Mediator == "T-Epi-T"] = "T/Epi-T"
+      }
+      colnames(jeps)[colnames(jeps) == 'HOMA-IR'] = 'HOMA.IR'
       colnames(jeps) <- gsub(" ", "\\.", colnames(jeps))
-      main_dir <- paste0(c("C://Users//patati//Desktop//Turku//R//",fn,Group,"/"),collapse="")
-      # main_dir <- "C://Users//patati//Desktop//Turku//R//males2/"# setting up the sub directory
-      sub_dir <-Treatment#paste0(c("\\",Treatment),collapse="")#Treatment2[i] # check if sub directory exists: #https://www.geeksforgeeks.org/r-check-if-a-directory-exists-and-create-if-it-does-not/
-      if (file.exists(file.path(main_dir, sub_dir))){setwd(file.path(main_dir, sub_dir))} else {dir.create(file.path(main_dir, sub_dir)); setwd(file.path(main_dir, sub_dir))}
-      if (Mediator!="T/Epi-T") {jpeg(paste("Correlations plotted",Group,Treatment2,Mediator,".jpg"), width = 1000, height = 1000, quality = 100,pointsize = 20, res=300);} else{
-        jpeg(paste("Correlations plotted",Treatment2,'T.Epi.T',".jpg"), width = 1000, height = 1000, quality = 100,pointsize = 20, res=300);}
-
-      xcx=jeps[,Treatment];
-      ycy=jeps[,Mediator];väh=round(sd(ycy)/2,2)
-      a=ggplot(jeps, aes(y=ycy, x=xcx)) +
+      main_dir <- paste0(c("C://Users//patati//Desktop//Turku//R//", fn, Group, "/"), collapse = "")
+      sub_dir <- Treatment
+      if (file.exists(file.path(main_dir, sub_dir))) {
+        setwd(file.path(main_dir, sub_dir))
+      } else {
+        dir.create(file.path(main_dir, sub_dir))
+        setwd(file.path(main_dir, sub_dir))
+      }
+      if (Mediator != "T/Epi-T") {
+        jpeg(paste("Correlations plotted", Group, Treatment2, Mediator, ".jpg"), width = 1000, height = 1000, quality = 100, pointsize = 20, res = 300)
+      } else {
+        jpeg(paste("Correlations plotted", Treatment2, 'T.Epi.T', ".jpg"), width = 1000, height = 1000, quality = 100, pointsize = 20, res = 300)
+      }
+      xcx = jeps[, Treatment]
+      ycy = jeps[, Mediator]
+      väh = round(sd(ycy) / 2, 2)
+      a = ggplot(jeps, aes(y = ycy, x = xcx)) +
         geom_point() +
         xlab(Treatment) +
         ylab(Mediator) +
-        geom_smooth(method="lm",col="black") + #https://ggplot2.tidyverse.org/reference/geom_smooth.html
-        annotate("text", x=min(xcx),y=max(ycy),hjust=0,vjust=0, label=paste0("r = ", round(r,4))) +
-        annotate("text", x=min(xcx),y=max(ycy)-väh,hjust=0,vjust=0, label=paste0("p = ", round(p.val, 5))) +
+        geom_smooth(method = "lm", col = "black") +
+        annotate("text", x = min(xcx), y = max(ycy), hjust = 0, vjust = 0, label = paste0("r = ", round(r, 4))) +
+        annotate("text", x = min(xcx), y = max(ycy) - väh, hjust = 0, vjust = 0, label = paste0("p = ", round(p.val, 5))) +
         theme_classic()
-      
       print(a)
       dev.off()
-      hesh=rbind(hesh,c(y[j],xnam[i],Group,r,p.val,rsadj))
-    }}
+      hesh = rbind(hesh, c(y[j], xnam[i], Group, r, p.val, rsadj))
+    }
+  }
   
-  j=1;i=1; #rm(xnam,y)
-  xnam <- colnames(SG0)[c(3)];y <- TreatmentN#colnames(SG0)[c(70:76)]
+  # Repeat the process for different combinations of xnam and y
+  xnam <- colnames(SG0)[c(3)]
+  y <- TreatmentN
   for (i in 1:length(xnam)) {
     for (j in 1:length(y)) {
-  
-      # #https://stats.stackexchange.com/questions/190763/how-to-decide-which-glm-family-to-use
-    
-      hösh=hopiu[hopiu[,1]==y[j] & hopiu[,2]==xnam[i] & hopiu[,3]==Group,]
-      
-      # #printtaus tässä...
-      jeps=SG0#
-      # rm(r,p.val,rsadj)
-      r=as.numeric(hösh[4][1,])
-      p.val=as.numeric(hösh[5][1,])
-      rsadj=as.numeric(hösh[6][1,])
-      colnames(jeps)=colnames(tv_all)[2:dim(tv_all)[2]]
-      Treatment=as.character(hösh[2][1,])
-      Mediator=as.character(hösh[1][1,])
-      rm(hösh)
-      
+      hösh = hopiu[hopiu[, 1] == y[j] & hopiu[, 2] == xnam[i] & hopiu[, 3] == Group,]
+      jeps = SG0
+      r = as.numeric(hösh[4][1,])
+      p.val = as.numeric(hösh[5][1,])
+      rsadj = as.numeric(hösh[6][1,])
+      colnames(jeps) = colnames(tv_all)[2:dim(tv_all)[2]]
+      Treatment = as.character(hösh[2][1,])
+      Mediator = as.character(hösh[1][1,])
       Mediator <- gsub("\\.", "-", Mediator)
       Mediator <- gsub("X", "", Mediator)
-      
-      if (Mediator=="T-Epi-T") {Mediator[Mediator=="T-Epi-T"]="T/Epi-T"}
-      Treatment2=Treatment
-      colnames(jeps)[colnames(jeps) == 'HOMA-IR']='HOMA.IR'
+      if (Mediator == "T-Epi-T") {
+        Mediator[Mediator == "T-Epi-T"] = "T/Epi-T"
+      }
+      Treatment2 = Treatment
+      colnames(jeps)[colnames(jeps) == 'HOMA-IR'] = 'HOMA.IR'
       colnames(jeps) <- gsub(" ", "\\.", colnames(jeps))
-      main_dir <- paste0(c("C://Users//patati//Desktop//Turku//R//",fn,Group,"/"),collapse="")
-      # main_dir <- "C://Users//patati//Desktop//Turku//R//males2/"# setting up the sub directory
-      sub_dir <-Treatment#paste0(c("\\",Treatment),collapse="")#Treatment2[i] # check if sub directory exists: #https://www.geeksforgeeks.org/r-check-if-a-directory-exists-and-create-if-it-does-not/
-      if (file.exists(file.path(main_dir, sub_dir))){setwd(file.path(main_dir, sub_dir))} else {dir.create(file.path(main_dir, sub_dir)); setwd(file.path(main_dir, sub_dir))}
-      if (Mediator!="T/Epi-T") {jpeg(paste("Correlations plotted_alle",Treatment2,Mediator,".jpg"), width = 1000, height = 1000, quality = 100,pointsize = 20, res=300);} else{
-        jpeg(paste("Correlations plotted",Treatment2,'T.Epi.T',".jpg"), width = 1000, height = 1000, quality = 100,pointsize = 20, res=300);}
-
-      xcx=jeps[,Treatment];
-      ycy=jeps[,Mediator];väh=round(sd(ycy)/2,2)
-      a=ggplot(jeps, aes(y=ycy, x=xcx)) +
+      main_dir <- paste0(c("C://Users//patati//Desktop//Turku//R//", fn, Group, "/"), collapse = "")
+      
+      sub_dir <- Treatment
+      if (file.exists(file.path(main_dir, sub_dir))) {
+        setwd(file.path(main_dir, sub_dir))
+      } else {
+        dir.create(file.path(main_dir, sub_dir))
+        setwd(file.path(main_dir, sub_dir))
+      }
+      if (Mediator != "T/Epi-T") {
+        jpeg(paste("Correlations plotted_alle", Treatment2, Mediator, ".jpg"), width = 1000, height = 1000, quality = 100, pointsize = 20, res = 300)
+      } else {
+        jpeg(paste("Correlations plotted", Treatment2, 'T.Epi.T', ".jpg"), width = 1000, height = 1000, quality = 100, pointsize = 20, res = 300)
+      }
+      
+      xcx = jeps[, Treatment]
+      ycy = jeps[, Mediator]
+      väh = round(sd(ycy) / 2, 2)
+      a = ggplot(jeps, aes(y = ycy, x = xcx)) +
         geom_point() +
         xlab(Treatment) +
         ylab(Mediator) +
-        # stat_function(fun=equation1,geom="line",color='black')+
-        geom_smooth(method="lm",col="black") + #https://ggplot2.tidyverse.org/reference/geom_smooth.html
-        annotate("text", x=min(xcx),y=max(ycy),hjust=0,vjust=0, label=paste0("r = ", round(r,5))) +
-        annotate("text", x=min(xcx),y=max(ycy)-väh,hjust=0,vjust=0, label=paste0("p = ", round(p.val, 5))) +
+        geom_smooth(method = "lm", col = "black") +
+        annotate("text", x = min(xcx), y = max(ycy), hjust = 0, vjust = 0, label = paste0("r = ", round(r, 5))) +
+        annotate("text", x = min(xcx), y = max(ycy) - väh, hjust = 0, vjust = 0, label = paste0("p = ", round(p.val, 5))) +
         theme_classic()
       print(a)
       dev.off()
-    }}
+    }
+  }
   
-
-  j=1;i=1; #rm(xnam,y)
-  xnam <- TreatmentN#colnames(SG0)[c(70:76)]#paste("x", 1:25, sep="") 28:length(colnames(SG0)
-  y = colnames(SG0[,8:27])
+  # Repeat the process for different combinations of xnam and y
+  xnam <- TreatmentN
+  y = colnames(SG0[, 8:27])
   for (i in 1:length(xnam)) {
     for (j in 1:length(y)) {
-    # https://gettinggeneticsdone.blogspot.com/2011/01/rstats-function-for-extracting-f-test-p.html
-      hösh=hopiu[hopiu[,1]==y[j] & hopiu[,2]==xnam[i] & hopiu[,3]==Group,]
-      
-      # #printtaus tässä...
-      jeps=SG0#
-      rm(r,p.val,rsadj)
-      r=as.numeric(hösh[4][1,])
-      p.val=as.numeric(hösh[5][1,])
-      rsadj=as.numeric(hösh[6][1,])
-      colnames(jeps)=colnames(tv_all)[2:dim(tv_all)[2]]
-      Treatment=as.character(hösh[2][1,])
-      Mediator=as.character(hösh[1][1,])
-      rm(hösh)
-      
+      hösh = hopiu[hopiu[, 1] == y[j] & hopiu[, 2] == xnam[i] & hopiu[, 3] == Group,]
+      jeps = SG0
+      r = as.numeric(hösh[4][1,])
+      p.val = as.numeric(hösh[5][1,])
+      rsadj = as.numeric(hösh[6][1,])
+      colnames(jeps) = colnames(tv_all)[2:dim(tv_all)[2]]
+      Treatment = as.character(hösh[2][1,])
+      Mediator = as.character(hösh[1][1,])
       Mediator <- gsub("\\.", "-", Mediator)
       Mediator <- gsub("X", "", Mediator)
-      
-      if (Mediator=="T-Epi-T") {Mediator[Mediator=="T-Epi-T"]="T/Epi-T"}
-      Treatment2=Treatment
-      colnames(jeps)[colnames(jeps) == 'HOMA-IR']='HOMA.IR'
+      if (Mediator == "T-Epi-T") {
+        Mediator[Mediator == "T-Epi-T"] = "T/Epi-T"
+      }
+      Treatment2 = Treatment
+      colnames(jeps)[colnames(jeps) == 'HOMA-IR'] = 'HOMA.IR'
       colnames(jeps) <- gsub(" ", "\\.", colnames(jeps))
-      main_dir <- paste0(c("C://Users//patati//Desktop//Turku//R//",fn,Group,"/"),collapse="")
-      sub_dir <-Treatment#paste0(c("\\",Treatment),collapse="")#Treatment2[i] # check if sub directory exists: #https://www.geeksforgeeks.org/r-check-if-a-directory-exists-and-create-if-it-does-not/
-      if (file.exists(file.path(main_dir, sub_dir))){setwd(file.path(main_dir, sub_dir))} else {dir.create(file.path(main_dir, sub_dir)); setwd(file.path(main_dir, sub_dir))}
-      if (Mediator!="T/Epi-T") {jpeg(paste("Correlations plotted",Group,Treatment2,Mediator,".jpg"), width = 1000, height = 1000, quality = 100,pointsize = 20, res=300);} else{
-        jpeg(paste("Correlations plotted",Treatment2,'T.Epi.T',".jpg"), width = 1000, height = 1000, quality = 100,pointsize = 20, res=300);}
-      
-      xcx=jeps[,Treatment];
-      ycy=jeps[,Mediator];väh=round(sd(ycy)/2,2)
-      a=ggplot(jeps, aes(y=ycy, x=xcx)) +
+      main_dir <- paste0(c("C://Users//patati//Desktop//Turku//R//", fn, Group, "/"), collapse = "")
+      sub_dir <- Treatment
+      if (file.exists(file.path(main_dir, sub_dir))) {
+        setwd(file.path(main_dir, sub_dir))
+      } else {
+        dir.create(file.path(main_dir, sub_dir))
+        setwd(file.path(main_dir, sub_dir))
+      }
+      if (Mediator != "T/Epi-T") {
+        jpeg(paste("Correlations plotted", Group, Treatment2, Mediator, ".jpg"), width = 1000, height = 1000, quality = 100, pointsize = 20, res = 300)
+      } else {
+        jpeg(paste("Correlations plotted", Treatment2, 'T.Epi.T', ".jpg"), width = 1000, height = 1000, quality = 100, pointsize = 20, res = 300)
+      }
+      xcx = jeps[, Treatment]
+      ycy = jeps[, Mediator]
+      väh = round(sd(ycy) / 2, 2)
+      a = ggplot(jeps, aes(y = ycy, x = xcx)) +
         geom_point() +
         xlab(Treatment) +
         ylab(Mediator) +
-        # stat_function(fun=equation1,geom="line",color='black')+
-        geom_smooth(method="lm",col="black") + #https://ggplot2.tidyverse.org/reference/geom_smooth.html
-        annotate("text", x=min(xcx),y=max(ycy),hjust=0,vjust=0, label=paste0("r = ", round(r,4))) +
-        annotate("text", x=min(xcx),y=max(ycy)-väh,hjust=0,vjust=0, label=paste0("p = ", round(p.val, 5))) +
+        geom_smooth(method = "lm", col = "black") +
+        annotate("text", x = min(xcx), y = max(ycy), hjust = 0, vjust = 0, label = paste0("r = ", round(r, 4))) +
+        annotate("text", x = min(xcx), y = max(ycy) - väh, hjust = 0, vjust = 0, label = paste0("p = ", round(p.val, 5))) +
         theme_classic()
       print(a)
       dev.off()
-      
-    }}
-
-  # Eli 'kaksi' vielä tarvitaan...
-  # 1) BA/lipid=covar ja steroidit, ja 2) steroid=covar
-  #tai oikeastaan ehkä... steroid=covar ja steroid = BA/lipid
+    }
+  }
   
-  # # 1) (BA/lipid=covar ja steroids)
-   #https://stats.stackexchange.com/questions/190763/how-to-decide-which-glm-family-to-use
-
-  # # 1)  steroids=BA/lipid
-  j=1;i=1; #rm(xnam,y)
-  xnam <- c(x3,x6) # Group='All'
-  y <- c(colnames(SG0[,8:27])); #colnames(SG0)[c(4:7)]
-  
+  # Additional analysis for specific combinations of xnam and y
+  xnam <- c(x3, x6)
+  y <- c(colnames(SG0[, 8:27]))
   for (i in 1:length(xnam)) {
     for (j in 1:length(y)) {
-  
-      hösh=hopiu[hopiu[,1]==y[j] & hopiu[,2]==xnam[i] & hopiu[,3]==Group,]
-
-      # #printtaus tässä...
-      jeps=SG0#
-      rm(r,p.val,rsadj)
-      r=as.numeric(hösh[4][1,])
-      p.val=as.numeric(hösh[5][1,])
-      rsadj=as.numeric(hösh[6][1,])
-      colnames(jeps)=colnames(tv_all)[2:dim(tv_all)[2]]
-      Treatment=as.character(hösh[2][1,])
-      Mediator=as.character(hösh[1][1,])
-      rm(hösh)
-      
+      hösh = hopiu[hopiu[, 1] == y[j] & hopiu[, 2] == xnam[i] & hopiu[, 3] == Group,]
+      jeps = SG0
+      r = as.numeric(hösh[4][1,])
+      p.val = as.numeric(hösh[5][1,])
+      rsadj = as.numeric(hösh[6][1,])
+      colnames(jeps) = colnames(tv_all)[2:dim(tv_all)[2]]
+      Treatment = as.character(hösh[2][1,])
+      Mediator = as.character(hösh[1][1,])
       Mediator <- gsub("\\.", "-", Mediator)
       Mediator <- gsub("X", "", Mediator)
-      
-      if (Mediator=="T-Epi-T") {Mediator[Mediator=="T-Epi-T"]="T/Epi-T"}
-      
-      Treatment2=Treatment
-      colnames(jeps)[colnames(jeps) == 'HOMA-IR']='HOMA.IR'
+      if (Mediator == "T-Epi-T") {
+        Mediator[Mediator == "T-Epi-T"] = "T/Epi-T"
+      }
+      Treatment2 = Treatment
+      colnames(jeps)[colnames(jeps) == 'HOMA-IR'] = 'HOMA.IR'
       colnames(jeps) <- gsub(" ", "\\.", colnames(jeps))
-      main_dir <- paste0(c("C://Users//patati//Desktop//Turku//R//",fn,Group,"/"),collapse="")
-      # main_dir <- "C://Users//patati//Desktop//Turku//R//males2/"# setting up the sub directory
-      sub_dir <-Treatment#paste0(c("\\",Treatment),collapse="")#Treatment2[i] # check if sub directory exists: #https://www.geeksforgeeks.org/r-check-if-a-directory-exists-and-create-if-it-does-not/
-      if (file.exists(file.path(main_dir, sub_dir))){setwd(file.path(main_dir, sub_dir))} else {dir.create(file.path(main_dir, sub_dir)); setwd(file.path(main_dir, sub_dir))}
-      if (Mediator!="T/Epi-T") {jpeg(paste("Correlations plotted",Group,Treatment2,Mediator,".jpg"), width = 1000, height = 1000, quality = 100,pointsize = 20, res=300);} else{
-        jpeg(paste("Correlations plotted",Treatment2,'T.Epi.T',".jpg"), width = 1000, height = 1000, quality = 100,pointsize = 20, res=300);}
-      xcx=jeps[,Treatment];
-      ycy=jeps[,Mediator];väh=round(sd(ycy)/2,2)
-      a=ggplot(jeps, aes(y=ycy, x=xcx)) +
+      main_dir <- paste0(c("C://Users//patati//Desktop//Turku//R//", fn, Group, "/"), collapse = "")
+      sub_dir <- Treatment
+      if (file.exists(file.path(main_dir, sub_dir))) {
+        setwd(file.path(main_dir, sub_dir))
+      } else {
+        dir.create(file.path(main_dir, sub_dir))
+        setwd(file.path(main_dir, sub_dir))
+      }
+      if (Mediator != "T/Epi-T") {
+        jpeg(paste("Correlations plotted", Group, Treatment2, Mediator, ".jpg"), width = 1000, height = 1000, quality = 100, pointsize = 20, res = 300)
+      } else {
+        jpeg(paste("Correlations plotted", Treatment2, 'T.Epi.T', ".jpg"), width = 1000, height = 1000, quality = 100, pointsize = 20, res = 300)
+      }
+      xcx = jeps[, Treatment]
+      ycy = jeps[, Mediator]
+      väh = round(sd(ycy) / 2, 2)
+      a = ggplot(jeps, aes(y = ycy, x = xcx)) +
         geom_point() +
         xlab(Treatment) +
         ylab(Mediator) +
-        geom_smooth(method="lm",col="black") + #https://ggplot2.tidyverse.org/reference/geom_smooth.html
-        annotate("text", x=min(xcx),y=max(ycy),hjust=0,vjust=0, label=paste0("r = ", round(r,5))) +
-        annotate("text", x=min(xcx),y=max(ycy)-väh,hjust=0,vjust=0, label=paste0("p = ", round(p.val, 5))) +
+        geom_smooth(method = "lm", col = "black") +
+        annotate("text", x = min(xcx), y = max(ycy), hjust = 0, vjust = 0, label = paste0("r = ", round(r, 5))) +
+        annotate("text", x = min(xcx), y = max(ycy) - väh, hjust = 0, vjust = 0, label = paste0("p = ", round(p.val, 5))) +
         theme_classic()
       print(a)
       dev.off()
-      hesh=rbind(hesh,c(y[j],xnam[i],Group,r,p.val,rsadj))}}
+      hesh = rbind(hesh, c(y[j], xnam[i], Group, r, p.val, rsadj))
+    }
+  }
   
-  # ja 2) steroid = covar
-  j=1;i=1; #rm(xnam,y)
-  xnam <- c('AGE','BMI',colnames(SG0)[c(4:7)]); 
-  y <- c(colnames(SG0[,8:27])) # Group='All'
-  
+  # Final analysis for specific combinations of xnam and y
+  xnam <- c('AGE', 'BMI', colnames(SG0)[c(4:7)])
+  y <- c(colnames(SG0[, 8:27]))
   for (i in 1:length(xnam)) {
     for (j in 1:length(y)) {
-      hösh=hopiu[hopiu[,1]==y[j] & hopiu[,2]==xnam[i] & hopiu[,3]==Group,]
-      
-      # #printtaus tässä...
-      jeps=SG0#
-      rm(r,p.val,rsadj)
-      r=as.numeric(hösh[4][1,])
-      p.val=as.numeric(hösh[5][1,])
-      rsadj=as.numeric(hösh[6][1,])
-      colnames(jeps)=colnames(tv_all)[2:dim(tv_all)[2]]
-      Treatment=as.character(hösh[2][1,])
-      Mediator=as.character(hösh[1][1,])
-      rm(hösh)
-      
+      hösh = hopiu[hopiu[, 1] == y[j] & hopiu[, 2] == xnam[i] & hopiu[, 3] == Group,]
+      jeps = SG0
+      r = as.numeric(hösh[4][1,])
+      p.val = as.numeric(hösh[5][1,])
+      rsadj = as.numeric(hösh[6][1,])
+      colnames(jeps) = colnames(tv_all)[2:dim(tv_all)[2]]
+      Treatment = as.character(hösh[2][1,])
+      Mediator = as.character(hösh[1][1,])
       Mediator <- gsub("\\.", "-", Mediator)
       Mediator <- gsub("X", "", Mediator)
-      
-      if (Mediator=="T-Epi-T") {Mediator[Mediator=="T-Epi-T"]="T/Epi-T"}
-
-      Treatment2=Treatment
-      colnames(jeps)[colnames(jeps) == 'HOMA-IR']='HOMA.IR'
+      if (Mediator == "T-Epi-T") {
+        Mediator[Mediator == "T-Epi-T"] = "T/Epi-T"
+      }
+      Treatment2 = Treatment
+      colnames(jeps)[colnames(jeps) == 'HOMA-IR'] = 'HOMA.IR'
       colnames(jeps) <- gsub(" ", "\\.", colnames(jeps))
-      main_dir <- paste0(c("C://Users//patati//Desktop//Turku//R//",fn,Group,"/"),collapse="")
-      # main_dir <- "C://Users//patati//Desktop//Turku//R//males2/"# setting up the sub directory
-      sub_dir <-Treatment#paste0(c("\\",Treatment),collapse="")#Treatment2[i] # check if sub directory exists: #https://www.geeksforgeeks.org/r-check-if-a-directory-exists-and-create-if-it-does-not/
-      if (file.exists(file.path(main_dir, sub_dir))){setwd(file.path(main_dir, sub_dir))} else {dir.create(file.path(main_dir, sub_dir)); setwd(file.path(main_dir, sub_dir))}
-      if (Mediator!="T/Epi-T") {jpeg(paste("Correlations plotted",Group,Treatment2,Mediator,".jpg"), width = 1000, height = 1000, quality = 100,pointsize = 20, res=300);} else{
-        jpeg(paste("Correlations plotted_",Treatment2,'T.Epi.T',".jpg"), width = 1000, height = 1000, quality = 100,pointsize = 20, res=300);}
-      xcx=jeps[,Treatment];
-      ycy=jeps[,Mediator];väh=round(sd(ycy)/2,2)
-      a=ggplot(jeps, aes(y=ycy, x=xcx)) +
+      main_dir <- paste0(c("C://Users//patati//Desktop//Turku//R//", fn, Group, "/"), collapse = "")
+      sub_dir <- Treatment
+      if (file.exists(file.path(main_dir, sub_dir))) {
+        setwd(file.path(main_dir, sub_dir))
+      } else {
+        dir.create(file.path(main_dir, sub_dir))
+        setwd(file.path(main_dir, sub_dir))
+      }
+      if (Mediator != "T/Epi-T") {
+        jpeg(paste("Correlations plotted", Group, Treatment2, Mediator, ".jpg"), width = 1000, height = 1000, quality = 100, pointsize = 20, res = 300)
+      } else {
+        jpeg(paste("Correlations plotted_", Treatment2, 'T.Epi.T', ".jpg"), width = 1000, height = 1000, quality = 100, pointsize = 20, res = 300)
+      }
+      xcx = jeps[, Treatment]
+      ycy = jeps[, Mediator]
+      väh = round(sd(ycy) / 2, 2)
+      a = ggplot(jeps, aes(y = ycy, x = xcx)) +
         geom_point() +
         xlab(Treatment) +
         ylab(Mediator) +
-        geom_smooth(method="lm",col="black") + #https://ggplot2.tidyverse.org/reference/geom_smooth.html
-        annotate("text", x=min(xcx),y=max(ycy),hjust=0,vjust=0, label=paste0("r = ", round(r,5))) +
-        annotate("text", x=min(xcx),y=max(ycy)-väh,hjust=0,vjust=0, label=paste0("p = ", round(p.val, 5))) +
+        geom_smooth(method = "lm", col = "black") +
+        annotate("text", x = min(xcx), y = max(ycy), hjust = 0, vjust = 0, label = paste0("r = ", round(r, 5))) +
+        annotate("text", x = min(xcx), y = max(ycy) - väh, hjust = 0, vjust = 0, label = paste0("p = ", round(p.val, 5))) +
         theme_classic()
       print(a)
       dev.off()
-      hesh=rbind(hesh,c(y[j],xnam[i],Group,r,p.val,rsadj))
-    }}
+      hesh = rbind(hesh, c(y[j], xnam[i], Group, r, p.val, rsadj))
+    }
+  }
   
-  hesa=hesh
-  hoi=as.data.frame(hesh)
-  main_dir <- paste0(c("C://Users//patati//Desktop//Turku//R//",fn),collapse="")
+  # Convert results to a data frame and return
+  hesa = hesh
+  hoi = as.data.frame(hesh)
+  main_dir <- paste0(c("C://Users//patati//Desktop//Turku//R//", fn), collapse = "")
   setwd(main_dir)
   
   return(list(hopiu))
@@ -1827,6 +2055,7 @@ the_fun_figs=function(tv_all,Group,hopiu,aa,bb,fn) { #  ok,aa,bb
 
 huus2=function(tv_all,hopiu) {
   huus=c();heijaa=c('All','female','male'); 
+  fn='metabnorm//covScaled//non_fdr//'#
   for (hrt in 1:3) {
     huus=append(huus,the_fun_figs(tv_all,heijaa[hrt],hopiu,aa,bb,fn))}
   return(huus)}
@@ -1835,82 +2064,144 @@ huus2=function(tv_all,hopiu) {
 # Now I'll be just showing some examples, but this works and if you drive this, you can find all the combos in the folders.
 # E.g.: ".../R/metabnorm/covScaled/non_fdr/'Subject'/Hexcer/Correlations plotted All Hexcer S .jpg" 
 # fyi: do the 'subject' folders (all, male, fem.) separately
-# aa=-0.5; bb=0.5; adj='nook'; sig.level=c(.001,0.01, 0.05)
-# fn='metabnorm//covScaled//non_fdr//'#
-# metanorm_S_non_fdr=huus(tv_covscl,adj,sig.level) # This was already done above
-# metanorm_S_fdr_non_tot=ldply(metanorm_S_non_fdr, data.frame) #Making the above ok for the next:
-# non_fdr_check=huus2(tv_covscl,metanorm_S_fdr_non_tot) # This plots all the combinations, so it takes some time
+aa=-0.5; bb=0.5; adj='nook'; sig.level=c(.001,0.01, 0.05)
+fn='metabnorm//covScaled//non_fdr//'#
+metanorm_S_non_fdr=huus(tv_covscl,adj,sig.level) # This was already done above
+metanorm_S_fdr_non_tot=ldply(metanorm_S_non_fdr, data.frame) #Making the above ok for the next:
+non_fdr_check=huus2(tv_covscl,metanorm_S_fdr_non_tot) # This plots all the combinations, so it takes some time
 
-#The above code in this segment does not get easily better with Copilot-
+#The above code in this segment does not get easily better with Copilot, but I let it comment it a bit.
 
+#Making some 3d plots:
+
+# Load the dataset
 data <- tv_covscl
-plot3d(y=data[,'PFOA'],x=data[,'T/Epi-T'],z=data[,'PE'], #data[,'PFHxS'],x=data[,'T/Epi-T'],z=data[,'PE']
+
+# Plot a 3D scatter plot for PFOA, T/Epi-T, and PE
+plot3d(
+  y = data[,'PFOA'],
+  x = data[,'T/Epi-T'],
+  z = data[,'PE'],
   col = 'black',
   type = 's',
   radius = .2,
-  ylab="PFHxS", xlab="T/Epi-T", zlab="PE")
+  ylab = "PFHxS",
+  xlab = "T/Epi-T",
+  zlab = "PE"
+)
 
+# Fit a linear model for PFHxS based on T/Epi-T and PE
+my.lm <- lm(data[,'PFHxS'] ~ data[,'T/Epi-T'] + data[,'PE'])
 
-my.lm <- lm(data[,'PFHxS'] ~ data[,'T/Epi-T'] + data[,'PE']);#s3d$plane3d(my.lm)
+# Extract the variables for the scatter plot
 x <- data[,'T/Epi-T']
 y <- data[,'PFHxS']
 z <- data[,'PE']
-s3d <- scatterplot3d(x, y, z, pch = 20, mar = c(5, 3, 4, 3),
-                     main = "3D Scatter Plot of Compounds and Their Residuals",angle = 55,scale.y = 0.5, xlab = "T/Epi-T",
-                     ylab = "PFHxS ",
-                     zlab = "PE",)
+
+# Create a 3D scatter plot with the fitted plane
+s3d <- scatterplot3d(
+  x, y, z, pch = 20, mar = c(5, 3, 4, 3),
+  main = "3D Scatter Plot of Compounds and Their Residuals",
+  angle = 55, scale.y = 0.5,
+  xlab = "T/Epi-T",
+  ylab = "PFHxS",
+  zlab = "PE"
+)
 s3d$plane3d(my.lm, lty = "dotted")
+
+# Convert coordinates for the original points and the fitted plane
 orig <- s3d$xyz.convert(x, y, z)
 plane <- s3d$xyz.convert(x, y, fitted(my.lm))
+
+# Determine the color and line type for the residuals
 i.negpos <- 1 + (resid(my.lm) > 0)
 segments(orig$x, orig$y, plane$x, plane$y,
          col = c("blue", "red")[i.negpos], lty = (2:1)[i.negpos])
 
+# Load the dataset again
 data <- tv_covscl
+
+# Plot a 3D scatter plot for PFOA, AN, and PC_O
 plot3d(
-  y=data[,'PFOA'],x=data[,'AN'],z=data[,'PC_O'], #data[,'PFHxS'],x=data[,'T/Epi-T'],z=data[,'PE']
+  y = data[,'PFOA'],
+  x = data[,'AN'],
+  z = data[,'PC_O'],
   col = 'black',
   type = 's',
   radius = .2,
-  ylab="PFOA", xlab="AN", zlab="PC_O")
+  ylab = "PFOA",
+  xlab = "AN",
+  zlab = "PC_O"
+)
 
-my.lm <- lm(data[,'PFOA'] ~ data[,'AN'] + data[,'PC_O']);#s3d$plane3d(my.lm)
+# Fit a linear model for PFOA based on AN and PC_O
+my.lm <- lm(data[,'PFOA'] ~ data[,'AN'] + data[,'PC_O'])
+
+# Extract the variables for the scatter plot
 y <- data[,'PFOA']
 x <- data[,'AN']
 z <- data[,'PC_O']
-s3d <- scatterplot3d(x, y, z, pch = 20, mar = c(5, 3, 4, 3),
-                     main = "3D Scatter Plot of Compounds and Their Residuals",angle = 55,scale.y = 0.5, 
-                     xlab = "AN",
-                     ylab = "PFOA ",
-                     zlab = "PC_O",)
+
+# Create a 3D scatter plot with the fitted plane
+s3d <- scatterplot3d(
+  x, y, z, pch = 20, mar = c(5, 3, 4, 3),
+  main = "3D Scatter Plot of Compounds and Their Residuals",
+  angle = 55, scale.y = 0.5,
+  xlab = "AN",
+  ylab = "PFOA",
+  zlab = "PC_O"
+)
 s3d$plane3d(my.lm, lty = "dotted")
+
+# Convert coordinates for the original points and the fitted plane
 orig <- s3d$xyz.convert(x, y, z)
 plane <- s3d$xyz.convert(x, y, fitted(my.lm))
+
+# Determine the color and line type for the residuals
 i.negpos <- 1 + (resid(my.lm) > 0)
 segments(orig$x, orig$y, plane$x, plane$y,
          col = c("blue", "red")[i.negpos], lty = (2:1)[i.negpos])
 
-# # Plot uusix
-
+# Load the dataset again
 data <- tv_covscl
-plot3d(y=data[,'PFHxA'],x=data[,'DHEA'],z=data[,'PC_O'], #data[,'PFHxS'],x=data[,'T/Epi-T'],z=data[,'PE']
+
+# Plot a 3D scatter plot for PFHxA, DHEA, and PC
+plot3d(
+  y = data[,'PFHxA'],
+  x = data[,'DHEA'],
+  z = data[,'PC_O'],
   col = 'black',
   type = 's',
   radius = .2,
-  ylab="PFHxA", xlab="DHEA", zlab="PC")
+  ylab = "PFHxA",
+  xlab = "DHEA",
+  zlab = "PC"
+)
 
-my.lm <- lm(data[,'PFHxA'] ~ data[,'DHEA'] + data[,'PC']);#s3d$plane3d(my.lm)
+# Fit a linear model for PFHxA based on DHEA and PC
+my.lm <- lm(data[,'PFHxA'] ~ data[,'DHEA'] + data[,'PC'])
+
+# Extract the variables for the scatter plot
 y <- data[,'PFHxA']
 x <- data[,'DHEA']
 z <- data[,'PC']
-s3d <- scatterplot3d(x, y, z, pch = 20, mar = c(5, 3, 4, 3),
-                     main = "3D Scatter Plot of Compounds and Their Residuals",angle = 55,scale.y = 0.5, 
-                     xlab = "DHEA",
-                     ylab = "PFHxA ",
-                     zlab = "PC",)
+
+# Create a 3D scatter plot with the fitted plane
+s3d <- scatterplot3d(
+  x, y, z, pch = 20, mar = c(5, 3, 4, 3),
+  main = "3D Scatter Plot of Compounds and Their Residuals",
+  angle = 55, scale.y = 0.5,
+  xlab = "DHEA",
+  ylab = "PFHxA",
+  zlab = "PC"
+)
 s3d$plane3d(my.lm, lty = "dotted")
+
+# Convert coordinates for the original points and the fitted plane
 orig <- s3d$xyz.convert(x, y, z)
 plane <- s3d$xyz.convert(x, y, fitted(my.lm))
+
+# Determine the color and line type for the residuals
 i.negpos <- 1 + (resid(my.lm) > 0)
 segments(orig$x, orig$y, plane$x, plane$y,
          col = c("blue", "red")[i.negpos], lty = (2:1)[i.negpos])
@@ -1938,20 +2229,32 @@ knitr::include_graphics('Correlations plotted male C4_L P5 .jpg')
 
 # Making Network Plot
 ```{r, warning=FALSE,message=FALSE,fig.width=10.0,fig.align="left",results='hide'}
+
 # Following the previous work for doing the network plot (https://r-graph-gallery.com/network.html)
+
 # Here the main data of the plot takes correlations:
-tv_c=tv_all#[,9:dim(tv_covscl)[2]] #tv_half_log22 #cbind(tv[,1:8], tv_half_log2) #check also not logged and then the auto one
-tv_c=tv_c[,!colnames(tv_c) %in% c('Total_TG','PFAS','Perfluorodecyl.ethanoic.acid')]; tv_c=tv_c[,!colnames(tv_c) %in% x4]
-colnames(tv_c)[colnames(tv_c)=="17aOH-P4"]="17a-OHP4"
+# Remove specific columns from tv_c
+tv_c=tv_c[,!colnames(tv_c) %in% c('Total_TG','PFAS','Perfluorodecyl.ethanoic.acid')]; 
+# Remove columns specified in x4 from tv_c
+tv_c=tv_c[,!colnames(tv_c) %in% x4] 
+# Rename column '17aOH-P4' to '17a-OHP4'
+colnames(tv_c)[colnames(tv_c)=="17aOH-P4"]="17a-OHP4" 
 dat = tv_c; 
-dat=dat[,!colnames(dat) %in% c('Gender','PatientNumber')] #SEX.1F.2M
-resulta <- (rcorr(as.matrix(dat), type = c('spearman')))$r
-n_level=0.9 #this is high to get connections between all the verteces (pampulat)
-Nrr=qpNrr(resulta, verbose=FALSE);Nrr[is.na(Nrr)]=1;#print(hist(as.numeric(Nrr),breaks=50)); 
-cond=data.frame(as.matrix(Nrr<n_level))
-RN=data.frame(resulta);tes_t=cond*RN;tes_t=as.matrix(tes_t);resulta=tes_t;colnames(resulta)=rownames(resulta) #https://www.geeksforgeeks.org/elementwise-matrix-multiplication-in-r/
+# Remove 'Gender' and 'PatientNumber' columns from dat
+dat=dat[,!colnames(dat) %in% c('Gender','PatientNumber')] 
+# Calculate Spearman correlation matrix
+resulta <- (rcorr(as.matrix(dat), type = c('spearman')))$r 
+# Set threshold level for connections between vertices (pampulat)
+n_level=0.9 
+# Calculate Nrr and replace NA values with 1
+Nrr=qpNrr(resulta, verbose=FALSE);Nrr[is.na(Nrr)]=1;
+# Create a condition matrix based on n_level threshold
+cond=data.frame(as.matrix(Nrr<n_level)) 
+# Elementwise matrix multiplication and update column names to match row names # https://www.geeksforgeeks.org/elementwise-matrix-multiplication-in-r/
+RN=data.frame(resulta);tes_t=cond*RN;tes_t=as.matrix(tes_t);resulta=tes_t;colnames(resulta)=rownames(resulta) 
 tes_t=resulta
-a=length(x1)-2;b=length(x2);c=length(x3);d=length(x4);e=length(x5);f=length(x6);
+# Calculate lengths of x1 to x6 and assign to variables a to f
+a=length(x1)-2;b=length(x2);c=length(x3);d=length(x4);e=length(x5);f=length(x6); 
 
 # Removing self-correlation
 tes_t[1:a,1:a]=0
@@ -1960,26 +2263,39 @@ tes_t[(a+b+1):(a+b+c),(a+b+1):(a+b+c)]=0
 tes_t[(a+b+c+1):(a+b+c+e),(a+b+c+1):(a+b+c+e)]=0
 tes_t[(a+b+c+e+1):(a+b+c+e+f),(a+b+c+e+1):(a+b+c+e+f)]=0
 
-tes_t=tes_t[colnames(tes_t)[7:66],colnames(tes_t)[7:66]] # tes_t=resulta #ks. correlations
-g <- graph_from_adjacency_matrix(tes_t, mode="upper", weighted=TRUE, diag=FALSE)
-e <- as_edgelist(g); df <- as.data.frame(cbind(e,E(g)$weight)); #
-df[,3]=as.numeric(df[, 3])
-hoi=df # hoi[rev(order(hoi[,3])),]
-hoi=hoi[!duplicated(hoi[,c(1,2)]),]
+# Select a subset of tes_t based on column names
+tes_t = tes_t[colnames(tes_t)[7:66], colnames(tes_t)[7:66]]
 
+# Create a graph from adjacency matrix
+g <- graph_from_adjacency_matrix(tes_t, mode="upper", weighted=TRUE, diag=FALSE)
+
+# Convert graph to edge list and create a data frame with weights
+e <- as_edgelist(g)
+df <- as.data.frame(cbind(e, E(g)$weight))
+
+# Convert the third column to numeric
+df[, 3] = as.numeric(df[, 3])
+hoi=df 
+hoi=hoi[!duplicated(hoi[,c(1,2)]),] # Remove duplicate rows based on the first two columns
+
+# Load igraph library if needed
 # https://r-graph-gallery.com/249-igraph-network-map-a-color.html
-library(igraph)
-# # create data:
+# Create a data frame for links with source, target, and importance
 links <- data.frame(
   source=c("A","A", "A", "A", "A","J", "B", "B", "C", "C", "D","I"),
   target=c("B","B", "C", "D", "J","A","E", "F", "G", "H", "I","I"),
-  importance=(sample(1:4, 12, replace=T)))
-colnames(hoi)=colnames(links)
+  importance=(sample(1:4, 12, replace=T))) 
+# Set column names of hoi to match links
+colnames(hoi)=colnames(links) 
 links=hoi
+# Get distinct sources and rename column to 'label'
 sources=hoi %>% distinct(source) %>% rename(source='label')
-destinations=hoi %>% distinct(target) %>% rename(target ='label')
-nodess <- full_join(sources, destinations, by = "label")
+# Get distinct targets and rename column to 'label'
+destinations=hoi %>% distinct(target) %>% rename(target ='label') 
+# Merge sources and destinations into nodess
+nodess <- full_join(sources, destinations, by = "label") 
 
+# The names of the variable groups, such as xc for contaminants
 xc=x5[x5 %in% nodess$label]
 xb=x3[x3 %in% nodess$label]
 xl=x6[x6 %in% nodess$label]
@@ -1987,156 +2303,240 @@ x2[x2 =='17aOH-P4']='17a-OHP4' #Next time check these wrong names early on... :)
 xs=x2[x2 %in% nodess$label]
 nodess$label=c(xc,xb,xl,xs)
 
-nodes <- data.frame(name=nodess[,1], #  carac=c( rep("Contaminants",length(7)),rep("Bile Acids",length(u2)),rep("Lipids",length(u3)),rep("Steroids",ls))) #range on kaikki +1
-  carac=( c(rep("Contaminants",length(xc)),rep("Bile Acids",length(xb)),rep("Lipids",length(xl)),rep("Steroids",length(xs))))) #range on kaikki +1
+# Create a data frame 'nodes' with two columns: 'name' and 'carac'
+# 'name' is taken from the first column of 'nodess'
+# 'carac' is a categorical variable indicating the type of each node
+nodes <- data.frame(name=nodess[,1], 
+                    carac=( c(rep("Contaminants",length(xc)),rep("Bile Acids",length(xb)),rep("Lipids",length(xl)),rep("Steroids",length(xs))))) #range on kaikki +1
 
-# Turn it into igraph object
+# Convert the data frame 'links' and 'nodes' into an igraph object
 network <- graph_from_data_frame(d=links, vertices=nodes, directed=F) 
-# Make a palette of 3 colors
-library(RColorBrewer);library(ragg)
 
+# Load necessary libraries for color palettes and graphics (library(RColorBrewer), library(ragg)) if needed
+
+# Set the font to 'Calibri (Body)'
 windowsFonts(A = windowsFont("Calibri (Body)"))
-coul  <- c('#B2BEB5','Green','Red','Orange') # brewer.pal(2, "Set1") ,'#ADD8E6','#faf0e6'
-# Create a vector of color
+
+# Define a palette of 4 colors
+coul  <- c('#B2BEB5','Green','Red','Orange') 
+
+# Create a vector of colors corresponding to the 'carac' variable in the network
 my_color <- coul[as.numeric(as.factor(V(network)$carac))]
 
-# These above execution lines have been already done,
-jpeg('network.jpg',width=4, height=4.7, units="in",quality = 100, pointsize = 7, res=1000)
-plot(network, mode = "circle",vertex.color=my_color, vertex.size = 10,
-     edge.arrow.size = 0.8,vertex.label.cex = 0.35,edge.width=as.numeric(E(network)$importance)*6.00 )
-legend("topright", legend=levels(as.factor(V(network)$carac))  ,
-       col = coul , bty = "n", pch=20 , pt.cex = 1.3, cex = 1.3, text.col=coul ,
+# Save the plot as a JPEG file with specified dimensions and quality
+jpeg('network.jpg', width=4, height=4.7, units="in", quality=100, pointsize=7, res=1000)
+
+# Plot the network with specified parameters
+plot(network, mode = "circle", vertex.color=my_color, vertex.size = 10,
+     edge.arrow.size = 0.8, vertex.label.cex = 0.35, edge.width=as.numeric(E(network)$importance)*6.00 )
+
+# Add a legend to the plot
+legend("topright", legend=levels(as.factor(V(network)$carac)),
+       col = coul, bty = "n", pch=20, pt.cex = 1.3, cex = 1.3, text.col=coul,
        horiz = FALSE, inset = c(0.65, 0.8))
-dev.off(); 
-my_image <- image_read(eoh);my_svg <- image_convert(my_image, format="svg"); image_write(my_svg, paste(eoh,".svg"))
 
-# And now just showing the figure separately:
-knitr::include_graphics('network.jpg'); eoh='network.jpg'; daiR::image_to_pdf(eoh, pdf_name=paste0(eoh,'.pdf'));
-#... alternative with copilot not ok:
-# Load necessary libraries
+# Close the JPEG device
+dev.off()
 
-# # Convert matrix to data frame
-# tv_c <- as.data.frame(tv_all)
-# 
-# # Check column names
-# print(colnames(tv_c))
-# 
-# # Preprocess the data
-# # Remove columns only if they exist
-# columns_to_remove <- c('Total_TG', 'PFAS', 'Perfluorodecyl.ethanoic.acid')
-# existing_columns <- columns_to_remove[columns_to_remove %in% colnames(tv_c)]
-# tv_c <- tv_c %>%
-#   select(-one_of(existing_columns)) %>%
-#   select(-one_of(x4))
-# 
-# colnames(tv_c)[colnames(tv_c) == "17aOH-P4"] <- "17a-OHP4"
-# dat <- tv_c %>%
-#   select(-c(Gender, PatientNumber))
-# 
-# # Calculate correlation matrix
-# resulta <- (rcorr(as.matrix(dat), type = 'spearman'))$r
-# 
-# # Thresholding and element-wise multiplication
-# n_level <- 0.9
-# Nrr <- qpNrr(resulta, verbose = FALSE)
-# Nrr[is.na(Nrr)] <- 1
-# cond <- as.matrix(Nrr < n_level)
-# tes_t <- cond * resulta
-# colnames(tes_t) <- rownames(tes_t)
-# 
-# # Removing self-correlation
-# diag(tes_t) <- 0
+# Read the saved JPEG image
+eoh='network.jpg'
+my_image <- image_read(eoh)
 
+# Convert the image to SVG format and save it
+my_svg <- image_convert(my_image, format="svg")
+image_write(my_svg, paste(eoh,".svg"))
 
-# Copilot is not helping much here.
+# Display the figure and convert it to PDF
+knitr::include_graphics(eoh)
+daiR::image_to_pdf(eoh, pdf_name=paste0(eoh,'.pdf'))
+
+# Copilot helped here with the commenting.
 
 
 ```
 
 # Making Causal Mediation Analysis
 ```{r, warning=FALSE,message=FALSE,fig.align="left"}
+
 # The basic hypothesis. All are variables (y~x+m;m~x)
-loop_med_simplified1a=function(Treatment, Mediator, Outcome,tv_all,Group,name,simss,t.val,test,sick,sick_group) {
-  if (Group=='female') {cond=tv_all[,'Gender']==min(tv_all[,'Gender'])} else if (Group=='male') {cond=tv_all[,'Gender']==max(tv_all[,'Gender'])} else if (Group=='All') {cond=rep(TRUE,dim(tv_all)[1])}
-  tv_red=c(); 
-  if (sick=='yes') {tv_red=tv_all[cond & as.vector(sick_group),]} else   {tv_red=tv_all[cond,]} 
-  X <- tv_red[,Treatment] #Standard values did not five erros # hep=colnames(X)[!colnames(X) %in% c( "Benzylparaben" ,"Methylparaben")] # X=X[,hep]
-  M <- tv_red[,Mediator]  #
-  Y <- tv_red[,Outcome]   #"Steatosis.Grade.0.To.3"       "Fibrosis.Stage.0.to.4"       "Necroinflammation"            "HOMA-IR"   
-  Data <- cbind(X,M,Y);   ## colnames(Data)[which(names(Data) == "X")] <- "PFOA_L"
-  colnames(Data) <- gsub(" ", "_", colnames(Data)) # colnames(Data[,1:2])[1]=Treatment
-  Data=data.frame(Data)
-  # https://rdrr.io/cran/mlma/man/data.org.html # https://cran.r-project.org/web/packages/mma/mma.pdf
-  # this time the b and c are in the loop, and b is the model 'M', i.e. M~X (e.g. Allocholic acid ~ PFOA_L)
-  # the c is the model 'Y', i.e. Y~M+X, e.g. CAR ~PFOA + Allocholic acid (note, just one mediator at the time... )
-  control.value=colMins(as.matrix(X)) #test also with colMedians colMins -abs(colMins(as.matrix(X))*2
-  treat.value=colMaxs(as.matrix(X))
-  #M~X
-  x=c();m=c(); y=c();ye=c()
-  for (i in 1:length(colnames(X))) {x=append(x,paste("Data[, ",i , "]", sep=""))}
-  for (j in (dim(X)[2]+1):(length(colnames(M))+dim(X)[2])) {m=append(m,paste("Data[, ",j , "]", sep="")) }
-  #Y~X+M
-  for (z in (dim(M)[2]+dim(X)[2]+1):(dim(Data)[2])) {y=append(y,paste("Data[, ",z , "]", sep="")) } #this dimension was essential for the loop names
-  med_out=c();res=c(); tmp=c();rn=c();med_oute=c();med_sense=c();resa=c()  
-  j=1;i=1;z=1
-  for (i in 1:length(y)) {
-    for (j in 1:length(m)) { #control.value=mina[i]
-      for (z in 1:length(x)) {
-        fmla1 <- as.formula(paste(paste(m[j], collapse= "+")," ~ ", paste(x[z], collapse= "+"))) 
-        b = lm(fmla1, Data)
-        xm=paste(paste(c(x[z],m[j]), collapse= "+"))
-        fmla2 <- as.formula(paste(y[i]," ~ ", xm)) #https://www.statology.org/glm-vs-lm-in-r/
-        c = lm(fmla2, Data) 
-        if (t.val=='no'){med_oute=mediate(b, c, treat =  x[z], mediator = m[j],sims = simss)} else if (t.val=='yes') # control.value=control.value[z],treat.value=treat.value[z]  
-        {med_oute=mediate(b, c, treat =  x[z], mediator = m[j],sims = simss,control.value=control.value[z],treat.value=X[test,z] )} else if (t.val=='minmax') 
-        {med_oute=mediate(b, c, treat =  x[z], mediator = m[j],sims = simss,control.value=control.value[z],treat.value=treat.value[z] )} 
-        
-        med_out = summary(med_oute) #you need sims=100 min for the paper, maybe more like 1000... 10 was too little, but can get you results fast..
-        tmp=c(med_out$d0, med_out$d0.p, med_out$d0.ci[1],med_out$d0.ci[2],med_out$z0, med_out$z0.p, med_out$z0.ci[1],med_out$z0.ci[2],med_out$n1, med_out$n1.p,med_out$n1.ci[1],med_out$n1.ci[2],med_out$tau.coef,med_out$tau.p,med_out$tau.ci[1],med_out$tau.ci[2]) 
-        res <- rbind(res,tmp);
-        rn=append(rn,paste(colnames(X)[z],colnames(M)[j],colnames(Y)[i], sep=" ")) #attaching two rownames...
-        remove(tmp) }}} #https://intro2r.com/loops.html https://www.benjaminbell.co.uk/2022/12/loops-in-r-nested-loops.html 
+loop_med_simplified1a = function(Treatment, Mediator, Outcome, tv_all, Group, name, simss, t.val, test, sick, sick_group) {
+  # Determine the condition based on the group
+  if (Group == 'female') {
+    cond = tv_all[,'Gender'] == min(tv_all[,'Gender'])
+  } else if (Group == 'male') {
+    cond = tv_all[,'Gender'] == max(tv_all[,'Gender'])
+  } else if (Group == 'All') {
+    cond = rep(TRUE, dim(tv_all)[1])
+  }
   
-  rownames(res)=rn #write.csv(rn,'iii.csv')
-  colnames(res)=c('ACME', 'd0.p', 'd0.ci_l','d0.ci_u','ADE', 'z0.p', 'z0.ci_l','z0.ci_u','Proportion Mediated', 'n1.p','n.ci_l','n1.ci_u','Total Effect','tau.p','tau.ci_l','tau.ci_u') #d0 and d1 are the same as.. 'd1', 'd1.p',
-  res=res[order(res[,2]),] #res=res[rev(order(res[,1])),]
+  # Filter the dataset based on the condition and sickness status
+  tv_red = c()
+  if (sick == 'yes') {
+    tv_red = tv_all[cond & as.vector(sick_group),]
+  } else {
+    tv_red = tv_all[cond,]
+  }
+  
+  # Extract the treatment, mediator, and outcome variables
+  X <- tv_red[, Treatment]  # Standard values did not give errors
+  M <- tv_red[, Mediator]
+  Y <- tv_red[, Outcome]  # "Steatosis.Grade.0.To.3", "Fibrosis.Stage.0.to.4", "Necroinflammation", "HOMA-IR"
+  
+  # Combine the variables into a single data frame
+  Data <- cbind(X, M, Y)
+  colnames(Data) <- gsub(" ", "_", colnames(Data))
+  Data = data.frame(Data)
+  
+  # Define control and treatment values for the mediation analysis
+  control.value = colMins(as.matrix(X))  # Test also with colMedians
+  treat.value = colMaxs(as.matrix(X))
+  
+  # Initialize vectors for storing variable names
+  x = c()
+  m = c()
+  y = c()
+  
+  # Create variable names for the treatment, mediator, and outcome
+  for (i in 1:length(colnames(X))) {
+    x = append(x, paste("Data[, ", i , "]", sep = ""))
+  }
+  for (j in (dim(X)[2] + 1):(length(colnames(M)) + dim(X)[2])) {
+    m = append(m, paste("Data[, ", j , "]", sep = ""))
+  }
+  for (z in (dim(M)[2] + dim(X)[2] + 1):(dim(Data)[2])) {
+    y = append(y, paste("Data[, ", z , "]", sep = ""))
+  }
+  
+  # Initialize vectors for storing results
+  med_out = c()
+  res = c()
+  tmp = c()
+  rn = c()
+  i=1;j=1;z=1
+  
+  # Loop through each combination of outcome, mediator, and treatment
+  for (i in 1:length(y)) {
+    for (j in 1:length(m)) {
+      for (z in 1:length(x)) {
+        # Define the formula for the mediator model (M ~ X)
+        fmla1 <- as.formula(paste(paste(m[j], collapse = "+"), " ~ ", paste(x[z], collapse = "+")))
+        b = lm(fmla1, Data)
+        
+        # Define the formula for the outcome model (Y ~ M + X)
+        xm = paste(paste(c(x[z], m[j]), collapse = "+"))
+        fmla2 <- as.formula(paste(y[i], " ~ ", xm))
+        c = lm(fmla2, Data)
+        
+        # Perform the mediation analysis
+        if (t.val == 'no') {
+          med_oute = mediation::mediate(b, c, treat = x[z], mediator = m[j], sims = simss)
+        } else if (t.val == 'yes') {
+          med_oute = mediation::mediate(b, c, treat = x[z], mediator = m[j], sims = simss, control.value = control.value[z], treat.value = X[test, z])
+        } else if (t.val == 'minmax') {
+          med_oute = mediation::mediate(b, c, treat = x[z], mediator = m[j], sims = simss, control.value = control.value[z], treat.value = treat.value[z])
+        }
+        
+        # Summarize the mediation analysis results
+        med_out = summary(med_oute)
+        tmp = c(med_out$d0, med_out$d0.p, med_out$d0.ci[1], med_out$d0.ci[2], med_out$z0, med_out$z0.p, med_out$z0.ci[1], med_out$z0.ci[2], med_out$n1, med_out$n1.p, med_out$n1.ci[1], med_out$n1.ci[2], med_out$tau.coef, med_out$tau.p, med_out$tau.ci[1], med_out$tau.ci[2])
+        res <- rbind(res, tmp)
+        rn = append(rn, paste(colnames(X)[z], colnames(M)[j], colnames(Y)[i], sep = " "))
+        remove(tmp)
+      }
+    }
+  }
+  
+  # Assign row and column names to the results
+  rownames(res) = rn
+  colnames(res) = c('ACME', 'd0.p', 'd0.ci_l', 'd0.ci_u', 'ADE', 'z0.p', 'z0.ci_l', 'z0.ci_u', 'Proportion Mediated', 'n1.p', 'n.ci_l', 'n1.ci_u', 'Total Effect', 'tau.p', 'tau.ci_l', 'tau.ci_u')
+  
+  # Order the results by p-value
+  res = res[order(res[, 2]),]
+  
+  # Clean up row names
   rownames(res) <- gsub("X11", "11", rownames(res))
   rownames(res) <- gsub("X17", "17", rownames(res))
-  write.xlsx(res, file = paste(name,Group,date,'.xlsx'), append = FALSE, row.names = TRUE) 
-  #https://stackoverflow.com/questions/21847830/handling-java-lang-outofmemoryerror-when-writing-to-excel-from-r
-  return(res)}
-
-# Testing hypothesis one:
-the_essentials=function(Treatment, Mediator, Outcome,tv, Group,name,simss,t.val,test,sick,sick_group,fn,lkm,date,joo,ip) {
-  hoi1=paste("C:/Users/patati/Desktop/Turk/R/basic causal mediation with the counterfactuals/",fn,sep='')
-  setwd(hoi1) #https://topepo.github.io/caret/parallel-processing.html # https://ds-pl-r-book.netlify.app/optimization-in-r.html
-
-  name=paste(simss,'basic_divisions'); #sick='yes'
-  Group='All'; uh7ma=loop_med_simplified1a(Treatment, Mediator, Outcome,tv_all,Group,name,simss,t.val,test,sick,sick_group);try({uh7ma},{uh7ma=data.frame(0)});  save(uh7ma,file=paste(fn,'all.RData'));#try({uh7ma},{uh7ma=data.frame(0)})
-  Group='female'; uh7f=loop_med_simplified1a(Treatment, Mediator, Outcome,tv_all,Group,name,simss,t.val,test,sick,sick_group);  try({uh7f},{uh7f=data.frame(0)});save(uh7f, file=paste(fn,'female.RData'));
-  Group='male';   uh7m=loop_med_simplified1a(Treatment, Mediator, Outcome,tv_all,Group,name,simss,t.val,test,sick,sick_group);try({uh7m},{uh7m=data.frame(0)});save(uh7m, file=paste(fn,'male.RData'));
+  
+  # Write the results to an Excel file
+  write.xlsx(res, file = paste(name, Group, date, '.xlsx'), append = FALSE, row.names = TRUE)
+  
+  return(res)
 }
 
-simss=100;name='Jaot_OK_basica'; joo='ei';ip=1
-ccova=tv[,c("Steatosis.Grade.0.To.3" , "Fibrosis.Stage.0.to.4" ,"Necroinflammation" ,  "HOMA-IR")]
-sick_group=rowSums(ccova)>4
-file_names=c("Steatosis" , "Fibrosis" ,"Necroinflammation" ,  "HOMAIR", 'Menopause')
-lkm=30; joo='ei';ip=1; sick='yes'
-t.val='no'; Group='All' #name='generic';
+# Testing hypothesis one:
+the_essentials = function(Treatment, Mediator, Outcome, tv, Group, name, simss, t.val, test, sick, sick_group, fn, lkm, date, joo, ip) {
+  # Set the working directory to the specified path
+  hoi1 = paste("C:/Users/patati/Desktop/Turku/R/basic causal mediation with the counterfactuals/", fn, sep = '')
+  setwd(hoi1)  # Set the working directory
+  
+  # Define the name for the output files
+  name = paste(simss, 'basic_divisions')
+  
+  # Perform mediation analysis for all groups
+  Group = 'All'
+  uh7ma = loop_med_simplified1a(Treatment, Mediator, Outcome, tv_all, Group, name, simss, t.val, test, sick, sick_group)
+  try({uh7ma}, {uh7ma = data.frame(0)})  # Handle errors gracefully
+  save(uh7ma, file = paste(fn, 'all.RData'))  # Save the results
+  
+  # Perform mediation analysis for female group
+  Group = 'female'
+  uh7f = loop_med_simplified1a(Treatment, Mediator, Outcome, tv_all, Group, name, simss, t.val, test, sick, sick_group)
+  try({uh7f}, {uh7f = data.frame(0)})  # Handle errors gracefully
+  save(uh7f, file = paste(fn, 'female.RData'))  # Save the results
+  
+  # Perform mediation analysis for male group
+  Group = 'male'
+  uh7m = loop_med_simplified1a(Treatment, Mediator, Outcome, tv_all, Group, name, simss, t.val, test, sick, sick_group)
+  try({uh7m}, {uh7m = data.frame(0)})  # Handle errors gracefully
+  save(uh7m, file = paste(fn, 'male.RData'))  # Save the results
+}
 
-# All;
-joo='joo';sick='no'
-ccova=tv[,c("Steatosis.Grade.0.To.3", "Fibrosis.Stage.0.to.4" ,"Necroinflammation","HOMA-IR")] 
-fn='All'; sick_group=rowSums(ccova)>4 #toth#
+# Set the number of simulations and other parameters
+simss = 100
+name = 'Jaot_OK_basica'
+joo = 'ei'
+ip = 1
+
+# Extract specific columns from the dataset for analysis
+ccova = tv[, c("Steatosis.Grade.0.To.3", "Fibrosis.Stage.0.to.4", "Necroinflammation", "HOMA-IR")]
+
+# Define a group based on a condition (sum of specific columns > 4)
+sick_group = rowSums(ccova) > 4
+
+# Define file names for different outcomes
+file_names = c("Steatosis", "Fibrosis", "Necroinflammation", "HOMAIR", 'Menopause')
+
+# Set additional parameters
+lkm = 30
+joo = 'ei'
+ip = 1
+sick = 'yes'
+t.val = 'no'
+Group = 'All'
+# date='houdeesh'
+
+# Set parameters for the 'All' group analysis
+joo = 'joo'
+sick = 'no'
+
+# Extract specific columns from the dataset for analysis
+ccova = tv[, c("Steatosis.Grade.0.To.3", "Fibrosis.Stage.0.to.4", "Necroinflammation", "HOMA-IR")]
+
+# Define the file name and group based on a condition (sum of specific columns > 4)
+fn = 'All'
+sick_group = rowSums(ccova) > 4
 
 # Driving the analysis takes more than 1h (with a basic laptop 2023,100sims and all three groups (all, female and male)) so drive the below only if needed:
 # the_essentials(Treatment, Mediator, Outcome,tv_all,Group,name,simss,t.val,test,sick, sick_group,fn,lkm,date,joo,ip)
 # setwd("C:/Users/patati/Desktop/Turku/R/basic causal mediation with the counterfactuals/") #check this if needed...
 
+# Error in mediate(b, c, treat = x[z], mediator = m[j], sims = simss) : 
+  # unused arguments (treat = x[z], mediator = m[j], sims = simss) ...
+
 # In case, the 'case' sample/subject analysis would be needed: 
 # Steatosis
 # ccovae=tv[,c("Steatosis.Grade.0.To.3")]; sick_group=ccovae>0 #toth# # hist(ccovae,breaks=100) # hist(ccova[,'HOMA-IR'],breaks=100)
-# fn=file_names[1]; 
+# fn=file_names[1];
 # the_essentials(Treatment, Mediator, Outcome,tv_all,Group,name,simss,t.val,test,sick,sick_group,fn,lkm,date,joo,ip)
 # #Fibrosis
 # ccovae=tv[,c("Fibrosis.Stage.0.to.4")]; 
@@ -2159,128 +2559,8 @@ fn='All'; sick_group=rowSums(ccova)>4 #toth#
 
 
 
-#...alternative... not working...
-# Function to perform mediation analysis using glm
-# loop_med_simplified1a <- function(Treatment, Mediator, Outcome, tv_all, Group, name, simss, t.val, test, sick, sick_group) {
-#   # Determine the condition based on the group
-#   cond <- switch(Group,
-#                  'female' = tv_all[,'Gender'] == min(tv_all[,'Gender']),
-#                  'male' = tv_all[,'Gender'] == max(tv_all[,'Gender']),
-#                  'All' = rep(TRUE, nrow(tv_all)))
-#   
-#   # Filter the data based on the condition and sick status
-#   tv_red <- if (sick == 'yes') tv_all[cond & as.vector(sick_group), ] else tv_all[cond, ]
-#   
-#   # Extract treatment, mediator, and outcome variables
-#   X <- tv_red[, Treatment]
-#   M <- tv_red[, Mediator]
-#   Y <- tv_red[, Outcome]
-#   
-#   # Combine the data into a single data frame
-#   Data <- data.frame(cbind(X, M, Y))
-#   colnames(Data) <- gsub(" ", "_", colnames(Data))
-#   
-#   # Calculate control and treatment values
-#   control.value <- colMins(as.matrix(X))
-#   treat.value <- colMaxs(as.matrix(X))
-#   
-#   # Initialize variables for storing results
-#   res <- data.frame()
-#   rn <- c()
-#   
-#   # Loop through each combination of treatment, mediator, and outcome
-#   for (i in seq_along(colnames(Y))) {
-#     for (j in seq_along(colnames(M))) {
-#       for (z in seq_along(colnames(X))) {
-#         # Define the formulas for the models
-#         fmla1 <- as.formula(paste(colnames(M)[j], "~", colnames(X)[z]))
-#         fmla2 <- as.formula(paste(colnames(Y)[i], "~", colnames(X)[z], "+", colnames(M)[j]))
-#         
-#         # Fit the models using glm
-#         b <- glm(fmla1, data = Data, family = gaussian())
-#         c <- glm(fmla2, data = Data, family = gaussian())
-#         
-#         # Perform mediation analysis
-#         med_oute <- switch(t.val,
-#                            'no' = mediate(b, c, treat = colnames(X)[z], mediator = colnames(M)[j], sims = simss),
-#                            'yes' = mediate(b, c, treat = colnames(X)[z], mediator = colnames(M)[j], sims = simss, control.value = control.value[z], treat.value = X[test, z]),
-#                            'minmax' = mediate(b, c, treat = colnames(X)[z], mediator = colnames(M)[j], sims = simss, control.value = control.value[z], treat.value = treat.value[z]))
-#         
-#         # Summarize the mediation analysis results
-#         med_out <- summary(med_oute)
-#         tmp <- c(med_out$d0, med_out$d0.p, med_out$d0.ci[1], med_out$d0.ci[2], med_out$z0, med_out$z0.p, med_out$z0.ci[1], med_out$z0.ci[2], med_out$n1, med_out$n1.p, med_out$n1.ci[1], med_out$n1.ci[2], med_out$tau.coef, med_out$tau.p, med_out$tau.ci[1], med_out$tau.ci[2])
-#         
-#         # Store the results
-#         res <- rbind(res, tmp)
-#         rn <- c(rn, paste(colnames(X)[z], colnames(M)[j], colnames(Y)[i], sep = " "))
-#       }
-#     }
-#   }
-#   
-#   # Set row and column names for the results
-#   rownames(res) <- rn
-#   colnames(res) <- c('ACME', 'd0.p', 'd0.ci_l', 'd0.ci_u', 'ADE', 'z0.p', 'z0.ci_l', 'z0.ci_u', 'Proportion Mediated', 'n1.p', 'n1.ci_l', 'n1.ci_u', 'Total Effect', 'tau.p', 'tau.ci_l', 'tau.ci_u')
-#   
-#   # Order the results by p-value
-#   res <- res[order(res[, 2]), ]
-#   
-#   # Write the results to an Excel file
-#   write.xlsx(res, file = paste(name, Group, date, '.xlsx'), append = FALSE, row.names = TRUE)
-#   
-#   return(res)
-# }
-# 
-# # Function to test the hypothesis using glm
-# the_essentials <- function(Treatment, Mediator, Outcome, tv, Group, name, simss, t.val, test, sick, sick_group, fn, lkm, date, joo, ip) {
-#   hoi1 <- paste("C:/Users/patati/Desktop/Turk/R/basic causal mediation with the counterfactuals/", fn, sep = '')
-#   
-#   # Check if the directory exists
-#   if (!dir.exists(hoi1)) {
-#     stop("The specified directory does not exist.")
-#   }
-#   
-#   setwd(hoi1)
-#   
-#   name <- paste(simss, 'basic_divisions')
-#   Group <- 'All'
-#   uh7ma <- tryCatch(loop_med_simplified1a(Treatment, Mediator, Outcome, tv_all, Group, name, simss, t.val, test, sick, sick_group), error = function(e) data.frame(0))
-#   save(uh7ma, file = paste(fn, 'all.RData'))
-#   
-#   Group <- 'female'
-#   uh7f <- tryCatch(loop_med_simplified1a(Treatment, Mediator, Outcome, tv_all, Group, name, simss, t.val, test, sick, sick_group), error = function(e) data.frame(0))
-#   save(uh7f, file = paste(fn, 'female.RData'))
-#   
-#   Group <- 'male'
-#   uh7m <- tryCatch(loop_med_simplified1a(Treatment, Mediator, Outcome, tv_all, Group, name, simss, t.val, test, sick, sick_group), error = function(e) data.frame(0))
-#   save(uh7m, file = paste(fn, 'male.RData'))
-# }
-# 
-# # Example usage
-# simss <- 100
-# name <- 'Jaot_OK_basica'
-# joo <- 'ei'
-# ip <- 1
-# ccova <- tv[, c("Steatosis.Grade.0.To.3", "Fibrosis.Stage.0.to.4", "Necroinflammation", "HOMA-IR")]
-# sick_group <- rowSums(ccova) > 4
-# file_names <- c("Steatosis", "Fibrosis", "Necroinflammation", "HOMAIR", 'Menopause')
-# lkm <- 30
-# joo <- 'ei'
-# ip <- 1
-# sick <- 'yes'
-# t.val <- 'no'
-# Group <- 'All'
-# 
-# # All
-# joo <- 'joo'
-# sick <- 'no'
-# ccova <- tv[, c("Steatosis.Grade.0.To.3", "Fibrosis.Stage.0.to.4", "Necroinflammation", "HOMA-IR")]
-# fn <- 'All'
-# sick_group <- rowSums(ccova) > 4
-# 
-# # Drive the analysis
-# the_essentials(Treatment, Mediator, Outcome, tv_all, Group, name, simss, t.val, test, sick, sick_group, fn, lkm, date, joo, ip)
-# 
-# uh7ma <- loop_med_simplified1a(Treatment, Mediator, Outcome, tv_all, Group, name, simss, t.val, test, sick, sick_group)
+#Some commenting with Copilot here.
+
 
 ```
 
@@ -2303,106 +2583,159 @@ all_all=all_all; #all_all=all_all[all_all[,1]>0,]
 #https://stats.stackexchange.com/questions/282155/causal-mediation-analysis-negative-indirect-and-total-effect-positive-direct
 #https://www.researchgate.net/post/How_can_I_interpret_a_negative_indirect_effect_for_significant_mediation
 #https://stackoverflow.com/questions/31518150/gsub-in-r-is-not-replacing-dot replacing dot
+groups=GVZ
 groups[,'Abbreviation'][groups[,'Abbreviation']=='17aOH-P4']='17a-OHP4'
 
 #Switch = 0: PFAS vs steroids; switch=1: PFAS vs BAs and lipids, switch=2: steroids vs BAs and lipids (0-2 with both ACME and ADE (z='dir'))
-houdees=function(hoi, rt2, switch,mn,z,corr,date,neg) {
-  indir=c(); dir=c(); ip=c();rn=c();rn2=c()
-  Outcome=colnames(tv_covNS)[c(29:51,59:71)]; #The final dataframe is shorter or the like so there were less variables here...
-  Treatment=colnames(tv_covNS)[52:58];
-  ##https://sparkbyexamples.com/r-programming/r-remove-from-vector-with-examples/
 
-  #direct...
+houdees=function(hoi, rt2, switch, mn, z, corr, date, neg) {
+  indir=c(); dir=c(); ip=c(); rn=c(); rn2=c()
+  Outcome=colnames(tv_covNS)[c(29:51,59:71)]; # The final dataframe is shorter or the like so there were less variables here...
+  Treatment=colnames(tv_covNS)[52:58];
+  ## https://sparkbyexamples.com/r-programming/r-remove-from-vector-with-examples/
+  
+  # Direct mediation analysis
   if (switch==1) {
     Mediator_ok=Outcome[Outcome %in% names(table(hoi[1:dim(hoi)[1],c(3)]))]
-    for (i in 1:7) {for (j in 1:length(Mediator_ok)) {
-      if (z=='dir') {
-        ap=rt2[which(hoi[,1]==Treatment[i] & hoi[,3]==Mediator_ok[j]),]; if (!is.na(median(ap[,'ADE']))) {if (median(ap[,'ADE'])< quantile(rt2[,'ADE'],0.5)) {apa=min(ap[,'ADE']);ape=ap[ap[,'ADE']==min(ap[,'ADE']),'z0.p']} else {apa=max(ap[,'ADE']);ape=ap[ap[,'ADE']==max(ap[,'ADE']),'z0.p']}} else {apa=0;ape=1}
-      indir=append(indir,apa) #or c(1) hoi 1 or 5 (5 is orig)
-      ip=append(ip,ape)} else {        ap=rt2[which(hoi[,1]==Treatment[i] & hoi[,3]==Mediator_ok[j]),]; if (!is.na(median(ap[,'ACME']))) {if (median(ap[,'ACME'])< quantile(rt2[,'ACME'],0.5)) {apa=min(ap[,'ACME']);ape=ap[ap[,'ACME']==min(ap[,'ACME']),'d0.p']} else {apa=max(ap[,'ACME']);ape=ap[ap[,'ACME']==max(ap[,'ACME']),'d0.p']}} else {apa=0;ape=1}
-      indir=append(indir,apa) #or c(1) hoi 1 or 5 (5 is orig)
-      ip=append(ip,ape)}
-      rn=append(rn,hoi[,3][which(hoi[,1]==Treatment[i] & hoi[,3]==Mediator_ok[j])[1]]) #change this...
-      rn2=append(rn2,hoi[,1][which(hoi[,1]==Treatment[i] & hoi[,3]==Mediator_ok[j])[1]])
-      
-      Matrix <- matrix(0, nrow = length(Treatment), ncol = length(Mediator_ok))
-      myData <- data.frame(matrix = Matrix)
-      colnames(myData) <- Mediator_ok; rownames(myData) <- Treatment
-      
-      
-    }}} else if (switch==0) {
-      
-      # indir:
-      Mediator_ok=colnames(tv_all)[9:28][colnames(tv_all)[9:28] %in% names(table(hoi[1:dim(hoi)[1],c(2)]))]
-      for (i in 1:7) {for (j in 1:length(Mediator_ok)) {
-      if (z=='dir') {
-        ap=rt2[which(hoi[,1]==Treatment[i] & hoi[,2]==Mediator_ok[j]),]; if (!is.na(median(ap[,'ADE']))) {if (median(ap[,'ADE'])< quantile(rt2[,'ADE'],0.5)) {apa=min(ap[,'ADE']);ape=ap[ap[,'ADE']==min(ap[,'ADE']),'z0.p']} else {apa=max(ap[,'ADE']);ape=ap[ap[,'ADE']==max(ap[,'ADE']),'z0.p']}} else {apa=0;ape=1}
-      indir=append(indir,apa) #or c(1) hoi 1 or 5 (5 is orig)
-      ip=append(ip,ape)} else {        ap=rt2[which(hoi[,1]==Treatment[i] & hoi[,2]==Mediator_ok[j]),]; if (!is.na(median(ap[,'ACME']))) {if (quantile(ap[,'ACME'],0.50) < quantile(rt2[,'ACME'],0.5)) {apa=min(ap[,'ACME']);ape=ap[ap[,'ACME']==min(ap[,'ACME']),'d0.p']} else 
-        {apa=max(ap[,'ACME']);ape=ap[ap[,'ACME']==max(ap[,'ACME']),'d0.p']}} else {apa=0;ape=1}
-      indir=append(indir,apa) #or c(1) hoi 1 or 5 (5 is orig)
-      ip=append(ip,ape)}
-        rn=append(rn,hoi[,2][which(hoi[,1]==Treatment[i] & hoi[,2]==Mediator_ok[j])[1]]) #change this...
+    for (i in 1:7) {
+      for (j in 1:length(Mediator_ok)) {
+        if (z=='dir') {
+          ap=rt2[which(hoi[,1]==Treatment[i] & hoi[,3]==Mediator_ok[j]),]; 
+          if (!is.na(median(ap[,'ADE']))) {
+            if (median(ap[,'ADE']) < quantile(rt2[,'ADE'],0.5)) {
+              apa=min(ap[,'ADE']);
+              ape=ap[ap[,'ADE']==min(ap[,'ADE']),'z0.p']
+            } else {
+              apa=max(ap[,'ADE']);
+              ape=ap[ap[,'ADE']==max(ap[,'ADE']),'z0.p']
+            }
+          } else {
+            apa=0; ape=1
+          }
+          indir=append(indir,apa) # or c(1) hoi 1 or 5 (5 is orig)
+          ip=append(ip,ape)
+        } else {
+          ap=rt2[which(hoi[,1]==Treatment[i] & hoi[,3]==Mediator_ok[j]),]; 
+          if (!is.na(median(ap[,'ACME']))) {
+            if (median(ap[,'ACME']) < quantile(rt2[,'ACME'],0.5)) {
+              apa=min(ap[,'ACME']);
+              ape=ap[ap[,'ACME']==min(ap[,'ACME']),'d0.p']
+            } else {
+              apa=max(ap[,'ACME']);
+              ape=ap[ap[,'ACME']==max(ap[,'ACME']),'d0.p']
+            }
+          } else {
+            apa=0; ape=1
+          }
+          indir=append(indir,apa) # or c(1) hoi 1 or 5 (5 is orig)
+          ip=append(ip,ape)
+        }
+        rn=append(rn,hoi[,3][which(hoi[,1]==Treatment[i] & hoi[,3]==Mediator_ok[j])[1]]) # change this...
+        rn2=append(rn2,hoi[,1][which(hoi[,1]==Treatment[i] & hoi[,3]==Mediator_ok[j])[1]])
+        
+        Matrix <- matrix(0, nrow = length(Treatment), ncol = length(Mediator_ok))
+        myData <- data.frame(matrix = Matrix)
+        colnames(myData) <- Mediator_ok; rownames(myData) <- Treatment
+      }
+    }
+  } else if (switch==0) {
+    # Indirect mediation analysis
+    Mediator_ok=colnames(tv_all)[9:28][colnames(tv_all)[9:28] %in% names(table(hoi[1:dim(hoi)[1],c(2)]))]
+    for (i in 1:7) {
+      for (j in 1:length(Mediator_ok)) {
+        if (z=='dir') {
+          ap=rt2[which(hoi[,1]==Treatment[i] & hoi[,2]==Mediator_ok[j]),]; 
+          if (!is.na(median(ap[,'ADE']))) {
+            if (median(ap[,'ADE']) < quantile(rt2[,'ADE'],0.5)) {
+              apa=min(ap[,'ADE']);
+              ape=ap[ap[,'ADE']==min(ap[,'ADE']),'z0.p']
+            } else {
+              apa=max(ap[,'ADE']);
+              ape=ap[ap[,'ADE']==max(ap[,'ADE']),'z0.p']
+            }
+          } else {
+            apa=0; ape=1
+          }
+          indir=append(indir,apa) # or c(1) hoi 1 or 5 (5 is orig)
+          ip=append(ip,ape)
+        } else {
+          ap=rt2[which(hoi[,1]==Treatment[i] & hoi[,2]==Mediator_ok[j]),]; 
+          if (!is.na(median(ap[,'ACME']))) {
+            if (quantile(ap[,'ACME'],0.50) < quantile(rt2[,'ACME'],0.5)) {
+              apa=min(ap[,'ACME']);
+              ape=ap[ap[,'ACME']==min(ap[,'ACME']),'d0.p']
+            } else {
+              apa=max(ap[,'ACME']);
+              ape=ap[ap[,'ACME']==max(ap[,'ACME']),'d0.p']
+            }
+          } else {
+            apa=0; ape=1
+          }
+          indir=append(indir,apa) # or c(1) hoi 1 or 5 (5 is orig)
+          ip=append(ip,ape)
+        }
+        rn=append(rn,hoi[,2][which(hoi[,1]==Treatment[i] & hoi[,2]==Mediator_ok[j])[1]]) # change this...
         rn2=append(rn2,hoi[,1][which(hoi[,1]==Treatment[i] & hoi[,2]==Mediator_ok[j])[1]])
         
-      Matrix <- matrix(0, nrow = length(Treatment), ncol = length(Mediator_ok))
-      myData <- data.frame(matrix = Matrix)
-      colnames(myData) <- Mediator_ok; rownames(myData) <- Treatment
-        
-        
-      }}} else if (switch==2) {
-        Treatment=colnames(tv_all)[9:28]; # These names are a bit mixed, by the idea is ok.
-        Mediator_ok=Outcome[Outcome %in% names(table(hoi[1:dim(hoi)[1],c(3)]))]
-        # df = data.frame(matrix("", nrow = length(Treatment), ncol = length(Mediator_ok))) 
-        
-    for (i in 1:length(Treatment)) {for (j in 1:length(Mediator_ok)) {
-      if (z=='dir') {
-        ap=rt2[which(hoi[,2]==Treatment[i] & hoi[,3]==Mediator_ok[j]),]; if (!is.na(median(ap[,'ADE']))) {if (median(ap[,'ADE'])<quantile(rt2[,'ADE'],0.5)) {apa=min(ap[,'ADE']);ape=ap[ap[,'ADE']==min(ap[,'ADE']),'z0.p']} else {apa=max(ap[,'ADE']);ape=ap[ap[,'ADE']==max(ap[,'ADE']),'z0.p'];}} else {apa=0;ape=1}
-      indir=append(indir,apa) #or c(1) hoi 1 or 5 (5 is orig)
-      ip=append(ip,ape)} else {        ap=rt2[which(hoi[,2]==Treatment[i] & hoi[,3]==Mediator_ok[j]),]; if (!is.na(median(ap[,'ACME']))) {if (median(ap[,'ACME']) < quantile(rt2[,'ACME'],0.5)) {apa=min(ap[,'ACME']);ape=ap[ap[,'ACME']==min(ap[,'ACME']),'d0.p']} else {apa=max(ap[,'ACME']);ape=ap[ap[,'ACME']==max(ap[,'ACME']),'d0.p']}} else {apa=0;ape=1}
-      indir=append(indir,apa) #or c(1) hoi 1 or 5 (5 is orig)
-      ip=append(ip,ape)}
-
-      rn=append(rn,hoi[,3][which(hoi[,2]==Treatment[i] & hoi[,3]==Mediator_ok[j])[1]]) #change this...
-      rn2=append(rn2,hoi[,2][which(hoi[,2]==Treatment[i] & hoi[,3]==Mediator_ok[j])[1]])
-      Matrix <- matrix(0, nrow = length(Treatment), ncol = length(Mediator_ok))
-      myData <- data.frame(matrix = Matrix)
-      colnames(myData) <- Mediator_ok; rownames(myData) <- Treatment
-      
-      
-      }}} # You need three of these, yes :) ;print(ap[,'ADE']) print(rownames(ap[ap[,'ADE']==min(ap[,'ADE']),]))
+        Matrix <- matrix(0, nrow = length(Treatment), ncol = length(Mediator_ok))
+        myData <- data.frame(matrix = Matrix)
+        colnames(myData) <- Mediator_ok; rownames(myData) <- Treatment
+      }
+    }
+  } else if (switch==2) {
+    Treatment=colnames(tv_all)[9:28]; # These names are a bit mixed, but the idea is ok.
+    Mediator_ok=Outcome[Outcome %in% names(table(hoi[1:dim(hoi)[1],c(3)]))]
+    
+    for (i in 1:length(Treatment)) {
+      for (j in 1:length(Mediator_ok)) {
+        if (z=='dir') {
+          ap=rt2[which(hoi[,2]==Treatment[i] & hoi[,3]==Mediator_ok[j]),]; 
+          if (!is.na(median(ap[,'ADE']))) {
+            if (median(ap[,'ADE']) < quantile(rt2[,'ADE'],0.5)) {
+              apa=min(ap[,'ADE']);
+              ape=ap[ap[,'ADE']==min(ap[,'ADE']),'z0.p']
+            } else {
+              apa=max(ap[,'ADE']);
+              ape=ap[ap[,'ADE']==max(ap[,'ADE']),'z0.p']
+            }
+          } else {
+            apa=0; ape=1
+          }
+          indir=append(indir,apa) # or c(1) hoi 1 or 5 (5 is orig)
+          ip=append(ip,ape)
+        } else {
+          ap=rt2[which(hoi[,2]==Treatment[i] & hoi[,3]==Mediator_ok[j]),]; 
+          if (!is.na(median(ap[,'ACME']))) {
+            if (median(ap[,'ACME']) < quantile(rt2[,'ACME'],0.5)) {
+              apa=min(ap[,'ACME']);
+              ape=ap[ap[,'ACME']==min(ap[,'ACME']),'d0.p']
+            } else {
+              apa=max(ap[,'ACME']);
+              ape=ap[ap[,'ACME']==max(ap[,'ACME']),'d0.p']
+            }
+          } else {
+            apa=0; ape=1
+          }
+          indir=append(indir,apa) # or c(1) hoi 1 or 5 (5 is orig)
+          ip=append(ip,ape)
+        }
+        rn=append(rn,hoi[,3][which(hoi[,2]==Treatment[i] & hoi[,3]==Mediator_ok[j])[1]]) # change this...
+        rn2=append(rn2,hoi[,2][which(hoi[,2]==Treatment[i] & hoi[,3]==Mediator_ok[j])[1]])
+        Matrix <- matrix(0, nrow = length(Treatment), ncol = length(Mediator_ok))
+        myData <- data.frame(matrix = Matrix)
+        colnames(myData) <- Mediator_ok; rownames(myData) <- Treatment
+      }
+    }
+  } # You need three of these, yes :) ;print(ap[,'ADE']) print(rownames(ap[ap[,'ADE']==min(ap[,'ADE']),]))
   
-  tot=cbind(rn2,rn,indir) #or indir or dir
+  tot=cbind(rn2,rn,indir) # or indir or dir
   tot=tot[!is.na(tot[,1]),]
-  tot=as.data.frame(tot)#
-  
-  # uu=data.frame();hou=c()
-  
-  # if (neg=='no') {
-  # for (i in 1:length(Treatment)) {hou=names( table(tot[tot[,1]==Treatment[i],2])[table(tot[tot[,1]==Treatment[i],2])>0]);#print(hou)
-  # for (j in 1:length(hou)) {uu=rbind(uu, max(tot[tot[,1]==Treatment[i] & tot[,2]==hou[j],3]))}} #
-  # rr=data.frame()
-  # for (i in 1:length(Treatment)) {hou=names( table(tot[tot[,1]==Treatment[i],2])[table(tot[tot[,1]==Treatment[i],2])>0]);#print(hou)
-  # for (j in 1:length(hou)) {rr=rbind(rr, rownames(tot[tot[,3] == max(tot[tot[,1]==Treatment[i] & tot[,2]==hou[j],3]),]))}};uim=cbind(uu,rr);tot=tot[uim[,2],]} else if
-  # (neg=='yes') {for (i in 1:length(Treatment)) {hou=names( table(tot[tot[,1]==Treatment[i],2])[table(tot[tot[,1]==Treatment[i],2])>0]);#print(hou)
-  # for (j in 1:length(hou)) {uu=rbind(uu, min(tot[tot[,1]==Treatment[i] & tot[,2]==hou[j],3]))}} #
-  # rr=data.frame()
-  # for (i in 1:length(Treatment)) {hou=names( table(tot[tot[,1]==Treatment[i],2])[table(tot[tot[,1]==Treatment[i],2])>0]);#print(hou)
-  # for (j in 1:length(hou)) {rr=rbind(rr, rownames(tot[tot[,3] == min(tot[tot[,1]==Treatment[i] & tot[,2]==hou[j],3]),]))}};uim=cbind(uu,rr);tot=tot[uim[,2],]} else if
-  # (neg=='else') {tot=tot}
+  tot=as.data.frame(tot)
 
+  
   # Here you would need to have an evaluation for the 'else', if it is negative, it needs to be max negative, and vice versa for the
   # There does not seem to be doubles: table(tot[,1])
   
-
-  # for (i in 1:length(Treatment)) {hou=names( table(tot[tot[,1]==Treatment[i],2])[table(tot[tot[,1]==Treatment[i],2])>0]);#print(hou)
-  # for (j in 1:length(hou)) {uu=rbind(uu, max(tot[tot[,1]==Treatment[i] & tot[,2]==hou[j],3]))}} #
-  # rr=data.frame()
-  # for (i in 1:length(Treatment)) {hou=names( table(tot[tot[,1]==Treatment[i],2])[table(tot[tot[,1]==Treatment[i],2])>0]);#print(hou)
-  # for (j in 1:length(hou)) {rr=rbind(rr, rownames(tot[tot[,3] == max(tot[tot[,1]==Treatment[i] & tot[,2]==hou[j],3]),]))}};
-  # 
-  # uim=cbind(uu,rr);tot=tot[uim[,2],]
-  # 
   tot[,3]=as.numeric(tot[,3])
   
   library(reshape2)
@@ -2412,98 +2745,51 @@ houdees=function(hoi, rt2, switch,mn,z,corr,date,neg) {
   jops=jops[,2:dim(jops)[2]]
   jops=as.data.frame(jops)
   jopsr=matrix(as.numeric(unlist(jops)),nrow=dim(jops)[1],ncol=dim(jops)[2])
-  colnames(jopsr)=colnames(jops);rownames(jopsr)=rownames(jops)
+  colnames(jopsr)=colnames(jops); rownames(jopsr)=rownames(jops)
   
-  # print(dim(jopsr)[1] == dim(myData)[1]);print(dim(jopsr)[2] == dim(myData)[2])
+  # Ensure all rows and columns from myData are present in jopsr
+  if (sum(!rownames(myData) %in% rownames(jopsr)) > 0) {
+    to_df=rownames(myData)[!rownames(myData) %in% rownames(jopsr)]
+    jopsr=rbind(jopsr, myData[to_df,]); jopsr=jopsr[rownames(myData),]
+  }
+  if (sum(!colnames(myData) %in% colnames(jopsr)) > 0) {
+    to_df=colnames(myData)[!colnames(myData) %in% colnames(jopsr)]
+    jopsr=cbind(jopsr, myData[,to_df]); jopsr=jopsr[,colnames(myData)]
+  }
   
-  if (sum(!rownames(myData) %in% rownames(jopsr))>0) {
-  to_df=rownames(myData)[!rownames(myData) %in% rownames(jopsr)]
-  jopsr=rbind(jopsr,myData[to_df,]); jopsr=jopsr[rownames(myData),]}
-  if (sum(!colnames(myData) %in% colnames(jopsr))>0) {
-  to_df=colnames(myData)[!colnames(myData) %in% colnames(jopsr)]
-  jopsr=cbind(jopsr,myData[,to_df]); jopsr=jopsr[,colnames(myData)]}
-  # 
-
-  # if (switch==1) {
-  #   #for direct:
-  #   jopsr=jopsr[,Outcome[Outcome %in% colnames(jopsr)]] #c
-  # } else if (switch==0 ) {
-  #   #for indirect:
-  #   ums=groups[order(groups[,'Group']),'Abbreviation']
-  #   jopsr=jopsr[,ums[ums %in% colnames(jopsr)]] 
-  # }
-
-  tot=cbind(rn2,rn,ip)
+  tot=cbind(rn2, rn, ip)
   tot=tot[!is.na(tot[,1]),]
   tot=as.data.frame(tot)
-  # if (neg=='no' | neg=='yes' ) {tot=tot[uim[,2],]} else {tot=tot}
   tot[,3]=as.numeric(tot[,3])
   
-  library(reshape2)
   jopsa=dcast(tot, rn2~rn, value.var='ip')
   jopsa[is.na(jopsa)]=0
   rownames(jopsa)=jopsa[,1]
   jopsa=jopsa[,2:dim(jopsa)[2]]
   jopsra=matrix(as.numeric(unlist(jopsa)),nrow=dim(jopsa)[1],ncol=dim(jopsa)[2])
-  colnames(jopsra)=colnames(jopsa);rownames(jopsra)=rownames(jopsa)
-  colnames(jopsra)=colnames(jopsa);rownames(jopsra)=rownames(jopsa)
+  colnames(jopsra)=colnames(jopsa); rownames(jopsra)=rownames(jopsa)
   
-  if (sum(!rownames(myData) %in% rownames(jopsra))>0) {
-  to_df=rownames(myData)[!rownames(myData) %in% rownames(jopsra)]
-  jopsra=rbind(jopsra,myData[to_df,]); jopsra=jopsra[rownames(myData),]}
-  if (sum(!colnames(myData) %in% colnames(jopsra))>0) {
-  to_df=colnames(myData)[!colnames(myData) %in% colnames(jopsra)]
-  jopsra=cbind(jopsra,myData[,to_df]); jopsra=jopsra[,colnames(myData)]}
- 
-
-  # df
-
+  if (sum(!rownames(myData) %in% rownames(jopsra)) > 0) {
+    to_df=rownames(myData)[!rownames(myData) %in% rownames(jopsra)]
+    jopsra=rbind(jopsra, myData[to_df,]); jopsra=jopsra[rownames(myData),]
+  }
+  if (sum(!colnames(myData) %in% colnames(jopsra)) > 0) {
+    to_df=colnames(myData)[!colnames(myData) %in% colnames(jopsra)]
+    jopsra=cbind(jopsra, myData[,to_df]); jopsra=jopsra[,colnames(myData)]
+  }
   
   if (switch==1) {
-    #for direct:
-    # jopsra=jopsra[,Outcome[Outcome %in% colnames(jopsra)]];
-    # jopsr=jopsr[,Outcome[Outcome %in% colnames(jopsr)]] 
-    # jopsra=jopsra[groups[,'Abbreviation'][groups[,'Abbreviation'] %in% rownames(jopsra)],]
-    # jopsr=jopsr[groups[,'Abbreviation'][groups[,'Abbreviation'] %in% rownames(jopsr)],]
-    
-    
+    # For direct effects
   } else if (switch==0) {
-    #for indirect
+    # For indirect effects
     jopsra=jopsra[,groups[,'Abbreviation'][groups[,'Abbreviation'] %in% colnames(jopsra)]]
-    # jopsra=jopsra[,groups[,'Abbreviation'][groups[,'Abbreviation'] %in% colnames(jopsra)]]
-    #groups[,'Abbreviation'][groups[,'Abbreviation'] %in% colnames(jopsra)]
-    # jopsra=jopsra[,ums[ums %in% colnames(jopsr)]] 
-    jopsr=jopsr[,groups[,'Abbreviation'][groups[,'Abbreviation'] %in% colnames(jopsr)]] 
+    jopsr=jopsr[,groups[,'Abbreviation'][groups[,'Abbreviation'] %in% colnames(jopsr)]]
   } else if (switch==2) {
     jopsra=jopsra[groups[,'Abbreviation'],]
     jopsr=jopsr[groups[,'Abbreviation'],]
-    # #groups[,'Abbreviation'][groups[,'Abbreviation'] %in% colnames(jopsra)]
-    # ums=groups[,'Abbreviation']
-    # jopsra=jopsra[ums,];
-    # jopsr=jopsr[ums,]
-    } 
+  }
   
-  setwd("C:/Users/patati/Desktop/Turku/R/") #check this if needed...
-  hip1='transpose';pch.cex=2; #width = 5000;height=2000 width = 2500;height=4000 width = 4000;height=2500;
-  ho=paste('PFAS vs. bas and lipids_for the hypo_basic_colors_stea', switch)
-  if (dim(jopsr)[1]==7) {width = 4000;height=1500} else if (dim(jopsr)[1]==20) {width = 4000;height=2500} else if (dim(jopsr)[1]==36) {width = 2500;height=5000}
-  resulta1=jopsr
-  p.mat.a1=jopsra
-  #https://www.rdocumentation.org/packages/corrplot/versions/0.92/topics/corrplot
-  #https://cran.r-project.org/web/packages/corrplot/vignettes/corrplot-intro.html
-  #https://statisticsglobe.com/change-font-size-corrplot-r
-  #order can be: alphabet, hclust, original #https://stackoverflow.com/questions/51115495/how-to-keep-order-of-the-correlation-plot-labels-as-same-in-the-datafile
-  # if (switch==1) {rbo=rev(COL2('RdBu')[25:(length(COL2('RdBu'))-25)]) } else if (switch==0  | switch==2) {rbo=rev(COL2('RdBu')[25:100]) } 
-  # This has been driven:
-  # resulta1=resulta1[,colnames(resulta2)] #In case you need the column names elsewhere
-  # for (i in 1:dim(resulta1)[1]) {for (j in 1:dim(resulta1)[2]) {if (resulta1[i,j]==0) {p.mat.a1[i,j]=0.5}}}
-  # p.mat.a1$column <- unlist(p.mat.a1$column)
-  # resulta1$column <- unlist(resulta1$column)
-  # resulta1 <- as.matrix(resulta1); resulta1 <- as.matrix(p.mat.a1)
-  # resulta1 <- as.matrix(m1);p.mat.a1 <- as.matrix(m4)
-  # resulta1 <- as.matrix(the_real);p.mat.a1 <- as.matrix(the_real2)
-  # rbo=rev(COL2('RdBu')[25:(length(COL2('RdBu'))-25)])
-  # With the neg. you do not put these:
+    # With the neg. you do not put these:
   if (dim(resulta1)[2]==36) {
   Outcome=colnames(tv_covNS)[c(29:51,59:71)];
   Outcome=Outcome[c(1,23,2:22,24:length(Outcome))]
@@ -2519,12 +2805,6 @@ houdees=function(hoi, rt2, switch,mn,z,corr,date,neg) {
   if (hepsa-heps >=0 ) {resulta1[resulta1 >= heps2] = hepsa; resulta1[resulta1 <= -heps3] = -hepsa; heps=hepsa} else 
   if (hepsa-heps < 0 ) {resulta1[resulta1 <= -heps] = -heps; resulta1[resulta1 >= heps2] = heps}  
   
-  # resulta1=resulta1+0.1 ; 
-  
-  # hist(as.numeric(unlist(resulta1)),breaks=30,ylim=c(0.0,40))  #xlim=c(0.04,0.4),
-  # resulta1[resulta1 > 1]  = 1
-  # resulta1[resulta1 < -1] = -1 #col.lim=c(-0.4,0.4))
- 
   path="C:/Users/patati/Documents/GitHub/Steroid_Data_Analysis/"; setwd(path) #check this if needed...
   jpeg(paste("Heatmap of high",date, mn,neg,".jpg"), width = width, height = height, quality = 100,pointsize = 14, res=300);# par( ps=ps)# par(cex.lab=90) 22 18
   # col = brewer.pal(n = 9, name = "YlOrRd")
@@ -2533,23 +2813,24 @@ houdees=function(hoi, rt2, switch,mn,z,corr,date,neg) {
   
   col=colorRampPalette(c('blue', 'white','orange'), alpha = TRUE)(150)
   if (neg=='no') {col=colorRampPalette(c( 'white','orange'), alpha = TRUE)(150)} else if (neg=='yes')
-    {col=colorRampPalette(c('blue', 'white'), alpha = TRUE)(150)} else {col=col}
-
+  {col=colorRampPalette(c('blue', 'white'), alpha = TRUE)(150)} else {col=col}
+  
   # if (corr==TRUE) {if (min(as.matrix(resulta1))< -1  | max(as.matrix(resulta1))> 1) {resulta1=rango(resulta1,-1,1)}} else if (min(as.matrix(resulta1)) >= 0)  {resulta1=rango(resulta1,-1,1)} #
   # resulta1=rango(resulta1,-1,1)
   # if (min(as.matrix(resulta1)) >= 0  | max(as.matrix(resulta1)) <= 0) {resulta1=rango(resulta1,-1,1)}
-
-  corrplot(as.matrix(resulta1), type = type, order = order,method=method, p.mat=as.matrix(p.mat.a1), tl.col = "black", #sum(COL2('RdBu')=="#FF7417")
-           cl.cex = cl.cex, pch.cex=pch.cex, pch.col='black',pch=pch,#pitikö vain pch lisätä pch väriin väriin... mystistä...'#FEE12B'
+  
+  corrplot(as.matrix(resulta1), type = type, order = order,method=method, p.mat=as.matrix(p.mat.a1), tl.col = "black", 
+           cl.cex = cl.cex, pch.cex=pch.cex, pch.col='black',pch=pch,#pitikö vain pch lisätä pch väriin väriin..'#FEE12B'
            sig.level = c(0.05),cl.pos = cl.pos, insig = "label_sig", cl.offset=cl.offset,cl.length=cl.length, #.001, .05, .2
-           tl.srt = 90, diag = TRUE,col=col,is.corr = corr,col.lim=c(-heps,heps)) #only in age...0.001,col.lim=c(-heps,heps) #rev(COL2('RdBu')[25:(length(COL2('RdBu'))-25)]) col.lim=c(-1,1) col.lim=c(-heps,heps)
+           tl.srt = 90, diag = TRUE,col=col,is.corr = corr,col.lim=c(-heps,heps)) 
+  #only in age...0.001,col.lim=c(-heps,heps) #rev(COL2('RdBu')[25:(length(COL2('RdBu'))-25)]) col.lim=c(-1,1) col.lim=c(-heps,heps)
   #non were significant in neg... but after mody yes!
-
+  
   dev.off(); eoh=paste("Heatmap of high",date, mn,neg,".jpg"); daiR::image_to_pdf(eoh, pdf_name=paste0(eoh,'.pdf'))
   my_image <- image_read(eoh);my_svg <- image_convert(my_image, format="svg"); image_write(my_svg, paste(eoh,".svg"))
   
-  return(list(resulta1,p.mat.a1))
-  }
+  return(list(resulta1, p.mat.a1))
+}
 
 # Switch = 0: PFAS vs steroids; 
 # Switch = 1: PFAS vs BAs and lipids, 
@@ -2558,187 +2839,115 @@ houdees=function(hoi, rt2, switch,mn,z,corr,date,neg) {
 
 # #Let's get this comparable done:
 # First the 'matrisse'
-
-
-corr=FALSE;z='dir'; switch=2 
-u3=all_all; c1=c(); #mn='basicas' #
+corr=FALSE; z='dir'; switch=2 
+u3=all_all; c1=c(); # mn='basicas' #
 c1= u3 #[u3[,'ADE'] < ADEMedian  & DV<ADEVar,] #& u3[,'z0.p']<ADEpval
-# c1 = c1[ ((c1[,'ACME']-c1[,'ADE']) > 0), ] #
-# c1 = c1[c1[,'d0.p']<0.49, ];
-# c1= c1[sample(1:nrow(c1)), ];
-# c1=c1[rev(order(c1[,'ACME'])),];
-# c1=c1[rev(order(c1[,'ADE'])),]; #
-# c1=c1[c1[,'z0.p'] < 0.89, ] # 89:llä päästään oikeaan hiiridataan
-# c1=c1[c1[,'ACME'] >= 0,] # -0.01,]#quantile(c1[,'ACME'])[2]
-rt2=c1[complete.cases(c1), ] #0.49 is optimal p value cutoff to get dim(mat[[2]])[2] as 36
-hoi = c(); hoi=scan(text=rownames(rt2), what="")#scan(text=rownames(rt2), what="")
-hoi = matrix(hoi, ncol = 3,  byrow = TRUE); colnames(hoi)=c('Contaminants','Steroids','Bile Acids or Lipids')#,'Gender') ,'Desig.')
+rt2=c1[complete.cases(c1), ] # 0.49 is optimal p value cutoff to get dim(mat[[2]])[2] as 36
+hoi = c(); hoi=scan(text=rownames(rt2), what="") # scan(text=rownames(rt2), what="")
+hoi = matrix(hoi, ncol = 3,  byrow = TRUE); colnames(hoi)=c('Contaminants','Steroids','Bile Acids or Lipids') # ,'Gender') ,'Desig.')
 hoi[,c(2)]  <- gsub("\\.", "-",  hoi[,c(2)]  ); hoi[,'Steroids' ][hoi[,'Steroids' ]=='17aOH-P4']='17a-OHP4'
-mn=paste0(z,'ade_s_vs_bal_no order3a'); neg='else'
-mat=houdees(hoi, rt2, switch,mn,z,corr,date,neg);
-# dim(mat[[2]])[2] # Indirect effect, kasvata... dim(mat[[2]])[2] == 36
-# sum(mat[[1]]==0)
+mn=paste0(z,'ade_s_vs_bal_no order3b'); neg='else'
+mat=houdees(hoi, rt2, switch, mn, z, corr, date, neg); # dim(mat[[2]])[2] # Indirect effect, kasvata... dim(mat[[2]])[2] == 36
 
-corr=FALSE;z='dir'; switch=1; 
-
+corr=FALSE; z='dir'; switch=1; 
 u3=all_all;
 c1=c() #
 c1= u3 #[u3[,'ADE'] < ADEMedian  & DV<ADEVar,] #& u3[,'z0.p']<ADEpval
 c1=c1[rev(order(c1[,'ADE'])),]; #
-# c1=c1[rev(order(c1[,'ACME'])),];
-# c1= c1[sample(1:nrow(c1)), ];
-# c1=c1[ ((c1[,'ADE']-c1[,'ACME']) > 0), ] #
-c1=c1[c1[,'z0.p'] < 0.89, ] #0.98/0.81/0.45/0.53/0.1... but gives 33 columns so use the other then..
+c1=c1[c1[,'z0.p'] < 0.89, ] # 0.98/0.81/0.45/0.53/0.1... but gives 33 columns so use the other then..
 # c1=c1[c1[,'d0.p'] < 0.50, ]
- #let us start with the above optima... 643/or similar is dim(c1)[1] so need higher p to get all; (dim(c1)[1]-1)
-#Check if this needs to be ADE instead...
+# let us start with the above optima... 643/or similar is dim(c1)[1] so need higher p to get all; (dim(c1)[1]-1)
+# Check if this needs to be ADE instead...
 c3=c1[c1[,'ADE'] < 0,] # -0.01,]#quantile(c1[,'ACME'])[2]
-# c3=c1[c1[,'ACME'] < 0,]
-# 
-# c3= c3[sample(1:nrow(c3)), ];
 c1=c3;
 rt2=c1[complete.cases(c1), ]
-hoi=c(); hoi=scan(text=rownames(rt2), what="")#scan(text=rownames(rt2), what="")
-hoi=matrix(hoi, ncol = 3,  byrow = TRUE); colnames(hoi)=c('Contaminants','Steroids','Bile Acids or Lipids')#,'Gender') ,'Desig.')
+hoi=c(); hoi=scan(text=rownames(rt2), what="") # scan(text=rownames(rt2), what="")
+hoi=matrix(hoi, ncol = 3,  byrow = TRUE); colnames(hoi)=c('Contaminants','Steroids','Bile Acids or Lipids') # ,'Gender') ,'Desig.')
 hoi[,c(2)]  <- gsub("\\.", "-",  hoi[,c(2)]  ); hoi[,'Steroids' ][hoi[,'Steroids' ]=='17aOH-P4']='17a-OHP4'
 # mat_neg=list(c(1,2),c(3,4))
-mn=paste0(z,'neg');neg='yes'
-mat_neg=houdees(hoi, rt2, switch,mn,z,corr,date,neg); 
-# dim(mat_neg[[2]])[2]  #kasvata n, jotta dim(mat_pos[[2]])[2] yhtäkuin kuin length(c(x3,x6)), i.e. 36
+mn=paste0(z,'neg'); neg='yes'
+mat_neg=houdees(hoi, rt2, switch, mn, z, corr, date, neg); 
+# dim(mat_neg[[2]])[2]  # kasvata n, jotta dim(mat_pos[[2]])[2] yhtäkuin kuin length(c(x3,x6)), i.e. 36
 
-u3=all_all; c1=c(); #mn='posae'
+u3=all_all; c1=c(); # mn='posae'
 c1= u3 #[u3[,'ADE'] < ADEMedian  & DV<ADEVar,] #& u3[,'z0.p']<ADEpval
-c1=c1[rev(order(c1[,'ACME'])),]; #Check acmes and ades
-# c1=c1[rev(order(c1[,'ADE'])),]; 
-# c1=c1[ ((c1[,'ACME']-c1[,'ADE']) > 0), ] #
-# c1=c1[c1[,'d0.p']<0.50, ] # Let me uset the same optimal value as above 0.33
+c1=c1[rev(order(c1[,'ACME'])),]; # Check acmes and ades
 c1=c1[c1[,'z0.p']<0.89, ]
-# c2=c1[rev(order(c1[,'ACME'])),]; #350 is optimal as per hand driven optimization 280; check if this needs to be ACME/ADE
-# c2=c1[c1[,'ACME'] >= 0,] #c2[c1[,'ACME']>0.01,]#quantile(c1[,'ACME'])[3]
 c2=c1[c1[,'ADE'] >= 0,]
 c1=c2; # 
 # c1= c1[sample(1:nrow(c1)), ];
 rt2=c1[complete.cases(c1), ] # rt2[1,]=rt2[1,]
-hoi=c(); hoi=scan(text=rownames(rt2), what="")#scan(text=rownames(rt2), what="")
-hoi=matrix(hoi, ncol = 3,  byrow = TRUE); colnames(hoi)=c('Contaminants','Steroids','Bile Acids or Lipids')#,'Gender') ,'Desig.')
+hoi=c(); hoi=scan(text=rownames(rt2), what="") # scan(text=rownames(rt2), what="")
+hoi=matrix(hoi, ncol = 3,  byrow = TRUE); colnames(hoi)=c('Contaminants','Steroids','Bile Acids or Lipids') # ,'Gender') ,'Desig.')
 hoi[,c(2)]  <- gsub("\\.", "-",  hoi[,c(2)]  ); hoi[,'Steroids' ][hoi[,'Steroids' ]=='17aOH-P4']='17a-OHP4'
 mn=paste0(z,'posa2aa'); neg='no'
-mat_pos=houdees(hoi, rt2, switch,mn,z,corr,date,neg='no');
-#dim(mat_pos[[2]])[2] #kasvata n, jotta dim(mat_pos[[2]])[2] yhtäkuin kuin length(c(x3,x6)), i.e. 36
+mat_pos=houdees(hoi, rt2, switch, mn, z, corr, date, neg='no');
 
-# mg=mat_pos[[1]]
-# ma=mat_neg[[1]]
-# # hist(as.numeric(unlist(ma)),breaks=30)  #xlim=c(0.04,0.4), ylim=c(0.0,20),xlim=c(-0.5,0.5)
-# # hist(as.numeric(unlist(mg)),breaks=30)  #xlim=c(0.04,0.4), ylim=c(0.0,20),xlim=c(-0.5,0.5)
-# totu = mg == 0 #< quantile(as.numeric(unlist(mat_pos[[1]]))[as.numeric(unlist(mat_pos[[1]]))>0.01],0.05) #0.19
-# rpl=ma[totu]
-# mg[totu]=rpl
-# mgg=mat_pos[[2]]
-# maa=mat_neg[[2]]
-# rpl2=maa[totu]
-# mgg[totu]=rpl2
-#  
-# # hist(as.numeric(unlist(ma)),breaks=30)  #xlim=c(0.04,0.4), ylim=c(0.0,20),xlim=c(-0.5,0.5)
-# # hist(as.numeric(unlist(mg)),breaks=30)  #xlim=c(0.04,0.4), ylim=c(0.0,20),xlim=c(-0.5,0.5)
-# 
-# # Eli nollat ja liian lähellä negatiiviset nollat on tässä tulkittu positiivisiksi ACME:iksi, johtuen myös mediaanien erosta (neg puoli vs pos puoli)
-# mg=mat_pos[[1]]
-# ma=mat_neg[[1]]
-# totu = ma > quantile(as.numeric(unlist(mat_neg[[1]]))[as.numeric(unlist(mat_neg[[1]])) < -0.01],0.95) #-0.09; 0.8 #median(as.numeric(unlist(mat_neg[[1]]))[as.numeric(unlist(mat_neg[[1]])) < -0.01]) #tässä tätä mediaanieroa, vrt. yllä oleva
-# rpl=mg[totu] # ei neg adessa
-# ma[totu]=rpl
-# mgg=mat_pos[[2]]
-# maa=mat_neg[[2]]
-# rpl2=mgg[totu]
-# maa[totu]=rpl2
-
-the_real=c();the_real <- matrix(0, nrow = dim(mat[[1]])[1], ncol = dim(mat[[1]])[2]); the_real <- data.frame( the_real)
+the_real=c(); the_real <- matrix(0, nrow = dim(mat[[1]])[1], ncol = dim(mat[[1]])[2]); the_real <- data.frame(the_real)
 colnames(the_real) <- colnames(mat[[1]]); rownames(the_real) <- rownames(mat[[1]])
-the_real2=c();the_real2 <- matrix(0, nrow = dim(mat[[1]])[1], ncol = dim(mat[[1]])[2]); the_real2 <- data.frame(the_real2)
+the_real2=c(); the_real2 <- matrix(0, nrow = dim(mat[[1]])[1], ncol = dim(mat[[1]])[2]); the_real2 <- data.frame(the_real2)
 colnames(the_real2) <- colnames(mat[[1]]); rownames(the_real2) <- rownames(mat[[1]])
 
 m1=mat[[1]]; m2=mat_pos[[1]]; m3=mat_neg[[1]]; m4=mat[[2]]; m5=mat_pos[[2]]; m6=mat_neg[[2]]
 # m3=m3[,Outcome[Outcome %in% colnames(m3) ]]; m6=m6[,Outcome[Outcome %in% colnames(m6) ]]
 
-#Old logic:
-# for (i in rownames(m2)) {for (j in colnames(m2)) {if (m2[i,j]==0) {the_real[i,j]=m1[i,j];the_real2[i,j]=m4[i,j]}}}
-# for (i in rownames(m3)) {for (j in colnames(m3)) {if (m3[i,j]==0) {the_real[i,j]=m1[i,j];the_real2[i,j]=m4[i,j]}}}
-# for (i in rownames(m2)) {for (j in colnames(m2)) {if (m5[i,j]<0.1) {the_real[i,j]=m2[i,j];the_real2[i,j]=m5[i,j]}}}
-# for (i in rownames(m3)) {for (j in colnames(m3)) {if (m6[i,j]<0.1) {the_real[i,j]=m3[i,j];the_real2[i,j]=m6[i,j]}}}
-
-#or... new logic:
-the_real=m1;the_real2=m4
-# for (i in rownames(m2)) {for (j in colnames(m2)) {if (the_real2[i,j] > 0 ) {the_real[i,j]=m1[i,j];the_real2[i,j]=m4[i,j]}}}
+# or... new logic:
+the_real=m1; the_real2=m4
+# for (i in rownames(m2)) {for (j in colnames(m2)) {if (the_real2[i,j] > 0 ) {the_real[i,j]=m1[i,j]; the_real2[i,j]=m4[i,j]}}}
 the_real[the_real >= 0 & the_real < 0.03] = m2[the_real >= 0 & the_real < 0.03]
 the_real2[the_real >= 0 & the_real < 0.03] = m5[the_real >= 0 & the_real < 0.03]
 the_real[the_real < 0 & the_real > -0.04] = m3[the_real < 0 & the_real > -0.04]
 the_real2[the_real < 0 & the_real > -0.04] = m6[the_real < 0 & the_real > -0.04]
 
-# resulta1_big_id=mg #ma
-# p.mat.a1_big_id=mgg #maa
+# resulta1_big_id=mg # ma
+# p.mat.a1_big_id=mgg # maa
 # resulta1_big_id=ma
 # p.mat.a1_big_id=maa
 resulta1_big_id=the_real
 p.mat.a1_big_id=the_real2
-
 # resulta1_big_id=m1
 # p.mat.a1_big_id=m4
 
-resulta1 <- as.matrix(resulta1_big_id);p.mat.a1 <- as.matrix(p.mat.a1_big_id)
+resulta1 <- as.matrix(resulta1_big_id); p.mat.a1 <- as.matrix(p.mat.a1_big_id)
 resulta1[is.na(resulta1)]=0
+
 # With the neg. you do not put these:
 if (dim(resulta1)[2]==36) {
-Outcome=colnames(tv_covNS)[c(29:51,59:71)];
-Outcome=Outcome[c(1,23,2:22,24:length(Outcome))]
-resulta1=resulta1[,Outcome[Outcome %in% colnames(resulta1) ]];p.mat.a1=p.mat.a1[,Outcome[Outcome %in% colnames(p.mat.a1) ]] }
+  Outcome=colnames(tv_covNS)[c(29:51,59:71)];
+  Outcome=Outcome[c(1,23,2:22,24:length(Outcome))]
+  resulta1=resulta1[,Outcome[Outcome %in% colnames(resulta1) ]]; p.mat.a1=p.mat.a1[,Outcome[Outcome %in% colnames(p.mat.a1) ]] 
+}
 for (i in 1:dim(resulta1)[1]) {for (j in 1:dim(resulta1)[2]) {if (resulta1[i,j]==0) {p.mat.a1[i,j]=0.5}}}
-# resulta1 <- t(resulta1);
-# p.mat.a1 <- t(p.mat.a1)
-# hist(as.numeric(unlist(resulta1)),breaks=30,ylim=c(0.0,40))  #xlim=c(0.04,0.4),
-# heps=abs(round((min(resulta1)-0.1),1))
-# heps2=abs(round((min(resulta1)+0.01),2))
-# resulta1[resulta1 > heps] = heps
-# resulta1[resulta1 < -heps2] = -heps #so this extends the minimum value to the (max) min limit so as to get the true blue to be seen, at least once
-# 
-# #In addition, you would need:
+
+# In addition, you would need:
 heps=abs(round((min(resulta1)),1))
 heps2=abs(round((min(resulta1)+0.01),2))
 resulta1[resulta1 > heps] = heps
 resulta1[resulta1 < -heps2] = -heps
-# sum(resulta1==0) #ok
-# resulta1=abs(min(resulta1))+resulta1
-# resulta1[resulta1 < 0] = 0 #so this extends the minimum value to the (max) min limit so as to get the true blue to be seen, at least once
-# resulta1[resulta1 > 1]  = 1
-# resulta1[resulta1 < -1] = -1 #col.lim=c(-0.4,0.4))
-path="C:/Users/patati/Documents/GitHub/Steroid_Data_Analysis/"; setwd(path) #check this if needed...
-if (dim(resulta1)[1]==7) {width = 4000;height=1500} else if (dim(resulta1)[1]==20) {width = 4000;height=2500} else if (dim(resulta1)[1]==36) {width = 2500;height=5000}
-jpeg(paste("Heatmap of highed_the_real_ade_mat",z,date,".jpg"), width = width, height = height, quality = 100,pointsize = 14, res=300);# par( ps=ps)# par(cex.lab=90) 22 18
-# col = brewer.pal(n = 9, name = "YlOrRd")
+
+# resulta1[resulta1 < 0] = 0 
+# so this extends the minimum value to the (max) min limit so as to get the true blue to be seen, at least once
+path="C:/Users/patati/Documents/GitHub/Steroid_Data_Analysis/"; setwd(path) # check this if needed...
+if (dim(resulta1)[1]==7) {width = 4000; height=1500} else if (dim(resulta1)[1]==20) {width = 4000; height=2500} else if (dim(resulta1)[1]==36) {width = 2500; height=5000}
+jpeg(paste("Heatmap of highed_the_real_ade_mat",z,date,".jpg"), width = width, height = height, quality = 100, pointsize = 14, res=300);
 col=colorRampPalette(c('blue', 'white','orange'), alpha = TRUE)(150)
 
-# col=colorRampPalette(c('white','orange'), alpha = TRUE)(150)
-# col=colorRampPalette(c('blue','white'), alpha = TRUE)(150)
+order="original"; range='orig'; corre='no_renormaa'; type='full'; method='color'; ga='All'; gf='Female'; gm='Male' # color square
+cl.offset=25; cl.length=7; cl.cex = 1.1; pch.cex=1.95; pch=3; cl.pos = 'r'; 
+# cl.offset=2; cl.length=5; cl.cex = 1.3; pch.cex=1.95; pch=14;
 
+corrplot(resulta1, type = type, order = order, method=method, p.mat=p.mat.a1, tl.col = "black", # sum(COL2('RdBu')=="#FF7417")
+         cl.cex = cl.cex, pch.cex=pch.cex, pch.col='black', pch=pch, # pitikö vain pch lisätä pch väriin väriin...'#FEE12B'
+         sig.level = c(0.05), cl.pos = cl.pos, insig = "label_sig", cl.offset=cl.offset, cl.length=cl.length,
+         tl.srt = 90, diag = TRUE, col=col, is.corr = FALSE, col.lim=c(-heps, heps)) # only in age...0.001, -2,2 
 
-order="original"; range='orig';corre='no_renormaa'; type='full'; method='color';ga='All';gf='Female';gm='Male' #color square
-cl.offset=25;cl.length=7;cl.cex = 1.1;pch.cex=1.95;pch=3;cl.pos = 'r'; #cl.offset=2;cl.length=5;cl.cex = 1.3;pch.cex=1.95;pch=14;
-# if (switch==1) {rbo=rev(COL2('RdBu')[25:(length(COL2('RdBu'))-25)]) } else if (switch==0  | switch==2) {rbo=rev(COL2('RdBu')[25:100])}
-# col=colorRampPalette(c( 'white','orange'), alpha = TRUE)(150)
-# resulta1=rango(resulta1,-1,1)
-# if (min(as.matrix(resulta1))< -1  | max(as.matrix(resulta1))> 1) {resulta1=rango(resulta1,-1,1)}
-corrplot(resulta1, type = type, order = order,method=method, p.mat=p.mat.a1, tl.col = "black", #sum(COL2('RdBu')=="#FF7417")
-         cl.cex = cl.cex, pch.cex=pch.cex, pch.col='black',pch=pch,#pitikö vain pch lisätä pch väriin väriin... mystistä...'#FEE12B'
-         sig.level = c(0.05),cl.pos = cl.pos, insig = "label_sig", cl.offset=cl.offset,cl.length=cl.length,
-         tl.srt = 90, diag = TRUE,col=col,is.corr = FALSE,col.lim=c(-heps,heps)) #only in age...0.001, -2,2 #rev(COL2('RdBu')[25:(length(COL2('RdBu'))-25)]) col.lim=c(min(resulta1),max(resulta1)) col.lim=c(-heps,heps)
-# 
 dev.off(); eoh=paste("Heatmap of highed_the_real_ade_mat",z,date,".jpg"); daiR::image_to_pdf(eoh, pdf_name=paste0(eoh,'.pdf'))
-my_image <- image_read(eoh);my_svg <- image_convert(my_image, format="svg"); image_write(my_svg, paste(eoh,".svg"))
+my_image <- image_read(eoh); my_svg <- image_convert(my_image, format="svg"); image_write(my_svg, paste(eoh,".svg"))
 path="C:/Users/patati/Documents/GitHub/Steroid_Data_Analysis/"; setwd(path)
   
-  
-# ACME:n kaa ei jakaudu symmetrisesti
 
-#Copilotointi ei oikein toimi edelliselle..  
+
+#Copilot commenting worked for houdees function and some of the drives.
 
 ```
 ```{r, warning=FALSE,message=FALSE,fig.width=8.0,fig.align="left",fig.cap="Heatmap of 'Indirect' Effects PFAS vs. Steroids with All Subjects"}
@@ -2758,86 +2967,95 @@ knitr::include_graphics('Heatmap of high ACME tikka111124 idir .jpg')
 # Making Sankey Diagrams
 ```{r, warning=FALSE,message=FALSE,fig.width=10.0,fig.align="left"}
 
-#To do these diagrams, you need to have a reduced dataset as well as a function that acounts the group (male/female)
-reduced2=function(u3,Group,name,lkm,d) {
+# To do these diagrams, you need to have a reduced dataset as well as a function that accounts for the group (male/female)
+reduced2=function(u3, Group, name, lkm, d) {
   c1=c() # u3=all_all1
-  ACMEMedian=c();ACMEpval=c();ACMEVar=c()
-  ADEMedian=c();ADEpval=c();ADEVar=c()
+  ACMEMedian=c(); ACMEpval=c(); ACMEVar=c()
+  ADEMedian=c(); ADEpval=c(); ADEVar=c()
   c1= u3 #[u3[,'ADE'] < ADEMedian  & DV<ADEVar,] #& u3[,'z0.p']<ADEpval
-  ACMEMedian=0 #median(c1[,'ACME'][c1[,'ACME']>0])
-  # c1=c1[order(c1[,'ACME']),];  #for 'negative' acmes
+  ACMEMedian=0 # median(c1[,'ACME'][c1[,'ACME']>0])
+  # c1=c1[order(c1[,'ACME']),];  # for 'negative' acmes
   c1=c1[rev(order(c1[,'ACME'])),];  
   # c1=c1[c1[,'ACME']<ACMEMedian & ((c1[,'ADE']-c1[,'ACME']) > 0), ] # c1=c1[c1[,'d0.p']<0.1, ]
   c1=c1[c1[,'ACME'] > ACMEMedian & ((c1[,'ACME']-c1[,'ADE']) > 0), ] # c1=c1[c1[,'d0.p']<0.1, ] 
   
   c1=tryCatch({c1[1:lkm,]}, error = function(msg){return(c1)})
   
-  write.xlsx(c1, file = paste(name,Group,date,'.xlsx'), append = FALSE, row.names = TRUE)
+  write.xlsx(c1, file = paste(name, Group, date, '.xlsx'), append = FALSE, row.names = TRUE)
   
-  return(c1)}
+  return(c1)
+}
 
-plottings_sf=function(uh7ma,date,sick,Group,d) {
+plottings_sf=function(uh7ma, date, sick, Group, d) {
   # uh7ma = na.omit(c1)
-  rt2=uh7ma #[,1:17]# rtot=rtot[,1:17]# rtot=data.frame(rtot) # name=paste(simss,'basic hypothesis',take)# https://stat.ethz.ch/R-manual/R-devel/library/stats/html/p.adjust.html# https://www.middleprofessor.com/files/applied-biostatistics_bookdown/_book/adding-covariates-to-a-linear-model# https://github.com/MarioniLab/miloR# https://www.nature.com/articles/s41467-023-40458-9/figures/4
-  name=paste('Contaminants_Steroids_BAs_or_Lipids_sims',date) # rtot=rtot_2000_mrct # rtot=uh5
+  rt2=uh7ma #[,1:17]# rtot=rtot[,1:17]# rtot=data.frame(rtot) # name=paste(simss,'basic hypothesis',take)
+  # https://stat.ethz.ch/R-manual/R-devel/library/stats/html/p.adjust.html
+  # https://www.middleprofessor.com/files/applied-biostatistics_bookdown/_book/adding-covariates-to-a-linear-model
+  # https://github.com/MarioniLab/miloR
+  # https://www.nature.com/articles/s41467-023-40458-9/figures/4
+  name=paste('Contaminants_Steroids_BAs_or_Lipids_sims', date) # rtot=rtot_2000_mrct # rtot=uh5
   
   hoi=c(); 
-  if (d=='t') {hoi=scan(text=rt2[,1] , what=" ")} else {hoi=scan(text=rownames(rt2) , what=" ")} #rownames(rt2)# names(rt2[,1]) rownames(rt2)
-  # hoi=scan(text=rownames(rt2) , what=" ")#rownames(rt2)# names(rt2[,1]) rownames(rt2)
-  hoi=as.data.frame(matrix(hoi, ncol = 3,  byrow = TRUE), stringsAsFactors = FALSE) #Check this number (ncol) 3/4
-# hoi=cbind(hoi[,1:3],rt2[,2])
+  if (d=='t') {
+    hoi=scan(text=rt2[,1], what=" ")
+  } else {
+    hoi=scan(text=rownames(rt2), what=" ")
+  } # rownames(rt2)# names(rt2[,1]) rownames(rt2
+  # hoi=scan(text=rownames(rt2), what=" ")# rownames(rt2)# names(rt2[,1]) rownames(rt2
+  hoi=as.data.frame(matrix(hoi, ncol = 3,  byrow = TRUE), stringsAsFactors = FALSE) # Check this number (ncol) 3/4
+  # hoi=cbind(hoi[,1:3],rt2[,2])
   hoi=hoi[,1:3]
-  # colnames(hoi)=c('Contaminants','Steroids','Bile Acids or Lipids','Weight')#,'Gender') ##
+  # colnames(hoi)=c('Contaminants','Steroids','Bile Acids or Lipids','Weight')# ,'Gender') ##
   colnames(hoi)=c('Contaminants','Steroids','Bile Acids or Lipids')
-  #,'Gender') ##https://stats.stackexchange.com/questions/282155/causal-mediation-analysis-negative-indirect-and-total-effect-positive-direct# https://www.researchgate.net/post/How_can_I_interpret_a_negative_indirect_effect_for_significant_mediation# https://stackoverflow.com/questions/31518150/gsub-in-r-is-not-replacing-dot replacing dot
+  # ,'Gender') ## https://stats.stackexchange.com/questions/282155/causal-mediation-analysis-negative-indirect-and-total-effect-positive-direct
+  # https://www.researchgate.net/post/How_can_I_interpret_a_negative_indirect_effect_for_significant_mediation
+  # https://stackoverflow.com/questions/31518150/gsub-in-r-is-not-replacing-dot replacing dot
   
   hoi[,'Steroids' ][hoi[,'Steroids' ]=='17aOH.P4']='17a-OHP4'
   hoi[,'Steroids' ][hoi[,'Steroids' ]=='17aOH-P4']='17a-OHP4'
   hoi[,'Steroids' ]  <- gsub("\\.", "-",  hoi[,'Steroids' ] ) #:)
   hoi[,'Steroids' ][ hoi[,'Steroids' ]=='T-Epi-T']='T/Epi-T'
-  # df2 <- hoi %>%make_long('Contaminants','Steroids','Bile Acids or Lipids','Weight') #see the sankey test file 17.10.24 for this...
+  # df2 <- hoi %>%make_long('Contaminants','Steroids','Bile Acids or Lipids','Weight') # see the sankey test file 17.10.24 for this...
   
   df2 <- hoi %>%make_long('Contaminants','Steroids','Bile Acids or Lipids') 
   
-  #In case you need to print to computer: meda='Sankey plot of ', pdf(paste(meda,name,sick,Group,".pdf"), width = 20, height = 20,  pointsize = 18);
-  # print(ggplot(df2, aes(x = x,  next_x = next_x, node = node,  next_node = next_node,fill = factor(node),label = node)) +geom_sankey(flow.alpha = 0.5, node.color = 1) +        geom_sankey_label(size = 5.5, color = 1, fill = "white") +scale_fill_viridis_d() + theme_sankey(base_size = 30) + theme(legend.position = "none")+
-  #theme(axis.title.x = element_blank()));dev.off()
+  # In case you need to print to computer: meda='Sankey plot of ', pdf(paste(meda, name, sick, Group, ".pdf"), width = 20, height = 20,  pointsize = 18);
+  # print(ggplot(df2, aes(x = x,  next_x = next_x, node = node,  next_node = next_node, fill = factor(node), label = node)) +
+  # geom_sankey(flow.alpha = 0.5, node.color = 1) + geom_sankey_label(size = 5.5, color = 1, fill = "white") +
+  # scale_fill_viridis_d() + theme_sankey(base_size = 30) + theme(legend.position = "none") + theme(axis.title.x = element_blank())); dev.off()
   
-windowsFonts(A = windowsFont("Calibri (Body)")) 
+  windowsFonts(A = windowsFont("Calibri (Body)")) 
 
-p=ggplot(df2, aes(x = x,  next_x = next_x, node = node,  next_node = next_node,fill = factor(node),label = node)) +
-          geom_sankey(flow.alpha = 1, node.color = 1) +
-          # geom_sankey_label(size = 4.0, color = 1, fill = "white") + #
-          geom_sankey_label(size = 8.0, color = 1, fill = "white")+
-          scale_fill_viridis_d(option = "H", alpha = 0.75) +
-          # scale_fill_viridis_c(option = "turbo")+
-          # theme_sankey(base_size = 23) + #
-          theme_sankey(base_size = 28) + theme(legend.position = "none") +
-          # scale_fill_grey(start = 0.5, end = 0.5)+
-          theme(axis.text.x = element_text(hjust = 0.5, vjust=7,colour = 'black') )+ #https://stackoverflow.com/questions/38862303/customize-ggplot2-axis-labels-with-different-colors
-          theme(axis.title.x = element_blank())
+  p=ggplot(df2, aes(x = x,  next_x = next_x, node = node,  next_node = next_node, fill = factor(node), label = node)) +
+            geom_sankey(flow.alpha = 1, node.color = 1) +
+            # geom_sankey_label(size = 4.0, color = 1, fill = "white") + #
+            geom_sankey_label(size = 8.0, color = 1, fill = "white") +
+            scale_fill_viridis_d(option = "H", alpha = 0.75) +
+            # scale_fill_viridis_c(option = "turbo") +
+            # theme_sankey(base_size = 23) + #
+            theme_sankey(base_size = 28) + theme(legend.position = "none") +
+            # scale_fill_grey(start = 0.5, end = 0.5) +
+            theme(axis.text.x = element_text(hjust = 0.5, vjust=7, colour = 'black') ) + # https://stackoverflow.com/questions/38862303/customize-ggplot2-axis-labels-with-different-colors
+            theme(axis.title.x = element_blank())
 
+  # Nicer colors than grey:
+  # p=ggplot(df2, aes(x = x,  next_x = next_x, node = node,  next_node = next_node, fill = factor(node), label = node)) +
+  # geom_sankey(flow.alpha = 0.5, node.color = 1) + geom_sankey_label(size = 3.5, color = 1, fill = "white") +
+  # scale_fill_viridis_d() + theme_sankey(base_size = 16) + theme(legend.position = "none") + theme(axis.title.x = element_blank());
 
-# Nicer colors than grey:
-# p=ggplot(df2, aes(x = x,  next_x = next_x, node = node,  next_node = next_node,fill = factor(node),label = node)) +geom_sankey(flow.alpha = 0.5, node.color = 1) + geom_sankey_label(size = 3.5, color = 1, fill = "white") +
-# scale_fill_viridis_d() + theme_sankey(base_size = 16) + theme(legend.position = "none")+theme(axis.title.x = element_blank());
+  library(ragg)
+  # Oh! https://www.tidyverse.org/blog/2020/08/taking-control-of-plot-scaling/
+  # https://r4ds.had.co.nz/graphics-for-communication.html#figure-sizing
 
-library(ragg)
-# Oh! https://www.tidyverse.org/blog/2020/08/taking-control-of-plot-scaling/
-# https://r4ds.had.co.nz/graphics-for-communication.html#figure-sizing
-
-path="C:/Users/patati/Documents/GitHub/Steroid_Data_Analysis/" #oh, classical: https://forum.posit.co/t/r-markdown-html-document-doesnt-show-image/41629/2
-pngfile <- fs::path(path,paste0(Group,'e',d,".png"))#fs::path(knitr::fig_path(),  "theming2.png")
-# agg_png(pngfile, width = 30, height = 40, units = "cm", res = 300,scaling = 2) #
-agg_png(pngfile, width = 60, height = 80, units = "cm", res = 600,scaling = 2)
-plot(p)
-invisible(dev.off())
-knitr::include_graphics(pngfile)
-eoh=paste0(Group,'e',d,".png"); daiR::image_to_pdf(eoh, pdf_name=paste0(eoh,'.pdf'))
-my_image <- image_read(eoh);my_svg <- image_convert(my_image, format="svg"); image_write(my_svg, paste(eoh,".svg"))
-
-
-
+  path="C:/Users/patati/Documents/GitHub/Steroid_Data_Analysis/" # oh, classical: https://forum.posit.co/t/r-markdown-html-document-doesnt-show-image/41629/2
+  pngfile <- fs::path(path, paste0(Group, 'e', d, ".png")) # fs::path(knitr::fig_path(),  "theming2.png")
+  # agg_png(pngfile, width = 30, height = 40, units = "cm", res = 300, scaling = 2) #
+  agg_png(pngfile, width = 60, height = 80, units = "cm", res = 600, scaling = 2)
+  plot(p)
+  invisible(dev.off())
+  knitr::include_graphics(pngfile)
+  eoh=paste0(Group, 'e', d, ".png"); daiR::image_to_pdf(eoh, pdf_name=paste0(eoh, '.pdf'))
+  my_image <- image_read(eoh); my_svg <- image_convert(my_image, format="svg"); image_write(my_svg, paste(eoh, ".svg"))
 }
 
 library(readxl)
@@ -2868,53 +3086,82 @@ almam = na.omit(almam) #https://www.tutorialspoint.com/how-to-remove-rows-from-d
 plottings_sf(almam,date,sick,Group,d)
 
 
-#Alternative way to plot sankeys with the ACMEs:
-#Create data which can be used for Sankey
-set.seed(111);theme_set(theme_light())
+# Alternative way to plot Sankeys with the ACMEs:
+# Create data which can be used for Sankey
+set.seed(111) # Set seed for reproducibility
+theme_set(theme_light()) # Set the theme for the plots
 
-#Trying to imitate the approach below:
-u3=all_all1; d='t'
-c1=c()
-ACMEMedian=c();ACMEpval=c();ACMEVar=c()
-ADEMedian=c();ADEpval=c();ADEVar=c()
+# Trying to imitate the approach below:
+u3=all_all1; d='t' # Assign dataset and set 'd' to 't'
+c1=c() # Initialize c1
+
+# Initialize ACME variables
+ACMEMedian=c(); ACMEpval=c(); ACMEVar=c()
+
+# Initialize ADE variables
+ADEMedian=c(); ADEpval=c(); ADEVar=c()
+
 c1= u3 #[u3[,'ADE'] < ADEMedian  & DV<ADEVar,] #& u3[,'z0.p']<ADEpval
 # ACMEMedian=0#median(c1[,'ACME'][c1[,'ACME']>0])
-c1=c1[rev(order(c1[,'ACME'])),];  
-c1=c1[((c1[,'ACME']-c1[,'ADE']) > 0), ] #c1[,'ACME']>ACMEMedian & 
-c1=c1[c1[,'d0.p']<0.05, ] # c1=tryCatch({c1[1:lkm,]}, error = function(msg){return(c1)})
-uh7ma = na.omit(c1)
-rt2=uh7ma #[,1:17]# rtot=rtot[,1:17]# rtot=data.frame(rtot) # name=paste(simss,'basic hypothesis',take)# https://stat.ethz.ch/R-manual/R-devel/library/stats/html/p.adjust.html# https://www.middleprofessor.com/files/applied-biostatistics_bookdown/_book/adding-covariates-to-a-linear-model# https://github.com/MarioniLab/miloR# https://www.nature.com/articles/s41467-023-40458-9/figures/4
-name=paste('Contaminants_Steroids_BAs_or_Lipids_sims',date) # rtot=rtot_2000_mrct # rtot=uh5
+c1=c1[rev(order(c1[,'ACME'])),];  # Order c1 by ACME in descending order
+c1=c1[((c1[,'ACME']-c1[,'ADE']) > 0), ] # Filter rows where ACME > ADE
+c1=c1[c1[,'d0.p']<0.05, ] # Filter rows where p-value < 0.05
+# c1=tryCatch({c1[1:lkm,]}, error = function(msg){return(c1)})
+uh7ma = na.omit(c1) # Remove rows with NA values
+rt2=uh7ma #[,1:17]# rtot=rtot[,1:17]# rtot=data.frame(rtot) # name=paste(simss,'basic hypothesis',take)
+# https://stat.ethz.ch/R-manual/R-devel/library/stats/html/p.adjust.html
+# https://www.middleprofessor.com/files/applied-biostatistics_bookdown/_book/adding-covariates-to-a-linear-model
+# https://github.com/MarioniLab/miloR
+# https://www.nature.com/articles/s41467-023-40458-9/figures/4
+name=paste('Contaminants_Steroids_BAs_or_Lipids_sims',date) # Create a name for the plot
 
 hoi=c(); 
-if (d=='t') {hoi=scan(text=rt2[,1] , what=" ")} else {hoi=scan(text=rownames(rt2) , what=" ")} #rownames(rt2)# names(rt2[,1]) rownames(rt2)
-# hoi=scan(text=rownames(rt2) , what=" ")#rownames(rt2)# names(rt2[,1]) rownames(rt2)
-hoi=as.data.frame(matrix(hoi, ncol = 3,  byrow = TRUE), stringsAsFactors = FALSE) #Check this number (ncol) 3/4
-hoi=cbind(hoi[,1:3],rt2[,2])
-colnames(hoi)=c('Contaminants','Steroids','Bile Acids or Lipids','Weight')#,'Gender') ##https://stats.stackexchange.com/questions/282155/causal-mediation-analysis-negative-indirect-and-total-effect-positive-direct# https://www.researchgate.net/post/How_can_I_interpret_a_negative_indirect_effect_for_significant_mediation# https://stackoverflow.com/questions/31518150/gsub-in-r-is-not-replacing-dot replacing dot
+if (d=='t') {
+  hoi=scan(text=rt2[,1] , what=" ") # Scan the first column of rt2
+} else {
+  hoi=scan(text=rownames(rt2) , what=" ") # Scan the row names of rt2
+} # rownames(rt2)# names(rt2[,1]) rownames(rt2
+# hoi=scan(text=rownames(rt2) , what=" ")# rownames(rt2)# names(rt2[,1]) rownames(rt2
+hoi=as.data.frame(matrix(hoi, ncol = 3,  byrow = TRUE), stringsAsFactors = FALSE) # Convert hoi to a data frame with 3 columns
+hoi=cbind(hoi[,1:3],rt2[,2]) # Combine hoi with the second column of rt2
+colnames(hoi)=c('Contaminants','Steroids','Bile Acids or Lipids','Weight') # Set column names
+# ,'Gender') ## https://stats.stackexchange.com/questions/282155/causal-mediation-analysis-negative-indirect-and-total-effect-positive-direct
+# https://www.researchgate.net/post/How_can_I_interpret_a_negative_indirect_effect_for_significant_mediation
+# https://stackoverflow.com/questions/31518150/gsub-in-r-is-not-replacing-dot replacing dot
 
+# Replace specific values in the 'Steroids' column
 hoi[,'Steroids' ][hoi[,'Steroids' ]=='17aOH.P4']='17a-OHP4'
 hoi[,'Steroids' ][hoi[,'Steroids' ]=='17aOH-P4']='17a-OHP4'
 hoi[,'Steroids' ]  <- gsub("\\.", "-",  hoi[,'Steroids' ] ) #:)
 hoi[,'Steroids' ][ hoi[,'Steroids' ]=='T-Epi-T']='T/Epi-T'
   
+# Create a long format data frame for Sankey plot
 df22 <-
   hoi |>
   subset(Weight > -1.05) |>
   pivot_stages_longer(c("Contaminants", "Steroids", "Bile Acids or Lipids"), "Weight", "Bile Acids or Lipids")
+
+# Set the position for the Sankey plot
 pos <- position_sankey(v_space = "auto", order = "ascending", align = "justify")
+
+# Create the Sankey plot
 p <-
-  ggplot(data    = df22,mapping = aes(x = stage, y = Weight, group = node,
-                  edge_id = edge_id, connector = connector))+ theme_sankey(base_size = 28) + #theme(legend.position = "none") +
-  # scale_fill_grey(start = 0.5, end = 0.5)+
-  theme(axis.text.x = element_text(hjust = 0.5, vjust=7,colour = 'black') )+ #https://stackoverflow.com/questions/38862303/customize-ggplot2-axis-labels-with-different-colors
-  theme(axis.title.x = element_blank())
+  ggplot(data = df22, mapping = aes(x = stage, y = Weight, group = node,
+                  edge_id = edge_id, connector = connector)) + 
+  theme_sankey(base_size = 28) + # Set the theme for the Sankey plot
+  # theme(legend.position = "none") +
+  # scale_fill_grey(start = 0.5, end = 0.5) +
+  theme(axis.text.x = element_text(hjust = 0.5, vjust=7, colour = 'black') ) + # Customize axis text
+  theme(axis.title.x = element_blank()) # Remove x-axis title
 
-
+# Update the position for the Sankey plot
 pos <- position_sankey(v_space = "auto", order = "descending")
+
+# Add layers to the Sankey plot
 p + geom_sankeyedge(aes(fill = Weight), position = pos) +
-  geom_sankeynode(position = pos,fill = "#dfe0e6") +
-  geom_text(aes(label = node), stat = "sankeynode", position = pos, cex = 2)+scale_fill_viridis_c(option = "turbo")
+  geom_sankeynode(position = pos, fill = "#dfe0e6") +
+  geom_text(aes(label = node), stat = "sankeynode", position = pos, cex = 2) +
+  scale_fill_viridis_c(option = "turbo") # Set the color scale
 
 # In case you need something else from somewhere else...
 # setwd("C:/Users/patati/Desktop/Turku/R/hypo4/HOMAIR/perus_ok")
@@ -2947,10 +3194,11 @@ p + geom_sankeyedge(aes(fill = Weight), position = pos) +
 # plottings_sf(almaf,date,sick,Group,d)
 # 
 # name='just all';Group='male';
-# almam=reduced2(all_Male,Group,name,lkm); almam = na.omit(almam) #https://www.tutorialspoint.com/how-to-remove-rows-from-data-frame-in-r-that-contains-nan
+# almam=reduced2(all_Male,Group,name,lkm); almam = na.omit(almam) 
+# https://www.tutorialspoint.com/how-to-remove-rows-from-data-frame-in-r-that-contains-nan
 # plottings_sf(almam,date,sick,Group,d)
 
-#Ei tääkään ihan nyt mee copilotilla paremmaks.
+# Copiloting helped with some of the comments. (But not with the streamlining.)
 
 
 ```
@@ -3215,26 +3463,60 @@ names(list_of_files) <- files #ht
 # https://www.reddit.com/r/Rlanguage/comments/nq773b/reading_multiple_rdata_files_into_a_list/
 # https://stackoverflow.com/questions/38643000/naming-list-elements-in-r
 
-comp_med_two=function(list_of_files) { #I made this a function, since this kind of cross comparison could be handy also in other contexts
-health=c();sickness=c()
-for (i in 1:length(names(list_of_files))) if (str_detect(names(list_of_files)[i],'healthy')) {health=append(health,list_of_files[i])} else if (str_detect(names(list_of_files)[i],'sick')) {sickness=append(sickness,list_of_files[i])} 
-health2=c();sickness2=c()
-i=0;for (i in 1:length(c(health))){health[[i]][rev(order(health[[i]][,1])),];health2=rbind(health2,health[[i]][1:10,])}
-i=0;for (i in 1:length(c(sickness))){sickness[[i]][rev(order(sickness[[i]][,1])),];sickness2=rbind(sickness2,sickness[[i]][1:10,])}
-health2=cbind(rownames(health2),health2);sickness2=cbind(rownames(sickness2),sickness2)
-colnames(health2)=c('Mediation','ACME', 'd0.p', 'd0.ci_l','d0.ci_u','ADE', 'z0.p', 'z0.ci_l','z0.ci_u','Proportion Mediated', 'n1.p','n.ci_l','n1.ci_u','Total Effect','tau.p','tau.ci_l','tau.ci_u')
-colnames(sickness2)=c('Mediation','ACME', 'd0.p', 'd0.ci_l','d0.ci_u','ADE', 'z0.p', 'z0.ci_l','z0.ci_u','Proportion Mediated', 'n1.p','n.ci_l','n1.ci_u','Total Effect','tau.p','tau.ci_l','tau.ci_u')
-rownames(health2)=str_replace_all(rep( names(health),each = 10), ".RData", "")
-rownames(sickness2)=str_replace_all(rep( names(sickness),each = 10), ".RData", "")
-# https://www.rdocumentation.org/packages/base/versions/3.6.2/topics/rep
-# https://stackoverflow.com/questions/10294284/remove-all-special-characters-from-a-string-in-r
-# https://stackoverflow.com/questions/38643000/naming-list-elements-in-r
-hoi=c(); hoi=scan(text=health2[,1], what=""); hoi=as.data.frame(matrix(hoi, ncol = 4,  byrow = TRUE), stringsAsFactors = FALSE)
-colnames(hoi)=c('Contaminants','Steroids','Bile Acids or Lipids','Desig.'); hoi_healthy=hoi[,c('Contaminants','Steroids','Bile Acids or Lipids')]
-hoi=c(); hoi=scan(text=sickness2[,1], what=""); hoi=as.data.frame(matrix(hoi, ncol = 4,  byrow = TRUE), stringsAsFactors = FALSE)
-colnames(hoi)=c('Contaminants','Steroids','Bile Acids or Lipids','Desig.');
-hoi_sick=hoi[,c('Contaminants','Steroids','Bile Acids or Lipids')] ## https://stats.stackexchange.com/questions/282155/causal-mediation-analysis-negative-indirect-and-total-effect-positive-direct
-return(list(hoi_sick,hoi_healthy))}
+comp_med_two=function(list_of_files) { # I made this a function, since this kind of cross comparison could be handy also in other contexts
+  health=c(); sickness=c() # Initialize empty vectors for health and sickness
+  
+  # Loop through the list of file names and categorize them into health and sickness
+  for (i in 1:length(names(list_of_files))) {
+    if (str_detect(names(list_of_files)[i],'healthy')) {
+      health=append(health, list_of_files[i]) # Append to health if 'healthy' is in the name
+    } else if (str_detect(names(list_of_files)[i],'sick')) {
+      sickness=append(sickness, list_of_files[i]) # Append to sickness if 'sick' is in the name
+    }
+  }
+  
+  health2=c(); sickness2=c() # Initialize empty data frames for health2 and sickness2
+  
+  # Process health files: order by the first column in descending order and take the top 10 rows
+  i=0; for (i in 1:length(c(health))) {
+    health[[i]][rev(order(health[[i]][,1])),]
+    health2=rbind(health2, health[[i]][1:10,])
+  }
+  
+  # Process sickness files: order by the first column in descending order and take the top 10 rows
+  i=0; for (i in 1:length(c(sickness))) {
+    sickness[[i]][rev(order(sickness[[i]][,1])),]
+    sickness2=rbind(sickness2, sickness[[i]][1:10,])
+  }
+  
+  # Combine row names with the data for health2 and sickness2
+  health2=cbind(rownames(health2), health2)
+  sickness2=cbind(rownames(sickness2), sickness2)
+  
+  # Set column names for health2 and sickness2
+  colnames(health2)=c('Mediation','ACME', 'd0.p', 'd0.ci_l','d0.ci_u','ADE', 'z0.p', 'z0.ci_l','z0.ci_u','Proportion Mediated', 'n1.p','n.ci_l','n1.ci_u','Total Effect','tau.p','tau.ci_l','tau.ci_u')
+  colnames(sickness2)=c('Mediation','ACME', 'd0.p', 'd0.ci_l','d0.ci_u','ADE', 'z0.p', 'z0.ci_l','z0.ci_u','Proportion Mediated', 'n1.p','n.ci_l','n1.ci_u','Total Effect','tau.p','tau.ci_l','tau.ci_u')
+  
+  # Replace ".RData" in row names with an empty string
+  rownames(health2)=str_replace_all(rep(names(health), each = 10), ".RData", "")
+  rownames(sickness2)=str_replace_all(rep(names(sickness), each = 10), ".RData", "")
+  # https://www.rdocumentation.org/packages/base/versions/3.6.2/topics/rep
+  # https://stackoverflow.com/questions/10294284/remove-all-special-characters-from-a-string-in-r
+  # https://stackoverflow.com/questions/38643000/naming-list-elements-in-r
+  
+  # Process health2 data for contaminants, steroids, and bile acids or lipids
+  hoi=c(); hoi=scan(text=health2[,1], what=""); hoi=as.data.frame(matrix(hoi, ncol = 4,  byrow = TRUE), stringsAsFactors = FALSE)
+  colnames(hoi)=c('Contaminants','Steroids','Bile Acids or Lipids','Desig.')
+  hoi_healthy=hoi[,c('Contaminants','Steroids','Bile Acids or Lipids')]
+  
+  # Process sickness2 data for contaminants, steroids, and bile acids or lipids
+  hoi=c(); hoi=scan(text=sickness2[,1], what=""); hoi=as.data.frame(matrix(hoi, ncol = 4,  byrow = TRUE), stringsAsFactors = FALSE)
+  colnames(hoi)=c('Contaminants','Steroids','Bile Acids or Lipids','Desig.')
+  hoi_sick=hoi[,c('Contaminants','Steroids','Bile Acids or Lipids')]
+  ## https://stats.stackexchange.com/questions/282155/causal-mediation-analysis-negative-indirect-and-total-effect-positive-direct
+  
+  return(list(hoi_sick, hoi_healthy)) # Return the processed data as a list
+}
 
 cmt=comp_med_two(list_of_files);
 hoi_sick=cmt[[1]];hoi_healthy=cmt[[2]]
@@ -3245,6 +3527,8 @@ table(hoi_sick[,1])[rev(order(table(hoi_sick[,1])))];table(hoi_healthy[,1])[rev(
 # table(hoi_sick[,2])[rev(order(table(hoi_sick[,2])))];table(hoi_healthy[,2])[rev(order(table(hoi_healthy[,2])))]
 # Differences Between BAs/Lipids...
 # table(hoi_sick[,3])[rev(order(table(hoi_sick[,3])))];table(hoi_healthy[,3])[rev(order(table(hoi_healthy[,3])))]
+
+# Copiloting helped both with the comments and streamlines.
 
 ```
 
