@@ -162,7 +162,7 @@ bileAcidsLiverData[as.character(AuxBileAcid),'GHDGA']=NA
 #https://www.datasciencemadesimple.com/get-minimum-value-of-a-column-in-r-2/?expand_article=1
 mat=bileAcidsLiverData[,c('TbMCA','ToMCA','TDCA','TDHCA','TLCA')]
 mat[!mat>1]=10000
-mat[mat==2]=10000 #Colmins did not work so I used (i.e. colmins ei toiminut ja käytin):
+mat[mat==2]=10000 #Colmins did not work so I used (i.e. colmins did not work so I used):
 hip=do.call(pmin, lapply(1:nrow(mat), function(i)mat[i,])) #https://stackoverflow.com/questions/13676878/fastest-way-to-get-min-from-every-column-in-a-matrix
 hou=c('TbMCA','ToMCA','TDCA','TDHCA','TLCA')
 for (i in 1:5) {bileAcidsLiverData[bileAcidsLiverData[,hou[i]]==1,hou[i]]=hip[i]}
@@ -294,8 +294,8 @@ AllData=multiply_with_random(AllData, 3:(dim(AllData)[2]), min_val, max_val)
 # save.image('forACMES_thereal.RData')
 setwd("C:/Users/patati/Documents/GitHub/Steroid_Data_Analysis")
 
-# Got some help for commenting and variable namings from Copilot to below code. 
-# Also multiply_with_random was done with Copilot.
+# Got some help for commenting and variable namings from Copilot to above code. 
+# Also multiply_with_random was done together with Copilot.
 
 ```
 
@@ -321,6 +321,7 @@ date <- paste0('tikka', thedate) # Customize this as needed
 # BiocManager::install("DelayedArray")
 # install.packages("Require") # Install 'Require' package
 ```
+
 
 
 
@@ -412,6 +413,7 @@ OutcomeVariables='HOMA-IR';Out='HOMA-IR'; oute='HOMA-IR';num=1.5 ;Group='All';Cr
 
 
 
+
 # Making Forest Plots
 ```{r, warning=FALSE,message=FALSE,fig.width=6.0,fig.align="left",results='hide'} 
 
@@ -442,7 +444,7 @@ CalculateErrors=function(NonAlcoholicFattyLiverDisease,OutcomeVariables,Group,na
                    "All" = NonAlcoholicFattyLiverDisease)
   
   # Initialize vectors to store sample data and counts
-  sample_data <- list()
+  sample_data <- list();
   n0 <- n1 <- 0
 
   # Loop through the two steroidGroups (OutcomeVariables == 0 and OutcomeVariables > 0)
@@ -483,55 +485,55 @@ CalculateErrors=function(NonAlcoholicFattyLiverDisease,OutcomeVariables,Group,na
   
   # Calculate the ratio of results and log-transform
   a <- df[df[, 1] == e, 'result.1'] / df[df[, 1] == e, 'result']
-  v2 <- data.frame(log(df$result.1 / df$result))
+  ResComb <- data.frame(log(df$result.1 / df$result))
   
   # Rename columns and clean up variable names
-  v2$result <- v2[, 1]
-  v2$name <- df$study
-  v2 <- v2[, 2:3]
-  v2$name <- gsub("\\.", "-", v2$name)
-  v2$name <- gsub("X11", "11", v2$name)
-  v2$name <- gsub("X17", "17", v2$name)
-  v2$name[v2$name == "T-Epi-T"] <- "T/Epi-T"
-  v2$pval <- ps
+  ResComb$result <- ResComb[, 1]
+  ResComb$name <- df$study
+  ResComb <- ResComb[, 2:3]
+  ResComb$name <- gsub("\\.", "-", ResComb$name)
+  ResComb$name <- gsub("X11", "11", ResComb$name)
+  ResComb$name <- gsub("X17", "17", ResComb$name)
+  ResComb$name[ResComb$name == "T-Epi-T"] <- "T/Epi-T"
+  ResComb$pval <- ps
 
   # Calculate result_pure and error
-  v2$result_pure <- df$result.1 / df$result
-  v2$error <- (abs((1 / df$result) * df$error.1) + abs((df$result.1 / df$result^2) * df$error)) / nrow(NAFLDo) * 1.64
+  ResComb$result_pure <- df$result.1 / df$result
+  ResComb$error <- (abs((1 / df$result) * df$error.1) + abs((df$result.1 / df$result^2) * df$error)) / nrow(NAFLDo) * 1.64
   
   # Adjust error values
-  v2$error <- ifelse(v2$error > (median(v2$error) + sd(v2$error)), median(v2$error) * 1.25, v2$error)
+  ResComb$error <- ifelse(ResComb$error > (median(ResComb$error) + sd(ResComb$error)), median(ResComb$error) * 1.25, ResComb$error)
   
   # Calculate error bounds and log-transformed values
-  v2$errord1a <- v2$result_pure - v2$error
-  v2$errord2a <- v2$result_pure + v2$error
-  v2$errord1 <- log(v2$errord1a)
-  v2$errord2 <- log(v2$errord2a)
-  v2$result <- log(v2$result_pure)
-  v2$Control <- df$result
-  v2$Case <- df$result.1
+  ResComb$errord1a <- ResComb$result_pure - ResComb$error
+  ResComb$errord2a <- ResComb$result_pure + ResComb$error
+  ResComb$errord1 <- log(ResComb$errord1a)
+  ResComb$errord2 <- log(ResComb$errord2a)
+  ResComb$result <- log(ResComb$result_pure)
+  ResComb$Control <- df$result
+  ResComb$Case <- df$result.1
   
   # Add p-values and significance
-  v2$pval0 <- v2$pval
-  v2$pval1 <- v2$pval
-  v2$Significance0 <- ifelse(v2$pval0 < 0.1, 'Yes', 'No')
-  v2$Color0 <- ifelse(v2$pval0 < 0.1, 'blue', 'grey')
-  v2$Significance1 <- ifelse(v2$pval1 < 0.1, 'Yes', 'No')
-  v2$Color1 <- ifelse(v2$pval1 < 0.1, 'blue', 'grey')
+  ResComb$pval0 <- ResComb$pval
+  ResComb$pval1 <- ResComb$pval
+  ResComb$Significance0 <- ifelse(ResComb$pval0 < 0.1, 'Yes', 'No')
+  ResComb$Color0 <- ifelse(ResComb$pval0 < 0.1, 'blue', 'grey')
+  ResComb$Significance1 <- ifelse(ResComb$pval1 < 0.1, 'Yes', 'No')
+  ResComb$Color1 <- ifelse(ResComb$pval1 < 0.1, 'blue', 'grey')
   
   # Merge with group data and sort
   gn <- steroidGroups[steroidGroups$Abbreviation != 'F', c('Group', 'Abbreviation')]
   gn <- gn[order(gn$Abbreviation), ]
-  v2 <- v2[order(v2$name), ]
-  v2 <- cbind(v2, gn[order(gn$Abbreviation), ])
-  v2 <- v2[order(-v2$result), ]
+  ResComb <- ResComb[order(ResComb$name), ]
+  ResComb <- cbind(ResComb, gn[order(gn$Abbreviation), ])
+  ResComb <- ResComb[order(-ResComb$result), ]
 
   xlab = "Autoscaled Concentrations (SE)" #xlab = "Raw Concentrations in Log10 Scale (SE)"}
-  xlim=c(min(v2$errord1),max(v2$errord2)) 
-  #Occasionally: xlim=c(min(v2$result)*1.1,max(v2$result)*1.1) # if (xlim[2]>1) {xlim[2]=1};# if (xlim[1] < -0.75) {xlim[1]=-0.75};
+  xlim=c(min(ResComb$errord1),max(ResComb$errord2)) 
+  #Occasionally: xlim=c(min(ResComb$result)*1.1,max(ResComb$result)*1.1) # if (xlim[2]>1) {xlim[2]=1};# if (xlim[1] < -0.75) {xlim[1]=-0.75};
   
  # Create forest plot
-  plote2 <- forestplot(df = v2,
+  plote2 <- forestplot(df = ResComb,
                        estimate = result,
                        se = 0,
                        pvalue = pval1,
@@ -545,10 +547,10 @@ CalculateErrors=function(NonAlcoholicFattyLiverDisease,OutcomeVariables,Group,na
     geom_errorbarh(aes(xmin = errord1, xmax = errord2, height = .0, colour = Significance1))
   
   # Set color palette
-  hp <- if (sum(v2$Significance1 == 'Yes') == 20) c('blue', 'blue') else c('#999999', 'blue')
+  hp <- if (sum(ResComb$Significance1 == 'Yes') == 20) c('blue', 'blue') else c('#999999', 'blue')
   
   # Order factor levels based on Group and first
-  if (Group=='All' & first==TRUE) {ordera=rev(steroidGroups$Abbreviation)#v2$name[order(v2$result)]; #
+  if (Group=='All' & first==TRUE) {ordera=rev(steroidGroups$Abbreviation)#ResComb$name[order(ResComb$result)]; #
   plote2[["data"]][["name"]]=factor(plote2[["data"]][["name"]], levels = ordera)} else if
   (Group=='All' & first==FALSE) {plote2[["data"]][["name"]]=factor(plote2[["data"]][["name"]], levels = ordera)} else if
   (Group=='Female') {plote2[["data"]][["name"]]=factor(plote2[["data"]][["name"]], levels = ordera)} else if
@@ -556,13 +558,13 @@ CalculateErrors=function(NonAlcoholicFattyLiverDisease,OutcomeVariables,Group,na
   #https://www.r-bloggers.com/2020/03/how-to-standardize-group-colors-in-data-visualizations-in-r/
   plote2$layers[[1]]$aes_params$odd <- "#00000000" #https://stackoverflow.com/questions/71745719/how-to-control-stripe-transparency-using-ggforestplot-geom-stripes
   
-  v2$Group2=v2$Group
-  v2 <- transform(v2,Group2 = as.numeric(as.factor(Group2)))
-  v2$facet_fill_color <- c("red", "green", "blue", "yellow", "brown")[v2$Group2]
+  ResComb$Group2=ResComb$Group
+  ResComb <- transform(ResComb,Group2 = as.numeric(as.factor(Group2)))
+  ResComb$facet_fill_color <- c("red", "green", "blue", "yellow", "brown")[ResComb$Group2]
   
   # Create plot with custom themes
   PlotVar <- plote2 + theme(axis.text.y = element_blank()) + theme_classic2()
-  PlotVar2 <- PlotVar + geom_point(aes(colour = factor(Significance1)), colour = v2$Color1) +
+  PlotVar2 <- PlotVar + geom_point(aes(colour = factor(Significance1)), colour = ResComb$Color1) +
     scale_color_manual(values = hp) + theme(legend.position = "none") + theme(strip.text.y = element_text(size = -Inf))
   
   # Customize facet strip colors
@@ -700,8 +702,7 @@ for (i in 1:3) {
   colnames(tvtest[[i]])[colnames(tvtest[[i]]) == "Steatosis-Grade"] = "Steatosis Grade"
   colnames(tvtest[[i]])[colnames(tvtest[[i]]) == "Fibrosis-Stage"] = "Fibrosis Stage"
   colnames(tvtest[[i]])[colnames(tvtest[[i]]) == "17aOH-P4"] = "17a-OHP4"
-  colnames(tvtest[[i]])[colnames(tvtest[[i]]) == "HOMA IR"] = "HOMA-IR"
-}
+  colnames(tvtest[[i]])[colnames(tvtest[[i]]) == "HOMA IR"] = "HOMA-IR"}
 
 # Assign cleaned data frames back to CurrentData, tvf, and tvm
 CurrentData = tvtest[[1]]
@@ -809,8 +810,6 @@ CreateChordDiagrams <- function(vars, n_level, fig_name, big, rem, modi, colt, g
     colnames(GraphMat) <- rownames(resultaf)
     rownames(GraphMat) <- rownames(resultaf)}
   
-
-  
   # Define steroidGroups for different variables
   g1 <- c(rep('Clinical', a), rep('Steroids', b), rep('BA_liver', c), rep('Contaminants', e), rep('Lipids', f))
   
@@ -867,15 +866,15 @@ CreateChordDiagrams <- function(vars, n_level, fig_name, big, rem, modi, colt, g
   draw(lgd_list_vertical, x = unit(5, "mm"), y = unit(5, "mm"), just = c("left", "bottom"))
   
   # Save the plot as a JPEG file
-  dev.copy(jpeg, paste0(gend, n_level, 'hiee.jpg'), width = 12, height = 12, units = "in", res = 1000)
+  dev.copy(jpeg, paste0(gend, n_level, 'cd.jpg'), width = 12, height = 12, units = "in", res = 1000)
   dev.off()
   
   # Include the plot in the report and convert it PDF and SVG
-  knitr::include_graphics(paste0(gend, n_level, 'hiee.jpg'))
-  daiR::image_to_pdf(paste0(gend, n_level, 'hiee.jpg'), pdf_name = paste0(paste0(gend, n_level, 'hie'), '.pdf'))
-  my_image <- image_read(paste0(gend, n_level, 'hiee.jpg'))
+  knitr::include_graphics(paste0(gend, n_level, 'cd.jpg'))
+  daiR::image_to_pdf(paste0(gend, n_level, 'cd.jpg'), pdf_name = paste0(paste0(gend, n_level, 'cd'), '.pdf'))
+  my_image <- image_read(paste0(gend, n_level, 'cd.jpg'))
   my_svg <- image_convert(my_image, format = "svg")
-  image_write(my_svg, paste(paste0(gend, n_level, 'hie.jpg'), ".svg"))
+  image_write(my_svg, paste(paste0(gend, n_level, 'cd'), ".svg"))
 }
 
 # All variables
@@ -923,14 +922,15 @@ CreateChordDiagrams(vars[[2]], n_level, fig_name, big, rem, modi, colt, gend, co
 
 # Making Variance Explained Plots
 ```{r, warning=FALSE,message=FALSE,fig.width=6.0,fig.align="left"}
-# Some info regarding of making the data:
+# Some info regarding of making the data for the variance explained plot:
 # This is it! https://bioconductor.org/packages/release/bioc/vignettes/scater/inst/doc/overview.html
-#
 # https://stats.stackexchange.com/questions/79399/calculate-variance-explained-by-each-predictor-in-multiple-regression-using-r
 # https://rdrr.io/github/MRCIEU/TwoSampleMR/man/get_r_from_pn.html
 # https://onlinestatbook.com/2/effect_size/variance_explained.html
 # https://stackoverflow.com/questions/10441437/why-am-i-getting-x-in-my-column-names-when-reading-a-data-frame
 # https://stackoverflow.com/questions/27044727/removing-characters-from-string-in-r
+
+# This function does as its name is indicating:
 PlotVarianceExplained <- function(AllData, Group) {
   # Initialize error flag
   an.error.occured <- FALSE
@@ -1018,14 +1018,14 @@ PlotVarianceExplained <- function(AllData, Group) {
   my_svg <- image_convert(my_image, format = "svg")
   image_write(my_svg, paste(sips, ".svg"))
   p
-  
-}
+  }
+
 # Example usage:
 PlotVarianceExplained(AllData, Group = 'All')
 PlotVarianceExplained(AllData, Group = 'female')
 PlotVarianceExplained(AllData, Group = 'male')
 
-#Copilot helped with the commenting here.
+#Copilot helped a bit with the commenting here.
 
 ```
 
@@ -1033,8 +1033,7 @@ PlotVarianceExplained(AllData, Group = 'male')
 # Making Heatmap with Effect Sizes
 ```{r, warning=FALSE,message=FALSE,fig.width=9.0,fig.align="left", results='hide'}
 
-# Function to calculate Cohen's d effect sizes
-# https://www.statology.org/cohens-d-in-r/
+# Function to calculate Cohen's d effect sizes, which is based on https://www.statology.org/cohens-d-in-r/
 CalculateCohensD <- function(NonAlcoholicFattyLiverDisease, CombinedData, Group, OutcomeVariables) {
   
   # Filter data based on gender
@@ -1169,86 +1168,43 @@ image_write(my_svg, paste0("cohensd_e2", date, ".svg"))
 # Making Heatmaps with Correlations
 ```{r, warning=FALSE,message=FALSE,fig.width=9.0,fig.align="left",results='hide'}
 
-#The correlations (ok):
-#Correlation matrices:
-#http://www.sthda.com/english/wiki/visualize-correlation-matrix-using-correlogram
-#squares are good for individual associations, because the order is the same
-# More info regarding the function:
-# https://jokergoo.github.io/circlize_book/book/legends.html
-# https://cran.r-project.org/web/packages/ggplotify/vignettes/ggplotify.html
-# https://bioinfo4all.wordpress.com/2021/03/13/tutorial-7-how-to-do-chord-diagram-using-r/
-# https://jokergoo.github.io/circlize_book/book/advanced-usage-of-chorddiagram.html
-# https://jokergoo.github.io/circlize_book/book/a-complex-example-of-chord-diagram.html
-
-CurrentData=CovariatesScaledData#tv_half_log22 #cbind(CombinedData[,1:8], Log2TransformedData) #check also not logged and then the auto one
-CurrentData=CurrentData[,c(1:3,4:(dim(CurrentData)[2]))]#dim(CurrentData)[2],
+# I need one set made manually:
+CurrentData=CovariatesScaledData#tv_half_log22
+colnames(CurrentData)=colnames(tvauxe)
 CurrentData=CurrentData[,!colnames(CurrentData) %in% c('Total_TG','PFAS','Perfluorodecyl.ethanoic.acid')]
 CurrentData=CurrentData[,!colnames(CurrentData) %in% x4]
 colnames(CurrentData)[colnames(CurrentData)=="17aOH-P4"]="17a-OHP4"
-tvf=CurrentData[CurrentData[,'Gender']==min(CurrentData[,'Gender']),1:dim(CurrentData)[2]] #CombinedData['Steatosis.Grade.0.To.3'==0,9:27]] #CombinedData[CombinedData[,'Necroinflammation']==0,9:80]; #SG0i=as.numeric(SG0i); check also: CombinedData[CombinedData[,'HOMA-IR']==0,9:80]
 tvm=CurrentData[CurrentData[,'Gender']==max(CurrentData[,'Gender']),1:dim(CurrentData)[2]]
-
-
-# rango = function(x,mi,ma) {(ma-mi)/(max(x)-min(x))*(x-min(x))+mi}
-dat = CurrentData; 
+tvf=CurrentData[CurrentData[,'Gender']==min(CurrentData[,'Gender']),1:dim(CurrentData)[2]]
+dat = CurrentData;
 dat=dat[,!colnames(dat) %in% c('Gender','PatientNumber')] #SEX.1F.2M
-resulta <- (rcorr(as.matrix(dat), type = c('spearman')))$r #compare pearson # intersect(colnames(resulta), rownames(resulta)) #https://stackoverflow.com/questions/45271448/r-finding-intersection-between-two-vectors
-p.mat.a=rcorr(as.matrix(dat), type = c('spearman'))$P; 
-p.mat.a[is.na(p.mat.a)]=1; 
-p.mat.aa=matrix(p.adjust(p.mat.a,method="BH"),nrow=dim(p.mat.a)[1],ncol=dim(p.mat.a)[2]); 
+resulta <- (rcorr(as.matrix(dat), type = c('spearman')))$r
+p.mat.a=rcorr(as.matrix(dat), type = c('spearman'))$P;
+p.mat.a[is.na(p.mat.a)]=1;
+p.mat.aa=matrix(p.adjust(p.mat.a,method="BH"),nrow=dim(p.mat.a)[1],ncol=dim(p.mat.a)[2]);
 rownames(p.mat.aa)=rownames(p.mat.a);colnames(p.mat.aa)=colnames(p.mat.a)
-# write.csv(resulta,'MASLD_steroid_study correlations with spearman_log_tikka12424.csv')
-# resulta=dat
-dat=tvf; # 
+dat=tvf; #
 dat=dat[,!colnames(dat) %in% c('Gender','PatientNumber')] #SEX.1F.2M
 resultaf <- (rcorr(as.matrix(dat), type = c('spearman')))$r #compare pearson# intersect(colnames(resultaf), rownames(resultaf)) #https://stackoverflow.com/questions/45271448/r-finding-intersection-between-two-vectors
 p.mat.f=rcorr(as.matrix(dat), type = c('spearman'))$P
-p.mat.f[is.na(p.mat.f)]=1; 
-p.mat.ff=matrix(p.adjust(p.mat.f,method="BH"),nrow=dim(p.mat.f)[1],ncol=dim(p.mat.f)[2]); 
+p.mat.f[is.na(p.mat.f)]=1;
+p.mat.ff=matrix(p.adjust(p.mat.f,method="BH"),nrow=dim(p.mat.f)[1],ncol=dim(p.mat.f)[2]);
 rownames(p.mat.ff)=rownames(p.mat.f);colnames(p.mat.ff)=colnames(p.mat.f)
-# write.csv(resultaf,'MASLD_steroid_study female correlations with spearman_log_tikka12424.csv')
-dat=tvm;  # 
+dat=tvm;  #
 dat=dat[,!colnames(dat) %in% c('Gender','PatientNumber')] #dat= dat %>% select(-c('Gender')) #this is quite nice way to delete columns, please remember...
 resultam <- (rcorr(as.matrix(dat), type = c('spearman')))$r #compare pearson # intersect(colnames(resultam), rownames(resultam)) #https://stackoverflow.com/questions/45271448/r-finding-intersection-between-two-vectors
 p.mat.m=rcorr(as.matrix(dat), type = c('spearman'))$P
-p.mat.m[is.na(p.mat.m)]=1; 
-p.mat.mm=matrix(p.adjust(p.mat.m,method="BH"),nrow=dim(p.mat.m)[1],ncol=dim(p.mat.m)[2]); 
+p.mat.m[is.na(p.mat.m)]=1;
+p.mat.mm=matrix(p.adjust(p.mat.m,method="BH"),nrow=dim(p.mat.m)[1],ncol=dim(p.mat.m)[2]);
 rownames(p.mat.mm)=rownames(p.mat.m);colnames(p.mat.mm)=colnames(p.mat.m)
-# write.csv(resultam,'MASLD_steroid_study male correlations with spearman_log_tikka12424.csv')
 resulta[resulta==1]=0
 resultam[resultam==1]=0
 resultaf[resultaf==1]=0;#min(resultaf);max(resultaf);
 n_level=1
 
-
-
-# https://www.rdocumentation.org/packages/corrplot/versions/0.92/topics/corrplot
-# https://cran.r-project.org/web/packages/corrplot/vignettes/corrplot-intro.html
-order="original" #alphabet, hclust, original #https://stackoverflow.com/questions/51115495/how-to-keep-order-of-the-correlation-plot-labels-as-same-in-the-datafile
-range='orig';corre='re_renormae'; method='color' #color square
-jpeg(paste("Correlations with Full Plot of All_vok_nes",n_level,order,range,corre,method,".jpg"), width = 8000, height = 8000, quality = 100,pointsize = 23, res=300);
-corrplot(resulta, type = "lower", order = order,method=method, tl.col = "black", tl.srt = 90, diag = FALSE,col = rev(COL2('RdBu')),is.corr = FALSE) #,is.corr = FALSE
-dev.off();
-eoh=paste("Correlations with Full Plot of All_vok_nes",n_level,order,range,corre,method,".jpg")
-daiR::image_to_pdf(eoh, pdf_name=paste0(eoh,'.pdf'))
-my_image <- image_read(eoh);my_svg <- image_convert(my_image, format="svg"); image_write(my_svg, paste(eoh,".svg"))
-corrplot(resulta, type = "lower", order = order,method=method, tl.col = "black", tl.srt = 90, diag = FALSE,col = rev(COL2('RdBu')),is.corr = FALSE) #,is.corr = FALSE
-
-jpeg(paste("Correlations with Full Plot of Female_voek",n_level,order,range,corre,method,".jpg"), width = 8000, height = 8000, quality = 100,pointsize = 23, res=300);
-corrplot(resultaf, type = "lower", order = order,method=method,tl.col = "black", tl.srt = 90, diag = FALSE,col = rev(COL2('RdBu')),is.corr = FALSE)
-dev.off();
-eoh=paste("Correlations with Full Plot of Female_voek",n_level,order,range,corre,method,".jpg")
-daiR::image_to_pdf(eoh, pdf_name=paste0(eoh,'.pdf'))
-my_image <- image_read(eoh);my_svg <- image_convert(my_image, format="svg"); image_write(my_svg, paste(eoh,".svg"))
-corrplot(resultaf, type = "lower", order = order,method=method,tl.col = "black", tl.srt = 90, diag = FALSE,col = rev(COL2('RdBu')),is.corr = FALSE)
-
-jpeg(paste("Correlations with Full Plot of Male_voeka",n_level,order,range,corre,method,".jpg"), width = 8000, height = 8000, quality = 100,pointsize = 23, res=300);
-corrplot(resultam, type = "lower", order = order, method=method,tl.col = "black", tl.srt = 90, diag = FALSE,col = rev(COL2('RdBu')),is.corr = FALSE) #order = "alphabet",  order = "hclust",
-dev.off();
-eoh=paste("Correlations with Full Plot of Male_voeka",n_level,order,range,corre,method,".jpg")
-daiR::image_to_pdf(eoh, pdf_name=paste0(eoh,'.pdf'))
-my_image <- image_read(eoh);my_svg <- image_convert(my_image, format="svg"); image_write(my_svg, paste(eoh,".svg"))
-corrplot(resultam, type = "lower", order = order, method=method,tl.col = "black", tl.srt = 90, diag = FALSE,col = rev(COL2('RdBu')),is.corr = FALSE) #order = "alphabet",  order = "hclust",
+setwd("C:/Users/patati/Desktop/Turku/R")
+groups=read.csv("groups_17823.csv", header = TRUE, sep=";")
+setwd("C:/Users/patati/Documents/GitHub/Steroid_Data_Analysis")
 
 #The ok ones:
 x1=colnames(resulta)[c(1:6)]
@@ -1257,144 +1213,210 @@ x5=x5[!x5=='Perfluorodecyl.ethanoic.acid']
 colnames(resulta)[colnames(resulta)=="17aOH-P4"]="17a-OHP4"
 colnames(p.mat.a)[colnames(p.mat.a)=="17aOH-P4"]="17a-OHP4"
 x2[x2=="17aOH-P4"]="17a-OHP4"
-x2=x2[order(match(x2,steroidGroups[,2]))] #https://stackoverflow.com/questions/1568511/how-do-i-sort-one-vector-based-on-values-of-another
+x2=x2[order(match(x2,groups[,2]))] #https://stackoverflow.com/questions/1568511/how-do-i-sort-one-vector-based-on-values-of-another
 x5=x5[!x5=='Perfluorodecyl.ethanoic.acid']
-#
-# resulta1=resulta[c(x1,x2),x5];p.mat.a1=p.mat.aa[c(x1,x2),x5]
-# resulta2=resultaf[c(x1,x2),x5];p.mat.f1=p.mat.ff[c(x1,x2),x5]
-# resulta3=resultam[c(x1,x2),x5];p.mat.m1=p.mat.mm[c(x1,x2),x5]
-# # tv_ah=rango(resulta3,(min(resulta2)),max(resulta2)); resulta3=tv_ah;#
-# hip1='transposesa_kaikki scale';width = 2400;height=6000;pch.cex=1.2;
-# ho='PFAS vs. clinical factors and steroids'
-# resulta1=t(resulta1);resulta2=t(resulta2);resulta3=t(resulta3)
-# p.mat.a1=t(p.mat.a1);p.mat.f1=t(p.mat.f1);p.mat.m1=t(p.mat.m1)
-# width = 6000;height=2800;
-#
-resulta1=resulta[c(x3,x6),x5];p.mat.a1=p.mat.aa[c(x3,x6),x5]
-resulta2=resultaf[c(x3,x6),x5];p.mat.f1=p.mat.ff[c(x3,x6),x5]
-resulta3=resultam[c(x3,x6),x5];p.mat.m1=p.mat.mm[c(x3,x6),x5]
-# tv_ah=rango(resulta3,(min(resulta2)),max(resulta2)); resulta3=tv_ah;#
-hip1='transpose';width = 2400;height=6000;pch.cex=1.2;ho='PFAS vs. BAs and lipids'
-resulta1=t(resulta1);resulta2=t(resulta2);resulta3=t(resulta3)
-p.mat.a1=t(p.mat.a1);p.mat.f1=t(p.mat.f1);p.mat.m1=t(p.mat.m1)
-width = 9000;height=2800;
 
-resulta1[resulta1 >0.4] = 0.4
-resulta1[resulta1 < -0.4] = -0.4
+resulta11=resulta[c(x1,x3,x6),x2];  p.mat.a11=p.mat.aa[c(x1,x3,x6),x2]
+resulta22=resultaf[c(x1,x3,x6),x2]; p.mat.f22=p.mat.ff[c(x1,x3,x6),x2]
+resulta33=resultam[c(x1,x3,x6),x2]; p.mat.m33=p.mat.mm[c(x1,x3,x6),x2]
 
-resulta2[resulta2 >0.4] = 0.4
-resulta2[resulta2 < -0.4] = -0.4
+# Function to calculate correlation matrices
+calculate_correlations <- function(data) {
+  result <- rcorr(as.matrix(data), type = 'spearman')$r
+  p.mat <- rcorr(as.matrix(data), type = 'spearman')$P
+  p.mat[is.na(p.mat)] <- 1
+  p.mat.adjusted <- matrix(p.adjust(p.mat, method = "BH"), nrow = dim(p.mat)[1], ncol = dim(p.mat)[2])
+  rownames(p.mat.adjusted) <- rownames(p.mat)
+  colnames(p.mat.adjusted) <- colnames(p.mat)
+  result[result == 1] <- 0
+  return(list(result = result, p.mat.adjusted = p.mat.adjusted))}
 
-resulta3[resulta3 >0.4] = 0.4
-resulta3[resulta3 < -0.4] = -0.4
+# Function to generate plots
+generate_plots <- function(result, filename_prefix, n_level, order, range, corre, method) {
+    # Print plot to Rmd screen
+  corrplot(result, type = "lower", order = order, method = method, 
+           tl.col = "black", tl.srt = 90, diag = FALSE, col = rev(COL2('RdBu')), is.corr = FALSE)
+  
+  jpeg(paste0(filename_prefix, n_level, order, range, corre, method, ".jpg"), width = 8000, height = 8000, quality = 100, pointsize = 23, res = 300)
+  corrplot(result, type = "lower", order = order, method = method, tl.col = "black", tl.srt = 90, diag = FALSE, col = rev(COL2('RdBu')), is.corr = FALSE)
+  dev.off()
+  eoh <- paste0(filename_prefix, n_level, order, range, corre, method, ".jpg")
+  daiR::image_to_pdf(eoh, pdf_name = paste0(eoh, '.pdf'))
+  my_image <- image_read(eoh)
+  my_svg <- image_convert(my_image, format = "svg")
+  image_write(my_svg, paste0(eoh, ".svg"))}
 
-# hist(as.numeric(unlist(resulta1)),breaks=30,ylim=c(0.0,40))  #xlim=c(0.04,0.4),
-# resulta1[resulta1 > 1]  = 1
-# resulta1[resulta1 < -1] = -1 #col.lim=c(-0.4,0.4))
-#
+# Prepare data
+CurrentData <- CurrentData[, c(1:3, 4:(dim(CurrentData)[2]))]
+CurrentData <- CurrentData[, !colnames(CurrentData) %in% c('Total_TG', 'PFAS', 'Perfluorodecyl.ethanoic.acid')]
+CurrentData <- CurrentData[, !colnames(CurrentData) %in% x4]
+colnames(CurrentData)[colnames(CurrentData) == "17aOH-P4"] <- "17a-OHP4"
+tvf <- CurrentData[CurrentData[, 'Gender'] == min(CurrentData[, 'Gender']), 1:dim(CurrentData)[2]]
+tvm <- CurrentData[CurrentData[, 'Gender'] == max(CurrentData[, 'Gender']), 1:dim(CurrentData)[2]]
+
+# Calculate correlations
+dat_list <- list(CurrentData, tvf, tvm)
+correlation_results <- lapply(dat_list, function(dat) {
+  dat <- dat[, !colnames(dat) %in% c('Gender', 'PatientNumber')]
+  calculate_correlations(dat)})
+
+# Extract specific results
+resulta <- correlation_results[[1]]$result
+p.mat.a <- correlation_results[[1]]$p.mat.adjusted
+resultaf <- correlation_results[[2]]$result
+p.mat.f <- correlation_results[[2]]$p.mat.adjusted
+resultam <- correlation_results[[3]]$result
+p.mat.m <- correlation_results[[3]]$p.mat.adjusted
+
+# The correlations are ok with the above matrices. 
+# http://www.sthda.com/english/wiki/visualize-correlation-matrix-using-correlogram
+# In addition, squares are good for individual associations, because the order is the same
+# More info regarding the function:
+# https://jokergoo.github.io/circlize_book/book/legends.html
+# https://cran.r-project.org/web/packages/ggplotify/vignettes/ggplotify.html
+# https://bioinfo4all.wordpress.com/2021/03/13/tutorial-7-how-to-do-chord-diagram-using-r/
+# https://jokergoo.github.io/circlize_book/book/advanced-usage-of-chorddiagram.html
+# https://jokergoo.github.io/circlize_book/book/a-complex-example-of-chord-diagram.html
+
+# Generate plots
+order="original"; range='orig';corre='re_renormae'; method='color' 
+filenames <- c("Correlations with Full Plot of All_vok_nes", 
+               "Correlations with Full Plot of Female_voek", "Correlations with Full Plot of Male_voeka")
+for (i in 1:length(correlation_results)) {
+  generate_plots(correlation_results[[i]]$result, filenames[i], n_level, order, range, corre, method)}
+
+# Additional processing
+x1 <- colnames(correlation_results[[1]]$result)[c(1:6)]
+x1 <- c(x1[3:6], x1[1], x1[2])
+x5 <- x5[!x5 == 'Perfluorodecyl.ethanoic.acid']
+colnames(correlation_results[[1]]$result)[colnames(correlation_results[[1]]$result) == "17aOH-P4"] <- "17a-OHP4"
+colnames(correlation_results[[1]]$p.mat.adjusted)[colnames(correlation_results[[1]]$p.mat.adjusted) == "17aOH-P4"] <- "17a-OHP4"
+x2[x2 == "17aOH-P4"] <- "17a-OHP4"
+x2 <- x2[order(match(x2, steroidGroups[, 2]))]
+x5 <- x5[!x5 == 'Perfluorodecyl.ethanoic.acid']
+
+# resulta11=resulta[c(x1,x3,x6),x2];  p.mat.a11=p.mat.aa[c(x1,x3,x6),x2]
+# resulta22=resultaf[c(x1,x3,x6),x2]; p.mat.f22=p.mat.ff[c(x1,x3,x6),x2]
+# resulta33=resultam[c(x1,x3,x6),x2]; p.mat.m33=p.mat.mm[c(x1,x3,x6),x2]
+
+# Extract specific results (bile acids and lipids vs. PFAS)
+resulta1 <- correlation_results[[1]]$result[c(x3, x6), x5]
+p.mat.a1 <- correlation_results[[1]]$p.mat.adjusted[c(x3, x6), x5]
+resulta2 <- correlation_results[[2]]$result[c(x3, x6), x5]
+p.mat.f1 <- correlation_results[[2]]$p.mat.adjusted[c(x3, x6), x5]
+resulta3 <- correlation_results[[3]]$result[c(x3, x6), x5]
+p.mat.m1 <- correlation_results[[3]]$p.mat.adjusted[c(x3, x6), x5]
+
+# Transpose results
+resulta1 <- t(resulta1)
+resulta2 <- t(resulta2)
+resulta3 <- t(resulta3)
+p.mat.a1 <- t(p.mat.a1)
+p.mat.f1 <- t(p.mat.f1)
+p.mat.m1 <- t(p.mat.m1)
+
+# Apply threshold
+apply_threshold <- function(res) {
+  res[res > 0.4] <- 0.4
+  res[res < -0.4] <- -0.4
+  return(res)}
+
+resulta1 <- apply_threshold(resulta1)
+resulta2 <- apply_threshold(resulta2)
+resulta3 <- apply_threshold(resulta3)
+
+# Generate plots
 # #https://www.rdocumentation.org/packages/corrplot/versions/0.92/topics/corrplot
 # #https://cran.r-project.org/web/packages/corrplot/vignettes/corrplot-intro.html
 # #https://statisticsglobe.com/change-font-size-corrplot-r
 # #order can be: alphabet, hclust, original #https://stackoverflow.com/questions/51115495/how-to-keep-order-of-the-correlation-plot-labels-as-same-in-the-datafile
-#
-order="original"; range='orig';corre='no_rendorm'; type='full'; method='color';ga='All';gf='Female';gm='Male' #color square
+order="original"; range='orig';corre='no_rendorm'; type='full'; 
+method='color';ga='All';gf='Female';gm='Male' #color square
+hip1='transpose';width = 2400;height=6000;pch.cex=1.2;ho='PFAS vs. BAs and lipids'
 col = colorRampPalette(c('blue', 'white','orange'), alpha = TRUE)(100)
 cl.offset=1.0;cl.length=5;cl.cex = 1.3;pch.cex=1.3;pch=20;cl.pos = 'r';#cl.pos = 'b' ;#pch.cex=0.95,1.3; height=6300; pos 'b' cl.pos = 'b'
-jpeg(paste("Square Correlation Plot ofdd",ho,ga,hip1,"3.jpg"), width = width, height = height, quality = 100,pointsize = 30, res=300);# par( ps=ps)# par(cex.lab=90)
-corrplot(resulta1, type = type, order = order,method=method, p.mat=p.mat.a1, tl.col = "black", #sum(COL2('RdBu')=="#FF7417")
-         cl.cex = cl.cex, pch.cex=pch.cex, pch.col='black',pch=pch,#pitikä vain pch lisätä pch väriin väriin... mystistä...'#FEE12B'
-sig.level = c(.001,.05, .2),cl.pos = cl.pos, insig = "label_sig", cl.offset=cl.offset,cl.length=cl.length,
-tl.srt = 90, diag = TRUE,col = col,is.corr = FALSE, col.lim=c(-0.4,0.4) ) #only in age...0.001,
-dev.off();eoh=paste("Square Correlation Plot ofdd",ho,ga,hip1,"3.jpg")
-daiR::image_to_pdf(eoh, pdf_name=paste0(eoh,'.pdf'))
-my_image <- image_read(eoh);my_svg <- image_convert(my_image, format="svg"); image_write(my_svg, paste(eoh,".svg"))
+filenames <- c("Correlations with Full Plot of All_vok_nes", "Correlations with Full Plot of Female_voek", "Correlations with Full Plot of Male_voeka")
+
+for (i in 1:length(correlation_results)) {
+  generate_plots(correlation_results[[i]]$result, filenames[i], n_level, order, range, corre, method)}
+
+
+resulta11[resulta11 >0.5] = 0.5
+resulta11[resulta11 < -0.5] = -0.5
+resulta22[resulta22 >0.5] = 0.5
+resulta22[resulta22 < -0.5] = -0.5
+resulta33[resulta33 >0.5] = 0.5
+resulta33[resulta33 < -0.5] = -0.5
+
+
+# 
+# order="original"; range='orig';corre='no_renorm'; type='full'; method='color';ga='All';gf='Female';gm='Male' #color square
+# cl.offset=1.0;cl.length=5;cl.cex = 1.0;pch.cex=1.0;pch=20;cl.pos = 'r';#cl.pos = 'b' ;#pch.cex=0.95,1.3; height=6300; pos 'b' cl.pos = 'b'
+# 
+# jpeg(paste("Square Correlation Plot ofrra",ho,ga,hip1,"3.jpg"), width = width, height = height, quality = 100,pointsize = 14, res=300);# par( ps=ps)# par(cex.lab=90)
+# corrplot(resulta1, type = type, order = order,method=method, p.mat=p.mat.a1, tl.col = "black", #sum(COL2('RdBu')=="#FF7417")
+#          cl.cex = cl.cex, pch.cex=pch.cex, pch.col='black',pch=pch,#pitikö vain pch lisätä pch väriin väriin... mystistä...'#FEE12B'
+# sig.level = c(.001,.05, .2),cl.pos = cl.pos, insig = "label_sig", cl.offset=cl.offset,cl.length=cl.length,
+# tl.srt = 90, diag = TRUE,col = col,is.corr = FALSE,col.lim=c(-0.5,0.5)) #only in age...0.001, is.corr = TRUE/FALSE rev(COL2('RdBu')[1:(length(COL2('RdBu'))-0)])
+# dev.off();eoh=paste("Square Correlation Plot ofrr",ho,ga,hip1,"3.jpg")
+# daiR::image_to_pdf(eoh, pdf_name=paste0(eoh,'.pdf'))
+# my_image <- image_read(eoh);my_svg <- image_convert(my_image, format="svg"); image_write(my_svg, paste(eoh,".svg"))
 # pch.cex=1.3;
-jpeg(paste("Square Correlation Plot ofd",ho,gf,hip1,"3.jpg"), width = width, height = height, quality = 100,pointsize = 30, res=300);
-corrplot(resulta2, type = type, order = order,method=method, p.mat=p.mat.f1,tl.col = "black",
-         cl.cex = cl.cex,  pch.cex=pch.cex,pch.col='black',pch=pch,
-sig.level = c(.001, .05, .2), cl.pos = cl.pos, insig = "label_sig",cl.offset=cl.offset,cl.length=cl.length,
-tl.srt = 90, diag = TRUE,col = col,is.corr = FALSE,col.lim=c(-0.4,0.4)) #
-dev.off();eoh=paste("Square Correlation Plot ofd",ho,gf,hip1,"3.jpg")
-daiR::image_to_pdf(eoh, pdf_name=paste0(eoh,'.pdf'))
-my_image <- image_read(eoh);my_svg <- image_convert(my_image, format="svg"); image_write(my_svg, paste(eoh,".svg"))
-# pch.cex=2.9;
-jpeg(paste("Square Correlation Plot ofd",ho,gm,hip1,"3.jpg"), width = width, height = height, quality = 100,pointsize = 30, res=300);
-corrplot(resulta3, type = type, order = order,method=method, p.mat=p.mat.m1, tl.col = "black", cl.cex = cl.cex,pch.cex=pch.cex,
-         pch.col='black',pch=pch,
-sig.level = c(.001, .05, .2),cl.pos = cl.pos, insig = "label_sig",cl.offset=cl.offset,cl.length=cl.length,
-tl.srt = 90, diag = TRUE,col = col,is.corr = FALSE,col.lim=c(-0.4,0.4)) #,is.corr = FALSE
-dev.off();eoh=paste("Square Correlation Plot ofd",ho,gm,hip1,"3.jpg")
-daiR::image_to_pdf(eoh, pdf_name=paste0(eoh,'.pdf'))
-my_image <- image_read(eoh);my_svg <- image_convert(my_image, format="svg"); image_write(my_svg, paste(eoh,".svg"))
-#
-#
-resulta1=resulta[c(x1,x3,x6),x2];  p.mat.a1=p.mat.aa[c(x1,x3,x6),x2]
-resulta2=resultaf[c(x1,x3,x6),x2]; p.mat.f1=p.mat.ff[c(x1,x3,x6),x2]
-resulta3=resultam[c(x1,x3,x6),x2]; p.mat.m1=p.mat.mm[c(x1,x3,x6),x2]
-# tv_ah=rango(resulta3,(min(resulta2)),max(resulta2)); resulta3=tv_ah;#
-hip1='transpose'; width = 3700;height=6300;ho='steroids vs. all others except PFAS';ps=28 #pch=10;
-# min(c(resulta2)); max(c(resulta2)) #These are around -0.4 and 0.4
-col = colorRampPalette(c('blue', 'white','orange'), alpha = TRUE)(100)
+# jpeg(paste("Square Correlation Plot ofa",ho,gf,hip1,"3.jpg"), width = width, height = height, quality = 100,pointsize = 16, res=300);
+# corrplot(resulta2, type = type, order = order,method=method, p.mat=p.mat.f1,tl.col = "black",
+#          cl.cex = cl.cex,  pch.cex=pch.cex,pch.col='black',pch=pch,
+# sig.level = c(.001, .05, .2), cl.pos = cl.pos, insig = "label_sig",cl.offset=cl.offset,cl.length=cl.length,
+# tl.srt = 90, diag = TRUE,col = col,,is.corr = FALSE,col.lim=c(-0.5,0.5)) #
+# dev.off();eoh=paste("Square Correlation Plot of",ho,gf,hip1,"3.jpg")
+# daiR::image_to_pdf(eoh, pdf_name=paste0(eoh,'.pdf'))
+# my_image <- image_read(eoh);my_svg <- image_convert(my_image, format="svg"); image_write(my_svg, paste(eoh,".svg"))
+# jpeg(paste("Square Correlation Plot ofa",ho,gm,hip1,"3.jpg"), width = width, height = height, quality = 100,pointsize = 16, res=300);
+# corrplot(resulta3, type = type, order = order,method=method, p.mat=p.mat.m1, tl.col = "black", cl.cex = cl.cex,pch.cex=pch.cex,
+#          pch.col='black',pch=pch,
+# sig.level = c(.001, .05, .2),cl.pos = cl.pos, insig = "label_sig",cl.offset=cl.offset,cl.length=cl.length,
+# tl.srt = 90, diag = TRUE,col = col,,is.corr = FALSE,col.lim=c(-0.5,0.5)) #,is.corr = FALSE
+# dev.off();eoh=paste("Square Correlation Plot of",ho,gm,hip1,"3.jpg")
+# daiR::image_to_pdf(eoh, pdf_name=paste0(eoh,'.pdf'))
+# my_image <- image_read(eoh);my_svg <- image_convert(my_image, format="svg"); image_write(my_svg, paste(eoh,".svg"))
 
-# path="C:/Users/patati/Documents/GitHub/Steroid_Data_Analysis/"; setwd(path)
-resulta1[resulta1 >0.5] = 0.5
-resulta1[resulta1 < -0.5] = -0.5
+# Function to generate and save plots
+generate_and_save_plots <- function(result, p.mat, filename, width, height, col, cl.cex, pch.cex, pch, cl.pos, cl.offset, cl.length) {
+  jpeg(filename, width = width, height = height, quality = 100, pointsize = 14, res = 300)
+  corrplot(result, type = "full", order = "original", method = "color", p.mat = p.mat, tl.col = "black", cl.cex = cl.cex, pch.cex = pch.cex, pch.col = 'black', pch = pch, sig.level = c(.001, .05, .2), cl.pos = cl.pos, insig = "label_sig", cl.offset = cl.offset, cl.length = cl.length, tl.srt = 90, diag = TRUE, col = col, is.corr = FALSE, col.lim = c(-0.5, 0.5))
+  dev.off()
+  daiR::image_to_pdf(filename, pdf_name = paste0(filename, '.pdf'))
+  my_image <- image_read(filename)
+  my_svg <- image_convert(my_image, format = "svg")
+  image_write(my_svg, paste0(filename, ".svg"))
+}
 
-resulta2[resulta2 >0.5] = 0.5
-resulta2[resulta2 < -0.5] = -0.5
+# Generate additional plots with specific results
+hip1 <- 'transpose'
+width = 3200;height=2000
+ho <- 'steroids vs. all others except PFAS'
+ps <- 28
+col <- colorRampPalette(c('blue', 'white', 'orange'), alpha = TRUE)(150)
+hip1='transpose'; ho='steroids vs. all others except PFAS';ps=12 #pch=10;
 
-resulta3[resulta3 >0.5] = 0.5
-resulta3[resulta3 < -0.5] = -0.5
-#
-#
-# resulta1=resulta[c(x3,x6),x2];  p.mat.a1=p.mat.aa[c(x3,x6),x2]
-# resulta2=resultaf[c(x3,x6),x2]; p.mat.f1=p.mat.ff[c(x3,x6),x2]
-# resulta3=resultam[c(x3,x6),x2]; p.mat.m1=p.mat.mm[c(x3,x6),x2]
-# # tv_ah=rango(resulta3,(min(resulta2)),max(resulta2)); resulta3=tv_ah;#
-# resulta1=t(resulta1);resulta2=t(resulta2);resulta3=t(resulta3);p.mat.a1=t(p.mat.a1);p.mat.f1=t(p.mat.f1);p.mat.m1=t(p.mat.m1);
-#
-# # resulta1[resulta1 > 0.25] = 0.4
-# # resulta1[resulta1 < -0.25] = -0.4
-# hist(as.numeric(unlist(resulta1)),breaks=30,ylim=c(0.0,40))  #xlim=c(0.04,0.4),
-#
-hip1='transpose'; width = 3200;height=2000;ho='steroids vs. all others except PFAS';ps=12 #pch=10;
-min(c(resulta2)); max(c(resulta2)) #These are around -0.4 and 0.4
-col = colorRampPalette(c('blue', 'white','orange'), alpha = TRUE)(150)
+cl.offset <- 1.0
+cl.length <- 5
+cl.cex <- 1.0
+pch.cex <- 1.0
+pch <- 20
+cl.pos <- 'r'
 
-# resulta1=resulta1[,steroidGroups[,'Abbreviation']];resulta2=resulta2[,steroidGroups[,'Abbreviation']];resulta3=resulta3[,steroidGroups[,'Abbreviation']]
+# Loop for imaging plots
+plot_data <- list(
+  list(result = resulta11, p.mat = p.mat.a11, filename = paste("Square Correlation Plot ofrra", ho, "All", hip1, "3.jpg")),
+  list(result = resulta22, p.mat = p.mat.f22, filename = paste("Square Correlation Plot ofa", ho, "Female", hip1, "3.jpg")),
+  list(result = resulta33, p.mat = p.mat.m33, filename = paste("Square Correlation Plot ofa", ho, "Male", hip1, "3.jpg"))
+)
 
-order="original"; range='orig';corre='no_renorm'; type='full'; method='color';ga='All';gf='Female';gm='Male' #color square
-cl.offset=1.0;cl.length=5;cl.cex = 1.0;pch.cex=1.0;pch=20;cl.pos = 'r';#cl.pos = 'b' ;#pch.cex=0.95,1.3; height=6300; pos 'b' cl.pos = 'b'
-jpeg(paste("Square Correlation Plot ofrra",ho,ga,hip1,"3.jpg"), width = width, height = height, quality = 100,pointsize = 14, res=300);# par( ps=ps)# par(cex.lab=90)
-corrplot(resulta1, type = type, order = order,method=method, p.mat=p.mat.a1, tl.col = "black", #sum(COL2('RdBu')=="#FF7417")
-         cl.cex = cl.cex, pch.cex=pch.cex, pch.col='black',pch=pch,#pitikä vain pch lisätä pch väriin väriin... mystistä...'#FEE12B'
-sig.level = c(.001,.05, .2),cl.pos = cl.pos, insig = "label_sig", cl.offset=cl.offset,cl.length=cl.length,
-tl.srt = 90, diag = TRUE,col = col,is.corr = FALSE,col.lim=c(-0.5,0.5)) #only in age...0.001, is.corr = TRUE/FALSE rev(COL2('RdBu')[1:(length(COL2('RdBu'))-0)])
-dev.off();eoh=paste("Square Correlation Plot ofrr",ho,ga,hip1,"3.jpg")
-daiR::image_to_pdf(eoh, pdf_name=paste0(eoh,'.pdf'))
-my_image <- image_read(eoh);my_svg <- image_convert(my_image, format="svg"); image_write(my_svg, paste(eoh,".svg"))
+for (plot_info in plot_data) {
+  generate_and_save_plots(plot_info$result, plot_info$p.mat, plot_info$filename, width, height, col, cl.cex, pch.cex, pch, cl.pos, cl.offset, cl.length)
+}
 
-pch.cex=1.3;
-jpeg(paste("Square Correlation Plot ofa",ho,gf,hip1,"3.jpg"), width = width, height = height, quality = 100,pointsize = 16, res=300);
-corrplot(resulta2, type = type, order = order,method=method, p.mat=p.mat.f1,tl.col = "black",
-         cl.cex = cl.cex,  pch.cex=pch.cex,pch.col='black',pch=pch,
-sig.level = c(.001, .05, .2), cl.pos = cl.pos, insig = "label_sig",cl.offset=cl.offset,cl.length=cl.length,
-tl.srt = 90, diag = TRUE,col = col,,is.corr = FALSE,col.lim=c(-0.5,0.5)) #
-dev.off();eoh=paste("Square Correlation Plot of",ho,gf,hip1,"3.jpg")
-daiR::image_to_pdf(eoh, pdf_name=paste0(eoh,'.pdf'))
-my_image <- image_read(eoh);my_svg <- image_convert(my_image, format="svg"); image_write(my_svg, paste(eoh,".svg"))
-
-# pch.cex=2.9;
-jpeg(paste("Square Correlation Plot ofa",ho,gm,hip1,"3.jpg"), width = width, height = height, quality = 100,pointsize = 16, res=300);
-corrplot(resulta3, type = type, order = order,method=method, p.mat=p.mat.m1, tl.col = "black", cl.cex = cl.cex,pch.cex=pch.cex,
-         pch.col='black',pch=pch,
-sig.level = c(.001, .05, .2),cl.pos = cl.pos, insig = "label_sig",cl.offset=cl.offset,cl.length=cl.length,
-tl.srt = 90, diag = TRUE,col = col,,is.corr = FALSE,col.lim=c(-0.5,0.5)) #,is.corr = FALSE
-dev.off();eoh=paste("Square Correlation Plot of",ho,gm,hip1,"3.jpg")
-daiR::image_to_pdf(eoh, pdf_name=paste0(eoh,'.pdf'))
-my_image <- image_read(eoh);my_svg <- image_convert(my_image, format="svg"); image_write(my_svg, paste(eoh,".svg"))
-
-#Tiedoks: Copilotilla ei järkee edelliseen, vaikka näyttää hieman siistimmältä.
+#FYI: Copilot did help a bit for the previous one and the code looks a bit neater.
 
 ```
 
@@ -1405,9 +1427,10 @@ my_image <- image_read(eoh);my_svg <- image_convert(my_image, format="svg"); ima
 # Making Heatmaps with Linear Model Estimates
 ```{r fig.align="left", fig.width=7.0, message=FALSE, warning=FALSE}
 
-# You may need  rather big function to calculate the estimates and plot at the same time, since the spaces of exper. interest have been reduced from the max dataset size.
-
-# Eli maksimilla vedetään... eli pitäis olla ok, sillä skaalattu vastaa korrelaatiota tss. skaalaus vielä miehiin...
+# This function calculates linear model estimates for selected 'max wanted' group, and they should be ok, 
+# since they/results scale similarly to the correlations.
+# In overall, you may need  rather big function to calculate the estimates and plot at the same time, 
+# since the spaces of exper. interest have been reduced from the max dataset size.
 CalculateEstimates=function(CombinedData,Group,ok,fn,adj,sig.level,sick,sick_group,joo) { #  ok,aa,bb
   CombinedData <- CovariatesScaledData
   if (Group == 'male') {
@@ -1481,8 +1504,8 @@ CalculateEstimates=function(CombinedData,Group,ok,fn,adj,sig.level,sick,sick_gro
     
     rsa=c();joi=c()
     
-    # Eli 'kaksi' vielä tarvitaan...
-    # 1) BA/lipid=covar ja steroidit, ja 2) steroid=covar
+    # Two are still needed, i.e. ...
+    # 1) BA/lipid=covar and steroids, and 2) steroid=covar
 
     meds=names(table(hoi[,1]))[!names(table(hoi[,1])) %in% c(x3,x5,x6)]
     covas=c('Steatosis.Grade','Fibrosis.Stage','Necroinflammation','HOMA.IR','AGE','BMI')
@@ -1575,11 +1598,9 @@ CalculateEstimates=function(CombinedData,Group,ok,fn,adj,sig.level,sick,sick_gro
     daiR::image_to_pdf(eoh, pdf_name=paste0(eoh,'.pdf'))
     my_image <- image_read(eoh);my_svg <- image_convert(my_image, format="svg"); image_write(my_svg, paste(eoh,".svg"))
 
-    #
-
     #https://stackoverflow.com/questions/26574054/how-to-change-font-size-of-the-correlation-coefficient-in-corrplot
     #https://stackoverflow.com/questions/9543343/plot-a-jpg-image-using-base-graphics-in-r
-   #oh, classical: https://forum.posit.co/t/r-markdown-html-document-doesnt-show-image/41629/2
+    #oh, classical: https://forum.posit.co/t/r-markdown-html-document-doesnt-show-image/41629/2
 
     
   } else {
@@ -1587,8 +1608,8 @@ CalculateEstimates=function(CombinedData,Group,ok,fn,adj,sig.level,sick,sick_gro
     rsa=c();rs1=c();rs2=c()
   
     c1=hoi[,1] %in% x5
-    hoi[c1,] # This gives you the PFAS (x5) ok. Tää tulee suoraan tällä PFAS 7:lle ekalle
-    c2=hoi[,1] %in% names(table(hoi[,1]))[!names(table(hoi[,1])) %in% c(x3,x5,x6)] #vaikeemman kautta
+    hoi[c1,] # This gives you the PFAS (x5) ok. This gives answers directly to the first seven PFASes (and not any other PFASes)
+    c2=hoi[,1] %in% names(table(hoi[,1]))[!names(table(hoi[,1])) %in% c(x3,x5,x6)] #There could be a better way thant his
     hyy=c1 & c2
     hoi2=hoi[c2 | c1 ,] #Likewise...
     rownames(hoi2)=1:dim(hoi2)[1]
@@ -1631,8 +1652,6 @@ CalculateEstimates=function(CombinedData,Group,ok,fn,adj,sig.level,sick,sick_gro
     rs1a=rsa[1:7,];
     rs2a=rsa[8:14,]
     rs1=rs1a;rs2=rs2a
-    
-    
 
     rs1 <- mutate_all(rs1, function(x) as.numeric(as.character(x)))
     rs2 <- mutate_all(rs2, function(x) as.numeric(as.character(x)))
@@ -1648,10 +1667,6 @@ CalculateEstimates=function(CombinedData,Group,ok,fn,adj,sig.level,sick,sick_gro
   ho=Group;hip1='Steroids_y vs. PFAS_as_x'
   width=5500; height=1800
 #I have driven these separately for html: 
-
-  
-  
-  
 jpeg(paste("Linear Model Estimate Plot of_sa5",hip1,Group,".jpg"), width = width, height = height, quality = 100,pointsize = 16, res=300);
   corrplot(rs1, type = type, order = order,method=method, p.mat=rs2, tl.col = "black", cl.cex = cl.cex,pch.cex=pch.cex,pch.col='black',pch=pch,
 sig.level = c(.001, .01, .05),cl.pos =  cl.pos, insig = "label_sig",cl.offset=cl.offset,cl.length=cl.length, tl.cex=0.8, #tl.pos='n',
@@ -1662,11 +1677,8 @@ dev.off();
     eoh=paste("Linear Model Estimate Plot of_sa5",hip1,Group,".jpg")
     daiR::image_to_pdf(eoh, pdf_name=paste0(eoh,'.pdf'))
     my_image <- image_read(eoh);my_svg <- image_convert(my_image, format="svg"); image_write(my_svg, paste(eoh,".svg"))
-
-
   } 
   
-
   return(list(lin_mod_summaries))
 }
 
@@ -1688,8 +1700,7 @@ RunAnalysis=function(CombinedData,adj,sig.level,sick,sick_group,joo) {
 adj='nook'; sig.level=c(.001,0.01, 0.05); sick='no'; joo='joo' #sickGroup..
 metanorm_S_non_fdr=RunAnalysis(AllData,adj,sig.level,sick,sick_group,joo) #This prints to your current folder 'Steroid_Data_Analysis
 
-# Ei mee tääkän ihan nopeesti läpi ChatGPT:llä saati Copilotkaan.
-# Tää olis kiva saada paremmaks, joten jätän tämän OS. (Funktiota.R läytyy kansiosta, siellä lisää, yks minitoimiva on.)
+# I was able to revise the above codes together with Copilot a bit, but perhaps not enough for a general readability.
 
 
 ```
@@ -1725,8 +1736,11 @@ knitr::include_graphics("Linear Model Estimate Plot of_sa5 Steroids_y vs. PFAS_a
 
 # Making Scatter Plots with Models 
 ```{r, warning=FALSE,message=FALSE,fig.width=10.0,fig.align="left"}
-# This should be as good as it gets... eli  maksimilla vedetään... eli pitäis olla ok, sillä skaalattu vastaa korrelaatiota tss. skaalaus vielä miehiin...
-# This looks similar as the linear model code, but is not exactly so. With this you can draw a scatter plot for each individual combination of two variables within dataset
+
+
+# This looks similar as the linear model code, but is not exactly so. 
+# With this you can draw a scatter plot for each individual combination of two variables within dataset
+# This should be as good as it gets... 
 CreateScatterPlots=function(AllData, Group, lin_mod_summaries, aa, bb, fn) {
   # Filter data based on the specified group
   if (Group == 'male') {
@@ -1746,7 +1760,7 @@ CreateScatterPlots=function(AllData, Group, lin_mod_summaries, aa, bb, fn) {
   colnames(SG0[, 8:27]) <- gsub("-", ".", colnames(SG0[, 8:27]))
   colnames(SG0[, 8:27]) <- gsub("/", ".", colnames(SG0[, 8:27]))
   
-  lin_mod_summary = c()
+  lin_mod_summary = c(); MedAnPlot=c()
   xnam = colnames(SG0)[c(4:7)]
   TreatmentVariables = colnames(AllData)[52:58]
   y = TreatmentVariables
@@ -1797,14 +1811,14 @@ CreateScatterPlots=function(AllData, Group, lin_mod_summaries, aa, bb, fn) {
       # Plot correlations using ggplot2
       xcx = jeps[, TreatmentVariables]
       ycy = jeps[, MediatorVariables]
-      väh = round(sd(ycy) / 2, 2)
+      MedAnPlot = round(sd(ycy) / 2, 2)
       a = ggplot(jeps, aes(y = ycy, x = xcx)) +
         geom_point() +
         xlab(TreatmentVariables) +
         ylab(MediatorVariables) +
         geom_smooth(method = "lm", col = "black") +
         annotate("text", x = min(xcx), y = max(ycy), hjust = 0, vjust = 0, label = paste0("r = ", round(r, 5))) +
-        annotate("text", x = min(xcx), y = max(ycy) - väh, hjust = 0, vjust = 0, label = paste0("p = ", round(p.valueList, 5))) +
+        annotate("text", x = min(xcx), y = max(ycy) - MedAnPlot, hjust = 0, vjust = 0, label = paste0("p = ", round(p.valueList, 5))) +
         theme_classic()
       
       print(a)
@@ -1847,14 +1861,14 @@ CreateScatterPlots=function(AllData, Group, lin_mod_summaries, aa, bb, fn) {
       }
       xcx = jeps[, TreatmentVariables]
       ycy = jeps[, MediatorVariables]
-      väh = round(sd(ycy) / 2, 2)
+      MedAnPlot = round(sd(ycy) / 2, 2)
       a = ggplot(jeps, aes(y = ycy, x = xcx)) +
         geom_point() +
         xlab(TreatmentVariables) +
         ylab(MediatorVariables) +
         geom_smooth(method = "lm", col = "black") +
         annotate("text", x = min(xcx), y = max(ycy), hjust = 0, vjust = 0, label = paste0("r = ", round(r, 4))) +
-        annotate("text", x = min(xcx), y = max(ycy) - väh, hjust = 0, vjust = 0, label = paste0("p = ", round(p.valueList, 5))) +
+        annotate("text", x = min(xcx), y = max(ycy) - MedAnPlot, hjust = 0, vjust = 0, label = paste0("p = ", round(p.valueList, 5))) +
         theme_classic()
       print(a)
       dev.off()
@@ -1900,14 +1914,14 @@ CreateScatterPlots=function(AllData, Group, lin_mod_summaries, aa, bb, fn) {
       
       xcx = jeps[, TreatmentVariables]
       ycy = jeps[, MediatorVariables]
-      väh = round(sd(ycy) / 2, 2)
+      MedAnPlot = round(sd(ycy) / 2, 2)
       a = ggplot(jeps, aes(y = ycy, x = xcx)) +
         geom_point() +
         xlab(TreatmentVariables) +
         ylab(MediatorVariables) +
         geom_smooth(method = "lm", col = "black") +
         annotate("text", x = min(xcx), y = max(ycy), hjust = 0, vjust = 0, label = paste0("r = ", round(r, 5))) +
-        annotate("text", x = min(xcx), y = max(ycy) - väh, hjust = 0, vjust = 0, label = paste0("p = ", round(p.valueList, 5))) +
+        annotate("text", x = min(xcx), y = max(ycy) - MedAnPlot, hjust = 0, vjust = 0, label = paste0("p = ", round(p.valueList, 5))) +
         theme_classic()
       print(a)
       dev.off()
@@ -1950,14 +1964,14 @@ CreateScatterPlots=function(AllData, Group, lin_mod_summaries, aa, bb, fn) {
       }
       xcx = jeps[, TreatmentVariables]
       ycy = jeps[, MediatorVariables]
-      väh = round(sd(ycy) / 2, 2)
+      MedAnPlot = round(sd(ycy) / 2, 2)
       a = ggplot(jeps, aes(y = ycy, x = xcx)) +
         geom_point() +
         xlab(TreatmentVariables) +
         ylab(MediatorVariables) +
         geom_smooth(method = "lm", col = "black") +
         annotate("text", x = min(xcx), y = max(ycy), hjust = 0, vjust = 0, label = paste0("r = ", round(r, 4))) +
-        annotate("text", x = min(xcx), y = max(ycy) - väh, hjust = 0, vjust = 0, label = paste0("p = ", round(p.valueList, 5))) +
+        annotate("text", x = min(xcx), y = max(ycy) - MedAnPlot, hjust = 0, vjust = 0, label = paste0("p = ", round(p.valueList, 5))) +
         theme_classic()
       print(a)
       dev.off()
@@ -2000,14 +2014,14 @@ CreateScatterPlots=function(AllData, Group, lin_mod_summaries, aa, bb, fn) {
       }
       xcx = jeps[, TreatmentVariables]
       ycy = jeps[, MediatorVariables]
-      väh = round(sd(ycy) / 2, 2)
+      MedAnPlot = round(sd(ycy) / 2, 2)
       a = ggplot(jeps, aes(y = ycy, x = xcx)) +
         geom_point() +
         xlab(TreatmentVariables) +
         ylab(MediatorVariables) +
         geom_smooth(method = "lm", col = "black") +
         annotate("text", x = min(xcx), y = max(ycy), hjust = 0, vjust = 0, label = paste0("r = ", round(r, 5))) +
-        annotate("text", x = min(xcx), y = max(ycy) - väh, hjust = 0, vjust = 0, label = paste0("p = ", round(p.valueList, 5))) +
+        annotate("text", x = min(xcx), y = max(ycy) - MedAnPlot, hjust = 0, vjust = 0, label = paste0("p = ", round(p.valueList, 5))) +
         theme_classic()
       print(a)
       dev.off()
@@ -2051,14 +2065,14 @@ CreateScatterPlots=function(AllData, Group, lin_mod_summaries, aa, bb, fn) {
       }
       xcx = jeps[, TreatmentVariables]
       ycy = jeps[, MediatorVariables]
-      väh = round(sd(ycy) / 2, 2)
+      MedAnPlot = round(sd(ycy) / 2, 2)
       a = ggplot(jeps, aes(y = ycy, x = xcx)) +
         geom_point() +
         xlab(TreatmentVariables) +
         ylab(MediatorVariables) +
         geom_smooth(method = "lm", col = "black") +
         annotate("text", x = min(xcx), y = max(ycy), hjust = 0, vjust = 0, label = paste0("r = ", round(r, 5))) +
-        annotate("text", x = min(xcx), y = max(ycy) - väh, hjust = 0, vjust = 0, label = paste0("p = ", round(p.valueList, 5))) +
+        annotate("text", x = min(xcx), y = max(ycy) - MedAnPlot, hjust = 0, vjust = 0, label = paste0("p = ", round(p.valueList, 5))) +
         theme_classic()
       print(a)
       dev.off()
@@ -2092,7 +2106,12 @@ metanorm_S_non_fdr=RunAnalysis(CovariatesScaledData,adj,sig.level) # This was al
 metanorm_S_fdr_non_tot=ldply(metanorm_S_non_fdr, data.frame) #Making the above ok for the next:
 non_fdr_check=RunScatterPlotAnalysis(CovariatesScaledData,metanorm_S_fdr_non_tot) # This plots all the combinations, so it takes some time
 
-#The above code in this segment does not get easily better with Copilot, but I let it comment it a bit.
+# The above code in this segment does not get easily better with Copilot, but I let it comment it a bit.
+# Moreover, it would not be better (quickly) with ChatGPT.
+# It would be nice to improve this, so I'll leave it as a 'under-development-but-working' version. 
+# (Not to myself: Function.R can be found in the main folder of this analysis, 
+# there's more there, e.g., one mini-function is working.
+
 
 #Making some 3d plots:
 
@@ -2581,16 +2600,10 @@ sick_group = rowSums(ccova) > 4
 
 
 
-#Some commenting with Copilot here.
+#Some commenting with Copilot was done here above segment.
 
 
 ```
-
-
-
-
-
-
 
 
 
@@ -2842,7 +2855,7 @@ CreateHeatmaps=function(hoi, rt2, switch, mn, z, corr, date, neg) {
   # if (min(as.matrix(resulta1)) >= 0  | max(as.matrix(resulta1)) <= 0) {resulta1=rango(resulta1,-1,1)}
   
   corrplot(as.matrix(resulta1), type = type, order = order,method=method, p.mat=as.matrix(p.mat.a1), tl.col = "black", 
-           cl.cex = cl.cex, pch.cex=pch.cex, pch.col='black',pch=pch,#pitikä vain pch lisätä pch väriin väriin..'#FEE12B'
+           cl.cex = cl.cex, pch.cex=pch.cex, pch.col='black',pch=pch,# Did I just need to add pch for the color to work.. '#FEE12B'
            sig.level = c(0.05),cl.pos = cl.pos, insig = "label_sig", cl.offset=cl.offset,cl.length=cl.length, #.001, .05, .2
            tl.srt = 90, diag = TRUE,col=col,is.corr = corr,col.lim=c(-ImgRange,ImgRange)) 
   #only in age...0.001,col.lim=c(-ImgRange,ImgRange) #rev(COL2('RdBu')[25:(length(COL2('RdBu'))-25)]) col.lim=c(-1,1) col.lim=c(-ImgRange,ImgRange)
@@ -2889,7 +2902,7 @@ hoi[,c(2)]  <- gsub("\\.", "-",  hoi[,c(2)]  ); hoi[,'Steroids' ][hoi[,'Steroids
 # mat_neg=list(c(1,2),c(3,4))
 mn=paste0(z,'neg'); neg='yes'
 mat_neg=CreateHeatmaps(hoi, rt2, switch, mn, z, corr, date, neg); 
-# dim(mat_neg[[2]])[2]  # kasvata n, jotta dim(mat_pos[[2]])[2] yhtäkuin kuin length(c(x3,x6)), i.e. 36
+# dim(mat_neg[[2]])[2]  #Increase n so that dim(mat_pos[[2]])[2] equals the length of c(x3, x6), i.e., 36.
 
 u3=all_all; c1=c(); # mn='posae'
 c1= u3 #[u3[,'ADE'] < ADEMedian  & DV<ADEVar,] #& u3[,'z0.p']<ADEpval
@@ -2959,7 +2972,7 @@ cl.offset=25; cl.length=7; cl.cex = 1.1; pch.cex=1.95; pch=3; cl.pos = 'r';
 # cl.offset=2; cl.length=5; cl.cex = 1.3; pch.cex=1.95; pch=14;
 
 corrplot(resulta1, type = type, order = order, method=method, p.mat=p.mat.a1, tl.col = "black", # sum(COL2('RdBu')=="#FF7417")
-         cl.cex = cl.cex, pch.cex=pch.cex, pch.col='black', pch=pch, # pitikä vain pch lisätä pch väriin väriin...'#FEE12B'
+         cl.cex = cl.cex, pch.cex=pch.cex, pch.col='black', pch=pch, # one colore option: '#FEE12B', check also pch:s that is is ok
          sig.level = c(0.05), cl.pos = cl.pos, insig = "label_sig", cl.offset=cl.offset, cl.length=cl.length,
          tl.srt = 90, diag = TRUE, col=col, is.corr = FALSE, col.lim=c(-ImgRange, ImgRange)) # only in age...0.001, -2,2 
 
@@ -3105,7 +3118,6 @@ date=paste0(date,'_malads');name='just alaal';Group='male';
 almam=ReduceData(all_Male,Group,name,lkm);
 almam = na.omit(almam) #https://www.tutorialspoint.com/how-to-remove-rows-from-data-frame-in-r-that-contains-nan
 CreateSankeyPlots(almam,date,sick,Group,d)
-
 
 # Alternative way to plot Sankeys with the ACMEs:
 # Create data which can be used for Sankey
@@ -3439,7 +3451,8 @@ tbe=intersect(steroid_healthy, steroid_sick)
 totaali_sh_all=steroid_sick[!steroid_sick %in% tbe] #https://www.geeksforgeeks.org/difference-between-two-vectors-in-r/ 
 return(list(steroid_sick,tbe,totaali_sh_all)) } #"17a-OHP4" "DHT"      "DOC"      'P4'
 
-Group = ' all'; cond='';all_all=FindCommonSteroids(list_of_files,Group,cond) #ekat allit ('All...') oli deletoitu, yes, ja käytetty vain spesifisiä alleja...
+Group = ' all'; cond='';all_all=FindCommonSteroids(list_of_files,Group,cond) 
+#the first 'alls' ('All...') were deleted, yes, and only specific alls were used..
 Group = ' female'; cond='';female_all=FindCommonSteroids(list_of_files,Group,cond) 
 Group = ' male'; cond='';male_all=FindCommonSteroids(list_of_files,Group,cond) 
 Group = ' all'; cond='Steatosis';all_steatosis=FindCommonSteroids(list_of_files,Group,cond) 
@@ -3549,7 +3562,7 @@ table(hoi_sick[,1])[rev(order(table(hoi_sick[,1])))];table(hoi_healthy[,1])[rev(
 # Differences Between BAs/Lipids...
 # table(hoi_sick[,3])[rev(order(table(hoi_sick[,3])))];table(hoi_healthy[,3])[rev(order(table(hoi_healthy[,3])))]
 
-# Copiloting helped both with the comments and streamlines.
+# Copiloting helped both with the comments and streamlines here in the above code segment.
 
 ```
 
@@ -3635,7 +3648,7 @@ sessionInfo()
 # https://www.biostars.org/p/342756/ 
 # https://en.wikipedia.org/wiki/Tukey%27s_range_test 
 # https://en.wikipedia.org/wiki/Wilcoxon_signed-rank_test
-# Jukka Vaari 1993 Fysiikan Laboratoriotyät :)
+# Jukka Vaari 1993 Fysiikan Laboratoriotyöt :)
 # https://www.r-bloggers.com/2020/03/how-to-standardize-group-colors-in-data-visualizations-in-r/
 # https://stackoverflow.com/questions/71745719/how-to-control-stripe-transparency-using-ggforestplot-geom-stripes
 # https://stackoverflow.com/questions/10547487/remove-facet-wrap-labels-completely
