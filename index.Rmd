@@ -1295,9 +1295,6 @@ x2[x2 == "17aOH-P4"] <- "17a-OHP4"
 x2 <- x2[order(match(x2, steroidGroups[, 2]))]
 x5 <- x5[!x5 == 'Perfluorodecyl.ethanoic.acid']
 
-# resulta11=resulta[c(x1,x3,x6),x2];  p.mat.a11=p.mat.aa[c(x1,x3,x6),x2]
-# resulta22=resultaf[c(x1,x3,x6),x2]; p.mat.f22=p.mat.ff[c(x1,x3,x6),x2]
-# resulta33=resultam[c(x1,x3,x6),x2]; p.mat.m33=p.mat.mm[c(x1,x3,x6),x2]
 
 # Extract specific results (bile acids and lipids vs. PFAS)
 resulta1 <- correlation_results[[1]]$result[c(x3, x6), x5]
@@ -1348,36 +1345,6 @@ resulta22[resulta22 < -0.5] = -0.5
 resulta33[resulta33 >0.5] = 0.5
 resulta33[resulta33 < -0.5] = -0.5
 
-
-# 
-# order="original"; range='orig';corre='no_renorm'; type='full'; method='color';ga='All';gf='Female';gm='Male' #color square
-# cl.offset=1.0;cl.length=5;cl.cex = 1.0;pch.cex=1.0;pch=20;cl.pos = 'r';#cl.pos = 'b' ;#pch.cex=0.95,1.3; height=6300; pos 'b' cl.pos = 'b'
-# 
-# jpeg(paste("Square Correlation Plot ofrra",ho,ga,hip1,"3.jpg"), width = width, height = height, quality = 100,pointsize = 14, res=300);# par( ps=ps)# par(cex.lab=90)
-# corrplot(resulta1, type = type, order = order,method=method, p.mat=p.mat.a1, tl.col = "black", #sum(COL2('RdBu')=="#FF7417")
-#          cl.cex = cl.cex, pch.cex=pch.cex, pch.col='black',pch=pch,#pitikö vain pch lisätä pch väriin väriin... mystistä...'#FEE12B'
-# sig.level = c(.001,.05, .2),cl.pos = cl.pos, insig = "label_sig", cl.offset=cl.offset,cl.length=cl.length,
-# tl.srt = 90, diag = TRUE,col = col,is.corr = FALSE,col.lim=c(-0.5,0.5)) #only in age...0.001, is.corr = TRUE/FALSE rev(COL2('RdBu')[1:(length(COL2('RdBu'))-0)])
-# dev.off();eoh=paste("Square Correlation Plot ofrr",ho,ga,hip1,"3.jpg")
-# daiR::image_to_pdf(eoh, pdf_name=paste0(eoh,'.pdf'))
-# my_image <- image_read(eoh);my_svg <- image_convert(my_image, format="svg"); image_write(my_svg, paste(eoh,".svg"))
-# pch.cex=1.3;
-# jpeg(paste("Square Correlation Plot ofa",ho,gf,hip1,"3.jpg"), width = width, height = height, quality = 100,pointsize = 16, res=300);
-# corrplot(resulta2, type = type, order = order,method=method, p.mat=p.mat.f1,tl.col = "black",
-#          cl.cex = cl.cex,  pch.cex=pch.cex,pch.col='black',pch=pch,
-# sig.level = c(.001, .05, .2), cl.pos = cl.pos, insig = "label_sig",cl.offset=cl.offset,cl.length=cl.length,
-# tl.srt = 90, diag = TRUE,col = col,,is.corr = FALSE,col.lim=c(-0.5,0.5)) #
-# dev.off();eoh=paste("Square Correlation Plot of",ho,gf,hip1,"3.jpg")
-# daiR::image_to_pdf(eoh, pdf_name=paste0(eoh,'.pdf'))
-# my_image <- image_read(eoh);my_svg <- image_convert(my_image, format="svg"); image_write(my_svg, paste(eoh,".svg"))
-# jpeg(paste("Square Correlation Plot ofa",ho,gm,hip1,"3.jpg"), width = width, height = height, quality = 100,pointsize = 16, res=300);
-# corrplot(resulta3, type = type, order = order,method=method, p.mat=p.mat.m1, tl.col = "black", cl.cex = cl.cex,pch.cex=pch.cex,
-#          pch.col='black',pch=pch,
-# sig.level = c(.001, .05, .2),cl.pos = cl.pos, insig = "label_sig",cl.offset=cl.offset,cl.length=cl.length,
-# tl.srt = 90, diag = TRUE,col = col,,is.corr = FALSE,col.lim=c(-0.5,0.5)) #,is.corr = FALSE
-# dev.off();eoh=paste("Square Correlation Plot of",ho,gm,hip1,"3.jpg")
-# daiR::image_to_pdf(eoh, pdf_name=paste0(eoh,'.pdf'))
-# my_image <- image_read(eoh);my_svg <- image_convert(my_image, format="svg"); image_write(my_svg, paste(eoh,".svg"))
 
 # Function to generate and save plots
 generate_and_save_plots <- function(result, p.mat, filename, width, height, col, cl.cex, pch.cex, pch, cl.pos, cl.offset, cl.length) {
