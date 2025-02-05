@@ -14,7 +14,6 @@ output:
 
 
 ---
-
 # Introduction
 ```{r, warning=FALSE,message=FALSE}
 
@@ -183,12 +182,12 @@ RelevantColumns=colnames(CombinedData)[!colnames(CombinedData) %in% c( "Benzylpa
 
 # Not sure when it is the best time to take not needed variables away, perhaps at the very end?
 CombinedData=CombinedData[,RelevantColumns]
-# Here I add the lipids. In the future, I need to divide all the steroidGroups in their own components e.g. dataframe called 'lipids' so that adding uniqueBMIValues will be more straightforward:
+# Here I add the lipids. In the future, I need to divide all the steroidGroups in their own components 
+# e.g. dataframe called 'lipids' so that adding uniqueBMIValues will be more straightforward:
 CombinedData=cbind(CombinedData,MetabolicAssociatedLiverDisease[,(dim(MetabolicAssociatedLiverDisease)[2]-13):dim(MetabolicAssociatedLiverDisease)[2]]) 
 # hupo=match(   colnames(CombinedData)[colnames(CombinedData) %in% groups2[,3]], groups2[,3] ) # do ni; https://www.geeksforgeeks.org/how-to-find-index-of-element-in-vector-in-r/
 # tvauxe=CombinedData
 # colnames(CombinedData)[colnames(CombinedData) %in% groups2[,3]]=groups2[hupo,2]
-
 
 # The basic preprocessing is just the below lines:
 tve=CombinedData[,2:dim(CombinedData)[2]]; tve[tve == 0] <- NA; #Almost all variables are here
@@ -279,11 +278,8 @@ multiply_with_random <- function(df, cols, min_val, max_val) {
     if (col %in% names(df)) {
       df[[col]] <- df[[col]] * runif(nrow(df), min = min_val, max = max_val)
     } else {
-      warning(paste("Column", col, "does not exist in the data frame"))
-    }
-  }
-  return(df)
-}
+      warning(paste("Column", col, "does not exist in the data frame"))}}
+  return(df)}
 
 CovariatesScaledData=multiply_with_random(CovariatesScaledData, 3:(dim(CovariatesScaledData)[2]), min_val, max_val)
 CurrentData=multiply_with_random(CurrentData, 3:(dim(CurrentData)[2]), min_val, max_val)
@@ -1168,57 +1164,7 @@ image_write(my_svg, paste0("cohensd_e2", date, ".svg"))
 # Making Heatmaps with Correlations
 ```{r, warning=FALSE,message=FALSE,fig.width=9.0,fig.align="left",results='hide'}
 
-# I need one set made manually:
-CurrentData=CovariatesScaledData#tv_half_log22
-colnames(CurrentData)=colnames(tvauxe)
-CurrentData=CurrentData[,!colnames(CurrentData) %in% c('Total_TG','PFAS','Perfluorodecyl.ethanoic.acid')]
-CurrentData=CurrentData[,!colnames(CurrentData) %in% x4]
-colnames(CurrentData)[colnames(CurrentData)=="17aOH-P4"]="17a-OHP4"
-tvm=CurrentData[CurrentData[,'Gender']==max(CurrentData[,'Gender']),1:dim(CurrentData)[2]]
-tvf=CurrentData[CurrentData[,'Gender']==min(CurrentData[,'Gender']),1:dim(CurrentData)[2]]
-dat = CurrentData;
-dat=dat[,!colnames(dat) %in% c('Gender','PatientNumber')] #SEX.1F.2M
-resulta <- (rcorr(as.matrix(dat), type = c('spearman')))$r
-p.mat.a=rcorr(as.matrix(dat), type = c('spearman'))$P;
-p.mat.a[is.na(p.mat.a)]=1;
-p.mat.aa=matrix(p.adjust(p.mat.a,method="BH"),nrow=dim(p.mat.a)[1],ncol=dim(p.mat.a)[2]);
-rownames(p.mat.aa)=rownames(p.mat.a);colnames(p.mat.aa)=colnames(p.mat.a)
-dat=tvf; #
-dat=dat[,!colnames(dat) %in% c('Gender','PatientNumber')] #SEX.1F.2M
-resultaf <- (rcorr(as.matrix(dat), type = c('spearman')))$r #compare pearson# intersect(colnames(resultaf), rownames(resultaf)) #https://stackoverflow.com/questions/45271448/r-finding-intersection-between-two-vectors
-p.mat.f=rcorr(as.matrix(dat), type = c('spearman'))$P
-p.mat.f[is.na(p.mat.f)]=1;
-p.mat.ff=matrix(p.adjust(p.mat.f,method="BH"),nrow=dim(p.mat.f)[1],ncol=dim(p.mat.f)[2]);
-rownames(p.mat.ff)=rownames(p.mat.f);colnames(p.mat.ff)=colnames(p.mat.f)
-dat=tvm;  #
-dat=dat[,!colnames(dat) %in% c('Gender','PatientNumber')] #dat= dat %>% select(-c('Gender')) #this is quite nice way to delete columns, please remember...
-resultam <- (rcorr(as.matrix(dat), type = c('spearman')))$r #compare pearson # intersect(colnames(resultam), rownames(resultam)) #https://stackoverflow.com/questions/45271448/r-finding-intersection-between-two-vectors
-p.mat.m=rcorr(as.matrix(dat), type = c('spearman'))$P
-p.mat.m[is.na(p.mat.m)]=1;
-p.mat.mm=matrix(p.adjust(p.mat.m,method="BH"),nrow=dim(p.mat.m)[1],ncol=dim(p.mat.m)[2]);
-rownames(p.mat.mm)=rownames(p.mat.m);colnames(p.mat.mm)=colnames(p.mat.m)
-resulta[resulta==1]=0
-resultam[resultam==1]=0
-resultaf[resultaf==1]=0;#min(resultaf);max(resultaf);
-n_level=1
-
-setwd("C:/Users/patati/Desktop/Turku/R")
-groups=read.csv("groups_17823.csv", header = TRUE, sep=";")
-setwd("C:/Users/patati/Documents/GitHub/Steroid_Data_Analysis")
-
-#The ok ones:
-x1=colnames(resulta)[c(1:6)]
-x1=c(x1[3:6],x1[1],x1[2])#x1[2],
-x5=x5[!x5=='Perfluorodecyl.ethanoic.acid']
-colnames(resulta)[colnames(resulta)=="17aOH-P4"]="17a-OHP4"
-colnames(p.mat.a)[colnames(p.mat.a)=="17aOH-P4"]="17a-OHP4"
-x2[x2=="17aOH-P4"]="17a-OHP4"
-x2=x2[order(match(x2,groups[,2]))] #https://stackoverflow.com/questions/1568511/how-do-i-sort-one-vector-based-on-values-of-another
-x5=x5[!x5=='Perfluorodecyl.ethanoic.acid']
-
-resulta11=resulta[c(x1,x3,x6),x2];  p.mat.a11=p.mat.aa[c(x1,x3,x6),x2]
-resulta22=resultaf[c(x1,x3,x6),x2]; p.mat.f22=p.mat.ff[c(x1,x3,x6),x2]
-resulta33=resultam[c(x1,x3,x6),x2]; p.mat.m33=p.mat.mm[c(x1,x3,x6),x2]
+# These codes show different ways to calculate and plot correlation coefficients with heatmaps
 
 # Function to calculate correlation matrices
 calculate_correlations <- function(data) {
@@ -1232,13 +1178,14 @@ calculate_correlations <- function(data) {
   return(list(result = result, p.mat.adjusted = p.mat.adjusted))}
 
 # Function to generate plots
-generate_plots <- function(result, filename_prefix, n_level, order, range, corre, method) {
+generate_plots <- function(result, filename_prefix, n_level, order, range, corre, method,width = width, height = width) {
     # Print plot to Rmd screen
   corrplot(result, type = "lower", order = order, method = method, 
            tl.col = "black", tl.srt = 90, diag = FALSE, col = rev(COL2('RdBu')), is.corr = FALSE)
-  
-  jpeg(paste0(filename_prefix, n_level, order, range, corre, method, ".jpg"), width = 8000, height = 8000, quality = 100, pointsize = 23, res = 300)
-  corrplot(result, type = "lower", order = order, method = method, tl.col = "black", tl.srt = 90, diag = FALSE, col = rev(COL2('RdBu')), is.corr = FALSE)
+  jpeg(paste0(filename_prefix, n_level, order, range, corre, method, ".jpg"), width = 8000, 
+       height = 8000, quality = 100, pointsize = 23, res = 300)
+  corrplot(result, type = "lower", order = order, method = method, width = width, height = width, 
+           tl.col = "black", tl.srt = 90, diag = FALSE, col = rev(COL2('RdBu')), is.corr = FALSE)
   dev.off()
   eoh <- paste0(filename_prefix, n_level, order, range, corre, method, ".jpg")
   daiR::image_to_pdf(eoh, pdf_name = paste0(eoh, '.pdf'))
@@ -1253,6 +1200,7 @@ CurrentData <- CurrentData[, !colnames(CurrentData) %in% x4]
 colnames(CurrentData)[colnames(CurrentData) == "17aOH-P4"] <- "17a-OHP4"
 tvf <- CurrentData[CurrentData[, 'Gender'] == min(CurrentData[, 'Gender']), 1:dim(CurrentData)[2]]
 tvm <- CurrentData[CurrentData[, 'Gender'] == max(CurrentData[, 'Gender']), 1:dim(CurrentData)[2]]
+n_level=1
 
 # Calculate correlations
 dat_list <- list(CurrentData, tvf, tvm)
@@ -1279,11 +1227,13 @@ p.mat.m <- correlation_results[[3]]$p.mat.adjusted
 # https://jokergoo.github.io/circlize_book/book/a-complex-example-of-chord-diagram.html
 
 # Generate plots
-order="original"; range='orig';corre='re_renormae'; method='color' 
+order="original"; range='orig';corre='re_renormae'; method='color';width = 8000; height = 8000 
 filenames <- c("Correlations with Full Plot of All_vok_nes", 
-               "Correlations with Full Plot of Female_voek", "Correlations with Full Plot of Male_voeka")
+               "Correlations with Full Plot of Female_voek", 
+               "Correlations with Full Plot of Male_voeka")
+
 for (i in 1:length(correlation_results)) {
-  generate_plots(correlation_results[[i]]$result, filenames[i], n_level, order, range, corre, method)}
+  generate_plots(correlation_results[[i]]$result, filenames[i], n_level, order, range, corre, method,width = width, height = width)}
 
 # Additional processing
 x1 <- colnames(correlation_results[[1]]$result)[c(1:6)]
@@ -1294,7 +1244,6 @@ colnames(correlation_results[[1]]$p.mat.adjusted)[colnames(correlation_results[[
 x2[x2 == "17aOH-P4"] <- "17a-OHP4"
 x2 <- x2[order(match(x2, steroidGroups[, 2]))]
 x5 <- x5[!x5 == 'Perfluorodecyl.ethanoic.acid']
-
 
 # Extract specific results (bile acids and lipids vs. PFAS)
 resulta1 <- correlation_results[[1]]$result[c(x3, x6), x5]
@@ -1335,8 +1284,58 @@ cl.offset=1.0;cl.length=5;cl.cex = 1.3;pch.cex=1.3;pch=20;cl.pos = 'r';#cl.pos =
 filenames <- c("Correlations with Full Plot of All_vok_nes", "Correlations with Full Plot of Female_voek", "Correlations with Full Plot of Male_voeka")
 
 for (i in 1:length(correlation_results)) {
-  generate_plots(correlation_results[[i]]$result, filenames[i], n_level, order, range, corre, method)}
+  generate_plots(correlation_results[[i]]$result, filenames[i], n_level, order, range, corre, method,width = width, height = width)}
 
+# I need one set of data made manually:
+CurrentData=CovariatesScaledData#tv_half_log22
+colnames(CurrentData)=colnames(tvauxe)
+CurrentData=CurrentData[,!colnames(CurrentData) %in% c('Total_TG','PFAS','Perfluorodecyl.ethanoic.acid')]
+CurrentData=CurrentData[,!colnames(CurrentData) %in% x4]
+colnames(CurrentData)[colnames(CurrentData)=="17aOH-P4"]="17a-OHP4"
+tvm=CurrentData[CurrentData[,'Gender']==max(CurrentData[,'Gender']),1:dim(CurrentData)[2]]
+tvf=CurrentData[CurrentData[,'Gender']==min(CurrentData[,'Gender']),1:dim(CurrentData)[2]]
+dat = CurrentData;
+dat=dat[,!colnames(dat) %in% c('Gender','PatientNumber')] #SEX.1F.2M
+resulta <- (rcorr(as.matrix(dat), type = c('spearman')))$r
+p.mat.a=rcorr(as.matrix(dat), type = c('spearman'))$P;
+p.mat.a[is.na(p.mat.a)]=1;
+p.mat.aa=matrix(p.adjust(p.mat.a,method="BH"),nrow=dim(p.mat.a)[1],ncol=dim(p.mat.a)[2]);
+rownames(p.mat.aa)=rownames(p.mat.a);colnames(p.mat.aa)=colnames(p.mat.a)
+dat=tvf; #
+dat=dat[,!colnames(dat) %in% c('Gender','PatientNumber')] #SEX.1F.2M
+resultaf <- (rcorr(as.matrix(dat), type = c('spearman')))$r #compare pearson# intersect(colnames(resultaf), rownames(resultaf)) #https://stackoverflow.com/questions/45271448/r-finding-intersection-between-two-vectors
+p.mat.f=rcorr(as.matrix(dat), type = c('spearman'))$P
+p.mat.f[is.na(p.mat.f)]=1;
+p.mat.ff=matrix(p.adjust(p.mat.f,method="BH"),nrow=dim(p.mat.f)[1],ncol=dim(p.mat.f)[2]);
+rownames(p.mat.ff)=rownames(p.mat.f);colnames(p.mat.ff)=colnames(p.mat.f)
+dat=tvm;  #
+dat=dat[,!colnames(dat) %in% c('Gender','PatientNumber')] #dat= dat %>% select(-c('Gender')) #this is quite nice way to delete columns, please remember...
+resultam <- (rcorr(as.matrix(dat), type = c('spearman')))$r #compare pearson # intersect(colnames(resultam), rownames(resultam)) #https://stackoverflow.com/questions/45271448/r-finding-intersection-between-two-vectors
+p.mat.m=rcorr(as.matrix(dat), type = c('spearman'))$P
+p.mat.m[is.na(p.mat.m)]=1;
+p.mat.mm=matrix(p.adjust(p.mat.m,method="BH"),nrow=dim(p.mat.m)[1],ncol=dim(p.mat.m)[2]);
+rownames(p.mat.mm)=rownames(p.mat.m);colnames(p.mat.mm)=colnames(p.mat.m)
+resulta[resulta==1]=0
+resultam[resultam==1]=0
+resultaf[resultaf==1]=0;#min(resultaf);max(resultaf);
+
+setwd("C:/Users/patati/Desktop/Turku/R")
+groups=read.csv("groups_17823.csv", header = TRUE, sep=";")
+setwd("C:/Users/patati/Documents/GitHub/Steroid_Data_Analysis")
+
+#The ok ones:
+x1=colnames(resulta)[c(1:6)]
+x1=c(x1[3:6],x1[1],x1[2])#x1[2],
+x5=x5[!x5=='Perfluorodecyl.ethanoic.acid']
+colnames(resulta)[colnames(resulta)=="17aOH-P4"]="17a-OHP4"
+colnames(p.mat.a)[colnames(p.mat.a)=="17aOH-P4"]="17a-OHP4"
+x2[x2=="17aOH-P4"]="17a-OHP4"
+x2=x2[order(match(x2,groups[,2]))] #https://stackoverflow.com/questions/1568511/how-do-i-sort-one-vector-based-on-values-of-another
+x5=x5[!x5=='Perfluorodecyl.ethanoic.acid']
+
+resulta11=resulta[c(x1,x3,x6),x2];  p.mat.a11=p.mat.aa[c(x1,x3,x6),x2]
+resulta22=resultaf[c(x1,x3,x6),x2]; p.mat.f22=p.mat.ff[c(x1,x3,x6),x2]
+resulta33=resultam[c(x1,x3,x6),x2]; p.mat.m33=p.mat.mm[c(x1,x3,x6),x2]
 
 resulta11[resulta11 >0.5] = 0.5
 resulta11[resulta11 < -0.5] = -0.5
@@ -1345,17 +1344,18 @@ resulta22[resulta22 < -0.5] = -0.5
 resulta33[resulta33 >0.5] = 0.5
 resulta33[resulta33 < -0.5] = -0.5
 
-
 # Function to generate and save plots
 generate_and_save_plots <- function(result, p.mat, filename, width, height, col, cl.cex, pch.cex, pch, cl.pos, cl.offset, cl.length) {
   jpeg(filename, width = width, height = height, quality = 100, pointsize = 14, res = 300)
-  corrplot(result, type = "full", order = "original", method = "color", p.mat = p.mat, tl.col = "black", cl.cex = cl.cex, pch.cex = pch.cex, pch.col = 'black', pch = pch, sig.level = c(.001, .05, .2), cl.pos = cl.pos, insig = "label_sig", cl.offset = cl.offset, cl.length = cl.length, tl.srt = 90, diag = TRUE, col = col, is.corr = FALSE, col.lim = c(-0.5, 0.5))
+  corrplot(result, type = "full", order = "original", method = "color", p.mat = p.mat, 
+           tl.col = "black", cl.cex = cl.cex, pch.cex = pch.cex, pch.col = 'black', pch = pch, sig.level = c(.001, .05, .2), 
+           cl.pos = cl.pos, insig = "label_sig", cl.offset = cl.offset, cl.length = cl.length, tl.srt = 90, diag = TRUE, 
+           col = col, is.corr = FALSE, col.lim = c(-0.5, 0.5))
   dev.off()
   daiR::image_to_pdf(filename, pdf_name = paste0(filename, '.pdf'))
   my_image <- image_read(filename)
   my_svg <- image_convert(my_image, format = "svg")
-  image_write(my_svg, paste0(filename, ".svg"))
-}
+  image_write(my_svg, paste0(filename, ".svg"))}
 
 # Generate additional plots with specific results
 hip1 <- 'transpose'
@@ -1376,12 +1376,10 @@ cl.pos <- 'r'
 plot_data <- list(
   list(result = resulta11, p.mat = p.mat.a11, filename = paste("Square Correlation Plot ofrra", ho, "All", hip1, "3.jpg")),
   list(result = resulta22, p.mat = p.mat.f22, filename = paste("Square Correlation Plot ofa", ho, "Female", hip1, "3.jpg")),
-  list(result = resulta33, p.mat = p.mat.m33, filename = paste("Square Correlation Plot ofa", ho, "Male", hip1, "3.jpg"))
-)
+  list(result = resulta33, p.mat = p.mat.m33, filename = paste("Square Correlation Plot ofa", ho, "Male", hip1, "3.jpg")))
 
 for (plot_info in plot_data) {
-  generate_and_save_plots(plot_info$result, plot_info$p.mat, plot_info$filename, width, height, col, cl.cex, pch.cex, pch, cl.pos, cl.offset, cl.length)
-}
+  generate_and_save_plots(plot_info$result, plot_info$p.mat, plot_info$filename, width, height, col, cl.cex, pch.cex, pch, cl.pos, cl.offset, cl.length)}
 
 #FYI: Copilot did help a bit for the previous one and the code looks a bit neater.
 
