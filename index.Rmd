@@ -524,9 +524,8 @@ CalculateErrors=function(NonAlcoholicFattyLiverDisease,OutcomeVariables,Group,na
   ResComb <- cbind(ResComb, gn[order(gn$Abbreviation), ])
   ResComb <- ResComb[order(-ResComb$result), ]
 
-  xlab = "Autoscaled Concentrations (SE)" #xlab = "Raw Concentrations in Log10 Scale (SE)"}
-  xlim=c(min(ResComb$errord1),max(ResComb$errord2)) 
-  #Occasionally: xlim=c(min(ResComb$result)*1.1,max(ResComb$result)*1.1) # if (xlim[2]>1) {xlim[2]=1};# if (xlim[1] < -0.75) {xlim[1]=-0.75};
+  xlab = "Autoscaled Concentrations (SE)"
+  xlim=c(min(ResComb$errord1),max(ResComb$errord2))
   
  # Create forest plot
   plote2 <- forestplot(df = ResComb,
@@ -2480,21 +2479,21 @@ RunEssentialAnalysis = function(TreatmentVariables, MediatorVariables, OutcomeVa
   
   # Perform mediation analysis for all steroidGroups
   Group = 'All'
-  uh7ma = RunMediationAnalysis(TreatmentVariables, MediatorVariables, OutcomeVariables, AllData, Group, name, simss, t.valueList, test, sick, sick_group)
-  try({uh7ma}, {uh7ma = data.frame(0)})  # Handle errors gracefully
-  save(uh7ma, file = paste(fn, 'all.RData'))  # Save the results
+  RunAma = RunMediationAnalysis(TreatmentVariables, MediatorVariables, OutcomeVariables, AllData, Group, name, simss, t.valueList, test, sick, sick_group)
+  try({RunAma}, {RunAma = data.frame(0)})  # Handle errors gracefully
+  save(RunAma, file = paste(fn, 'all.RData'))  # Save the results
   
   # Perform mediation analysis for female group
   Group = 'female'
-  uh7f = RunMediationAnalysis(TreatmentVariables, MediatorVariables, OutcomeVariables, AllData, Group, name, simss, t.valueList, test, sick, sick_group)
-  try({uh7f}, {uh7f = data.frame(0)})  # Handle errors gracefully
-  save(uh7f, file = paste(fn, 'female.RData'))  # Save the results
+  RunAf = RunMediationAnalysis(TreatmentVariables, MediatorVariables, OutcomeVariables, AllData, Group, name, simss, t.valueList, test, sick, sick_group)
+  try({RunAf}, {RunAf = data.frame(0)})  # Handle errors gracefully
+  save(RunAf, file = paste(fn, 'female.RData'))  # Save the results
   
   # Perform mediation analysis for male group
   Group = 'male'
-  uh7m = RunMediationAnalysis(TreatmentVariables, MediatorVariables, OutcomeVariables, AllData, Group, name, simss, t.valueList, test, sick, sick_group)
-  try({uh7m}, {uh7m = data.frame(0)})  # Handle errors gracefully
-  save(uh7m, file = paste(fn, 'male.RData'))  # Save the results
+  RunAm = RunMediationAnalysis(TreatmentVariables, MediatorVariables, OutcomeVariables, AllData, Group, name, simss, t.valueList, test, sick, sick_group)
+  try({RunAm}, {RunAm = data.frame(0)})  # Handle errors gracefully
+  save(RunAm, file = paste(fn, 'male.RData'))  # Save the results
 }
 
 # Set the number of simulations and other parameters
@@ -2985,9 +2984,9 @@ ReduceData=function(u3, Group, name, lkm, d) {
   return(c1)
 }
 
-CreateSankeyPlots=function(uh7ma, date, sick, Group, d) {
-  # uh7ma = na.omit(c1)
-  rt2=uh7ma #[,1:17]# rtot=rtot[,1:17]# rtot=data.frame(rtot) # name=paste(simss,'basic hypothesis',take)
+CreateSankeyPlots=function(RunAma, date, sick, Group, d) {
+  # RunAma = na.omit(c1)
+  rt2=RunAma #[,1:17]# rtot=rtot[,1:17]# rtot=data.frame(rtot) # name=paste(simss,'basic hypothesis',take)
   # https://stat.ethz.ch/R-manual/R-devel/library/stats/html/p.adjust.html
   # https://www.middleprofessor.com/files/applied-biostatistics_bookdown/_book/adding-covariates-to-a-linear-model
   # https://github.com/MarioniLab/miloR
@@ -3105,8 +3104,8 @@ c1=c1[rev(order(c1[,'ACME'])),];  # Order c1 by ACME in descending order
 c1=c1[((c1[,'ACME']-c1[,'ADE']) > 0), ] # Filter rows where ACME > ADE
 c1=c1[c1[,'d0.p']<0.05, ] # Filter rows where p-value < 0.05
 # c1=tryCatch({c1[1:lkm,]}, error = function(msg){return(c1)})
-uh7ma = na.omit(c1) # Remove rows with NA values
-rt2=uh7ma #[,1:17]# rtot=rtot[,1:17]# rtot=data.frame(rtot) # name=paste(simss,'basic hypothesis',take)
+RunAma = na.omit(c1) # Remove rows with NA values
+rt2=RunAma #[,1:17]# rtot=rtot[,1:17]# rtot=data.frame(rtot) # name=paste(simss,'basic hypothesis',take)
 # https://stat.ethz.ch/R-manual/R-devel/library/stats/html/p.adjust.html
 # https://www.middleprofessor.com/files/applied-biostatistics_bookdown/_book/adding-covariates-to-a-linear-model
 # https://github.com/MarioniLab/miloR
