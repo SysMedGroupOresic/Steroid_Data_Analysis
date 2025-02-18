@@ -12,7 +12,6 @@ output:
   # code_folding: show
   # fig.align = 'left'
 
-
 ---
 # Introduction
 ```{r, warning=FALSE,message=FALSE}
@@ -26,8 +25,7 @@ output:
 
 ```
 
-
-# Loading Required R Packages
+# Loading Required R Packages 
 ```{r, warning=FALSE, message=FALSE}
 # Set library paths if needed
 # .libPaths(c("C:/Program Files/R/R-4.4.1/library", .libPaths()))
@@ -42,9 +40,10 @@ packages <- c("bigsnpr", "binilib", "brickster", "car", "censReg", "circlize", "
               "MOFA2", "pheatmap", "PerformanceAnalytics", "pathviewr", "plyr", "plotrix", "ppcor", "prettydoc", 
               "psych", "quantreg", "qpgraph", "ragg", "RColorBrewer", "rcompanion", "readxl", "remotes", "reshape2", 
               "rgl", "rmarkdown", "rmdformats", "rstatix", "scales", "scater", "scatterplot3d", "sjPlot", "stringr", 
-              "superb", "tibble", "tidyverse", "tint", "tufte", "viridis", "xlsx")
+              "superb", "tibble", "tidyverse", "tint", "tufte", "viridis","WGCNA", "xlsx")
 
 # Load all libraries
+.libPaths(c("C:/Program Files/R/R-4.4.1/library", .libPaths()))
 invisible(lapply(packages, library, character.only = TRUE))
 
 # Note: Do not load 'forestplot' as it conflicts with 'ggforestplot'
@@ -57,7 +56,7 @@ invisible(lapply(packages, library, character.only = TRUE))
 # devtools::install_github("mattflor/chorddiag") # Alternative installation method
 ```
 
-# Importing Data and Metadata
+# Importing Data and Metadata 
 ```{r, warning=FALSE,message=FALSE}
 
 # First set your data folder:
@@ -68,7 +67,7 @@ invisible(lapply(packages, library, character.only = TRUE))
 # It is easier to load the ready stiched data in one go with .RData file than one by one as below, but
 # for educational purposes I put some examples what may need to be done to get your data in ok form 
 # for later purposes
-setwd("C:/Users/patati/Desktop/Turku/R")
+# setwd("C:/Users/patati/Desktop/Turku/R")
 NonAlcoholicFattyLiverDisease=read_excel("NAFLD_SteroidStudy.xlsx",sheet = "LFAT_steroidsDATA") # This is partly auxiliary
 columnNames=colnames(NonAlcoholicFattyLiverDisease); NonAlcoholicFattyLiverDisease=data.frame(NonAlcoholicFattyLiverDisease)
 
@@ -269,38 +268,46 @@ OutcomeVariables=OutcomeVariables[! OutcomeVariables %in% x4] #https://sparkbyex
 MediatorVariables[MediatorVariables=="17aOH-P4"]="17a-OHP4"
 TreatmentVariables=TreatmentVariables[!TreatmentVariables %in% c('Perfluorodecyl.ethanoic.acid')]
 
+colnames(CovariatesScaledData)[colnames(CovariatesScaledData)=='C4Data_L']='C4_L'
+colnames(CurrentData)[colnames(CurrentData)=='C4Data_L']='C4_L'
+colnames(tvauxe)[colnames(tvauxe)=='C4Data_L']='C4_L'
+colnames(AllData)[colnames(AllData)=='C4Data_L']='C4_L'
+colnames(NonAlcoholicFattyLiverDisease)[colnames(NonAlcoholicFattyLiverDisease)=='C4Data_L']='C4_L'
+x3[x3=='C4Data_L']='C4_L'
+
 # Let's introduce some randomization. First, let us define the range of the random numbers:
-min_val <- 0.83; max_val <- 1.17
-
-# Then a function for the randomization:
-multiply_with_random <- function(df, cols, min_val, max_val) {
-  for (col in cols) {
-    if (col %in% names(df)) {
-      df[[col]] <- df[[col]] * runif(nrow(df), min = min_val, max = max_val)
-    } else {
-      warning(paste("Column", col, "does not exist in the data frame"))}}
-  return(df)}
-
-CovariatesScaledData=multiply_with_random(CovariatesScaledData, 3:(dim(CovariatesScaledData)[2]), min_val, max_val)
-CurrentData=multiply_with_random(CurrentData, 3:(dim(CurrentData)[2]), min_val, max_val)
-tvauxe=multiply_with_random(tvauxe, 3:(dim(tvauxe)[2]), min_val, max_val)
-AllData=multiply_with_random(AllData, 3:(dim(AllData)[2]), min_val, max_val)
+# min_val <- 0.83; max_val <- 1.17
+# 
+# # Then a function for the randomization:
+# multiply_with_random <- function(df, cols, min_val, max_val) {
+#   for (col in cols) {
+#     if (col %in% names(df)) {
+#       df[[col]] <- df[[col]] * runif(nrow(df), min = min_val, max = max_val)
+#     } else {
+#       warning(paste("Column", col, "does not exist in the data frame"))}}
+#   return(df)}
+# 
+# CovariatesScaledData=multiply_with_random(CovariatesScaledData, 3:(dim(CovariatesScaledData)[2]), min_val, max_val)
+# CurrentData=multiply_with_random(CurrentData, 3:(dim(CurrentData)[2]), min_val, max_val)
+# tvauxe=multiply_with_random(tvauxe, 3:(dim(tvauxe)[2]), min_val, max_val)
+# AllData=multiply_with_random(AllData, 3:(dim(AllData)[2]), min_val, max_val)
 
 # Just in case:
-# save.image('forACMES_thereal.RData')
-setwd("C:/Users/patati/Documents/GitHub/Steroid_Data_Analysis")
+# save.image('thereal_v2.RData')
+# setwd("C:/Users/patati/Documents/GitHub/Steroid_Data_Analysis")
 
 # Got some help for commenting and variable namings from Copilot to above code. 
 # Also multiply_with_random was done together with Copilot.
 
 ```
 
-# Setting Global Variables
-```{r, warning=FALSE, message=FALSE}
+# Setting Global Variables  
+```{r, setup, warning=FALSE, message=FALSE}
 options(scipen = 999) # Disable scientific notation
 # rm(list = ls()) # Clear workspace; this should not be if you have the load above
 thedate <- strftime(Sys.Date(), "%d%m%y") #Do not take the old date from the load...
 date <- paste0('tikka', thedate) # Customize this as needed
+knitr::opts_knit$set(root.dir = 'C:/Users/patati/Documents/GitHub/Steroid_Data_Analysis') #Is this working? Yes, but in knitr:https://forum.posit.co/t/setting-working-directory-in-rmarkdown/70849
 
 # Example installation commands
 # remotes::install_github("fossbert/binilib", force=TRUE)
@@ -316,20 +323,18 @@ date <- paste0('tikka', thedate) # Customize this as needed
 # remove.packages("DelayedArray")
 # BiocManager::install("DelayedArray")
 # install.packages("Require") # Install 'Require' package
+# If the installation to the project file is problematic, do it to the general folder and add it to the .libPaths(), as above library import.
 ```
 
 
-
-
-# Making Boxplots
+# Making Boxplots  
 ```{r, warning=FALSE,message=FALSE,fig.width=8.0}
 #https://r-graph-gallery.com/265-grouped-boxplot-with-ggplot2.html
 #https://stackoverflow.com/questions/53724834/why-does-the-plot-size-differ-between-docx-and-html-in-rmarkdownrender
-
 CreateBoxplots <- function(tvt, Group, OutcomeVariables, Out, oute, other) {
   # Filter data based on gender
   tvt <- tvt %>%
-    filter(if (Group == 'Male') Gender == 1 else if (Group == 'Female') Gender == 0 else TRUE)
+    filter(if (Group == 'Male') Gender == 2 else if (Group == 'Female') Gender == 1 else TRUE)
   
   # Prepare data for plotting
   Steroid <- rep(colnames(tvt[, 9:28]), each = nrow(tvt))
@@ -383,34 +388,50 @@ CreateBoxplots <- function(tvt, Group, OutcomeVariables, Out, oute, other) {
                                           symbols = c("****", "***", "**", "*", "ns")),
                        size = 8, paired = FALSE, label.y = 15.5)
   
+  
   # Save plot as PNG
   path <- "C:/Users/patati/Documents/GitHub/Steroid_Data_Analysis/"
   pngfile <- fs::path(path, paste0(Group, Out, 'boxe', ".png"))
+  ragg::agg_png(pngfile, width = 60, height = 36, units = "cm", res = 300,scaling = 2)
+  plot(p)
+  invisible(dev.off())
   knitr::include_graphics(pngfile)
 }
 
 # Example usage
-tv_half_log22[, '11-KA4'][tv_half_log22[, '11-KA4'] == min(tv_half_log22[, '11-KA4'])] <- median(tv_half_log22[, '11-KA4'])
+LogCovariatesNonScaledData[, '11-KA4'][LogCovariatesNonScaledData[, '11-KA4'] == min(LogCovariatesNonScaledData[, '11-KA4'])] <- median(LogCovariatesNonScaledData[, '11-KA4'])
 other <- '261124'
-ie <- tv_half_log22
+ie <- LogCovariatesNonScaledData#
 hupo <- match(colnames(ie)[colnames(ie) %in% groups2[, 3]], groups2[, 3])
 colnames(ie)[colnames(ie) %in% groups2[, 3]] <- groups2[hupo, 2]
 windowsFonts(A = windowsFont("Calibri (Body)"))
+knitr::opts_knit$set(root.dir = 'C:/Users/patati/Documents/GitHub/Steroid_Data_Analysis')
 
 # The significance levels are: '****<0.001', '***<0.01', '**<0.05', '*<0.1'
-OutcomeVariables='Steatosis Grade';Out='Steatosis'; oute='Steatosis Grade';num=0;Group='All';CreateBoxplots(ie,Group,OutcomeVariables,Out,oute,other);Group='Female';CreateBoxplots(ie,Group,OutcomeVariables,Out,oute,other);Group='Male';CreateBoxplots(ie,Group,OutcomeVariables,Out,oute,other)
-OutcomeVariables='Fibrosis Stage';Out='Fibrosis'; oute='Fibrosis Stage';num=0;Group='All';CreateBoxplots(ie,Group,OutcomeVariables,Out,oute,other);Group='Female';CreateBoxplots(ie,Group,OutcomeVariables,Out,oute,other);Group='Male';CreateBoxplots(ie,Group,OutcomeVariables,Out,oute,other) 
+OutcomeVariables='Steatosis Grade';Out='Steatosis'; oute='Steatosis Grade';num=0;Group='All';
+CreateBoxplots(ie,Group,OutcomeVariables,Out,oute,other);Group='Female';
+CreateBoxplots(ie,Group,OutcomeVariables,Out,oute,other);Group='Male';
+CreateBoxplots(ie,Group,OutcomeVariables,Out,oute,other)
+
+OutcomeVariables='Fibrosis Stage';Out='Fibrosis'; oute='Fibrosis Stage';num=0;Group='All';
+CreateBoxplots(ie,Group,OutcomeVariables,Out,oute,other);Group='Female';
+CreateBoxplots(ie,Group,OutcomeVariables,Out,oute,other);Group='Male';
+CreateBoxplots(ie,Group,OutcomeVariables,Out,oute,other) 
 # https://www.elsevier.es/en-revista-annals-hepatology-16-articulo-assessment-hepatic-fibrosis-necroinflammation-among-S1665268119314590 #So it is in grade
-OutcomeVariables='Necroinflammation';Out='Necroinflammation'; oute='Necroinflammation Grade';num=0;Group='All';CreateBoxplots(ie,Group,OutcomeVariables,Out,oute,other);Group='Female';CreateBoxplots(ie,Group,OutcomeVariables,Out,oute,other);Group='Male';CreateBoxplots(ie,Group,OutcomeVariables,Out,oute,other)
-OutcomeVariables='HOMA-IR';Out='HOMA-IR'; oute='HOMA-IR';num=1.5 ;Group='All';CreateBoxplots(ie,Group,OutcomeVariables,Out,oute,other);Group='Female';CreateBoxplots(ie,Group,OutcomeVariables,Out,oute,other);Group='Male';CreateBoxplots(ie,Group,OutcomeVariables,Out,oute,other)
+OutcomeVariables='Necroinflammation';Out='Necroinflammation'; oute='Necroinflammation Grade';num=0;Group='All';
+CreateBoxplots(ie,Group,OutcomeVariables,Out,oute,other);Group='Female';
+CreateBoxplots(ie,Group,OutcomeVariables,Out,oute,other);Group='Male';
+CreateBoxplots(ie,Group,OutcomeVariables,Out,oute,other)
+OutcomeVariables='HOMA-IR';Out='HOMA-IR'; oute='HOMA-IR';num=1.5;Group='All';
+CreateBoxplots(ie,Group,OutcomeVariables,Out,oute,other);Group='Female';
+CreateBoxplots(ie,Group,OutcomeVariables,Out,oute,other);Group='Male';
+CreateBoxplots(ie,Group,OutcomeVariables,Out,oute,other)
 
 
 ```
 
 
-
-
-# Making Forest Plots
+# Making Forest Plots  
 ```{r, warning=FALSE,message=FALSE,fig.width=6.0,fig.align="left",results='hide'} 
 
 # Define the NonAlcoholicFattyLiverDisease dataset by selecting the first 28 columns from CombinedData
@@ -428,7 +449,6 @@ if (length(patterns) == length(replacements)) {
   for (i in seq_along(patterns)) {
     colnames(NonAlcoholicFattyLiverDisease) <- gsub(patterns[i], replacements[i], colnames(NonAlcoholicFattyLiverDisease))}} else {
       stop("Patterns and replacements vectors must be of the same length.")}
-
 
 # This works with the autoscaled (raw if loge=1 and remove 1 in the means) data NonAlcoholicFattyLiverDisease as well...
 CalculateErrors=function(NonAlcoholicFattyLiverDisease,OutcomeVariables,Group,name,ordera,oute,first,e,xlim) { # Group='Female'
@@ -572,6 +592,7 @@ CalculateErrors=function(NonAlcoholicFattyLiverDisease,OutcomeVariables,Group,na
   # grid::grid.draw(g)
   
   # Save plot as JPEG and convert to PDF and SVG
+  setwd("C:/Users/patati/Documents/GitHub/Steroid_Data_Analysis")
   jpeg(paste(name, "divi.jpg"), width = 7500, height = 11000, quality = 100, pointsize = 16, res = 1000)
   print(grid::grid.draw(g))
   dev.off()
@@ -623,8 +644,8 @@ CalculateErrors(NonAlcoholicFattyLiverDisease,OutcomeVariables,Group,name12,orde
 
 
 ```
-
-```{r,echo=FALSE, out.width="25%",fig.cap=name1,fig.align="left"}
+ 
+```{r,echo=FALSE, out.width="25%",fig.cap=name1,fig.align="left"} 
 path="C:/Users/patati/Documents/GitHub/Steroid_Data_Analysis/"; knitr::include_graphics(paste0(path,paste(name1 ,"divi.jpg")))
 ```
 ```{r,echo=FALSE, out.width="25%",fig.cap=name2,fig.align="left"}
@@ -663,12 +684,14 @@ path="C:/Users/patati/Documents/GitHub/Steroid_Data_Analysis/"; knitr::include_g
 
 
 
-# Making Chord Diagrams 
+# Making Chord Diagrams  
 ```{r, warning=FALSE,message=FALSE,fig.width=9.0,fig.align="left"}
 # First the correlations for the chord diagrams (both male and female as well as total subjects):
 
 # Copy the tvauxe to  CurrentData
 CurrentData = tvauxe
+# setwd("C:/Users/patati/Documents/GitHub/Steroid_Data_Analysis")
+# knitr::opts_knit$set(root.dir = 'C:/Users/patati/Documents/GitHub/Steroid_Data_Analysis')
 
 # Match column names in CurrentData with the third column in groups2 and get their indices
 hupo = match(colnames(CurrentData)[colnames(CurrentData) %in% groups2[, 3]], groups2[, 3])
@@ -1025,7 +1048,7 @@ PlotVarianceExplained(AllData, Group = 'male')
 ```
 
 
-# Making Heatmap with Effect Sizes
+# Making Heatmap with Effect Sizes  
 ```{r, warning=FALSE,message=FALSE,fig.width=9.0,fig.align="left", results='hide'}
 
 # Function to calculate Cohen's d effect sizes, which is based on https://www.statology.org/cohens-d-in-r/
@@ -1125,6 +1148,7 @@ brks_heatmap <- function(mat, color_palette) {
 color_palette <- colorRampPalette(c('blue', 'white', 'orange'), alpha = TRUE)(150)
 
 # Save heatmap as JPEG
+setwd("C:/Users/patati/Documents/GitHub/Steroid_Data_Analysis")
 jpeg(paste0("cohensd_e2", date, ".jpg"), width = 9, height = 12, units = "in", res = 1000)
 
 # Set viewport for the heatmap
@@ -1160,7 +1184,7 @@ image_write(my_svg, paste0("cohensd_e2", date, ".svg"))
 
 ```
 
-# Making Heatmaps with Correlations
+# Making Heatmaps with Correlations 
 ```{r, warning=FALSE,message=FALSE,fig.width=9.0,fig.align="left",results='hide'}
 
 # These codes show different ways to calculate and plot correlation coefficients with heatmaps
@@ -1193,6 +1217,7 @@ generate_plots <- function(result, filename_prefix, n_level, order, range, corre
   image_write(my_svg, paste0(eoh, ".svg"))}
 
 # Prepare data
+setwd("C:/Users/patati/Documents/GitHub/Steroid_Data_Analysis")
 CurrentData <- CurrentData[, c(1:3, 4:(dim(CurrentData)[2]))]
 CurrentData <- CurrentData[, !colnames(CurrentData) %in% c('Total_TG', 'PFAS', 'Perfluorodecyl.ethanoic.acid')]
 CurrentData <- CurrentData[, !colnames(CurrentData) %in% x4]
@@ -1388,7 +1413,7 @@ for (plot_info in plot_data) {
 <!-- knitr::include_graphics("Square Correlation Plot ofrr steroids vs. all others except PFAS All transpose 3.jpg .svg") -->
 
 
-# Making Heatmaps with Linear Model Estimates
+# Making Heatmaps with Linear Model Estimates 
 ```{r fig.align="left", fig.width=7.0, message=FALSE, warning=FALSE}
 
 # This function calculates linear model estimates for selected 'max wanted' group, and they should be ok, 
@@ -1546,7 +1571,8 @@ CalculateEstimates=function(CombinedData,Group,ok,fn,adj,sig.level,sick,sick_gro
     # https://r4ds.had.co.nz/graphics-for-communication.html#figure-sizing
 
 #I have driven these separately for html: 
-    # for that you need:     
+    # for that you need:
+    setwd("C:/Users/patati/Documents/GitHub/Steroid_Data_Analysis")
     jpeg(paste("Linear Model Estimate Plot ofees5",hip1,Group,".jpg"), width = width, height = height, quality = 100,pointsize = 16, res=300);
 
     hepio=colorRampPalette(c('blue', 'white','orange'), alpha = TRUE)(150) #rev(COL2('RdBu')[25:(length(COL2('RdBu'))-25)])
@@ -1631,6 +1657,7 @@ CalculateEstimates=function(CombinedData,Group,ok,fn,adj,sig.level,sick,sick_gro
   ho=Group;hip1='Steroids_y vs. PFAS_as_x'
   width=5500; height=1800
 #I have driven these separately for html: 
+setwd("C:/Users/patati/Documents/GitHub/Steroid_Data_Analysis")
 jpeg(paste("Linear Model Estimate Plot of_sa5",hip1,Group,".jpg"), width = width, height = height, quality = 100,pointsize = 16, res=300);
   corrplot(rs1, type = type, order = order,method=method, p.mat=rs2, tl.col = "black", cl.cex = cl.cex,pch.cex=pch.cex,pch.col='black',pch=pch,
 sig.level = c(.001, .01, .05),cl.pos =  cl.pos, insig = "label_sig",cl.offset=cl.offset,cl.length=cl.length, tl.cex=0.8, #tl.pos='n',
@@ -1669,23 +1696,30 @@ metanorm_S_non_fdr=RunAnalysis(AllData,adj,sig.level,sick,sick_group,joo) #This 
 
 ```
 
-```{r, echo=FALSE, out.width="50%", fig.cap="Heatmap of LMEs (linear model estimates) from Steroids vs. BAs & Lipids & Covariates with All Subjects",fig.align="left"}
+
+```{r, echo=FALSE, out.width="50%", fig.cap="Heatmap of LMEs (linear model estimates) from Steroids vs. BAs & Lipids & Covariates with All Subjects",fig.align="left"} 
+setwd("C:/Users/patati/Documents/GitHub/Steroid_Data_Analysis")
 knitr::include_graphics("Linear Model Estimate Plot ofees5 BAs_lipids_as_y vs. steroids_as_x All .jpg")
 ```
 ```{r, echo=FALSE, out.width="50%", fig.cap="Heatmap of LMEs from Steroids vs. BAs & Lipids & Covariates with Female Subjects",fig.align="left"}
+setwd("C:/Users/patati/Documents/GitHub/Steroid_Data_Analysis")
 knitr::include_graphics("Linear Model Estimate Plot ofees5 BAs_lipids_as_y vs. steroids_as_x female .jpg")
 ```
 ```{r, echo=FALSE, out.width="50%", fig.cap="Heatmap of LMEs from Steroids vs. BAs & Lipids & Covariates with Male Subjects",fig.align="left"}
+setwd("C:/Users/patati/Documents/GitHub/Steroid_Data_Analysis")
 knitr::include_graphics("Linear Model Estimate Plot ofees5 BAs_lipids_as_y vs. steroids_as_x male .jpg")
 ```
 ```{r, echo=FALSE, out.width="50%", fig.cap="Heatmap of LMEs from Steroids vs. PFAS & Covariates with All Subjects",fig.align="left"}
+setwd("C:/Users/patati/Documents/GitHub/Steroid_Data_Analysis")
 knitr::include_graphics("Linear Model Estimate Plot of_sa5 Steroids_y vs. PFAS_as_x All .jpg")
 ```
 ```{r, echo=FALSE, out.width="50%", fig.cap="Heatmap of LMEs from Steroids vs. PFAS & Covariates with Female Subjects",fig.align="left"}
+setwd("C:/Users/patati/Documents/GitHub/Steroid_Data_Analysis")
 knitr::include_graphics("Linear Model Estimate Plot of_sa5 Steroids_y vs. PFAS_as_x female .jpg")
 ```
 ```{r, echo=FALSE, out.width="50%", fig.cap="Heatmap of LMEs from Steroids vs. PFAS & Covariates with Male Subjects",fig.align="left"}
 #fig.cap="Linear Model Estimates between Steroids and Variables"
+setwd("C:/Users/patati/Documents/GitHub/Steroid_Data_Analysis")
 knitr::include_graphics("Linear Model Estimate Plot of_sa5 Steroids_y vs. PFAS_as_x male .jpg")
 # [1] "Linear Model Estimate Plot of BAs_lipids_as_y vs. steroids_as_x All .jpg"   
 # [2] "Linear Model Estimate Plot of BAs_lipids_as_y vs. steroids_as_x female .jpg"
@@ -1706,6 +1740,10 @@ knitr::include_graphics("Linear Model Estimate Plot of_sa5 Steroids_y vs. PFAS_a
 # With this you can draw a scatter plot for each individual combination of two variables within dataset
 # This should be as good as it gets... 
 CreateScatterPlots=function(AllData, Group, lin_mod_summaries, aa, bb, fn) {
+    # main_dir <- paste0(c("C://Users//patati//Documents//GitHub//Steroid_Data_Analysis//", fn, Group, "/"), collapse = "")
+    # dir.create(file.path(main_dir)); setwd(file.path(main_dir))
+  
+  
   # Filter data based on the specified group
   if (Group == 'male') {
     NAFLDo = AllData[AllData[,'Gender'] == max(AllData[,'Gender']),]
@@ -1756,7 +1794,10 @@ CreateScatterPlots=function(AllData, Group, lin_mod_summaries, aa, bb, fn) {
       colnames(jeps) <- gsub(" ", "\\.", colnames(jeps))
       
       # Set up directory for saving plots
-      main_dir <- paste0(c("C://Users//patati//Desktop//Turku//R//", fn, Group, "/"), collapse = "")
+      # setwd("C:/Users/patati/Documents/GitHub/Steroid_Data_Analysis")
+      main_dir <- paste0(c("C://Users//patati//Documents//GitHub//Steroid_Data_Analysis//", fn, Group, "/"), collapse = "")
+      dir.create(file.path(main_dir)); setwd(file.path(main_dir))
+      
       sub_dir <- TreatmentVariables
       if (file.exists(file.path(main_dir, sub_dir))) {
         setwd(file.path(main_dir, sub_dir))
@@ -1810,7 +1851,9 @@ CreateScatterPlots=function(AllData, Group, lin_mod_summaries, aa, bb, fn) {
       }
       colnames(jeps)[colnames(jeps) == 'HOMA-IR'] = 'HOMA.IR'
       colnames(jeps) <- gsub(" ", "\\.", colnames(jeps))
-      main_dir <- paste0(c("C://Users//patati//Desktop//Turku//R//", fn, Group, "/"), collapse = "")
+      # C://Users//patati//Desktop//Turku//R// C://Users//patati//Documents//GitHub//Steroid_Data_Analysis//
+      main_dir <- paste0(c("C://Users//patati//Documents//GitHub//Steroid_Data_Analysis//", fn, Group, "/"), collapse = "")
+      dir.create(file.path(main_dir)); setwd(file.path(main_dir))
       sub_dir <- TreatmentVariables
       if (file.exists(file.path(main_dir, sub_dir))) {
         setwd(file.path(main_dir, sub_dir))
@@ -1861,7 +1904,8 @@ CreateScatterPlots=function(AllData, Group, lin_mod_summaries, aa, bb, fn) {
       Treatment2 = TreatmentVariables
       colnames(jeps)[colnames(jeps) == 'HOMA-IR'] = 'HOMA.IR'
       colnames(jeps) <- gsub(" ", "\\.", colnames(jeps))
-      main_dir <- paste0(c("C://Users//patati//Desktop//Turku//R//", fn, Group, "/"), collapse = "")
+      main_dir <- paste0(c("C://Users//patati//Documents//GitHub//Steroid_Data_Analysis//", fn, Group, "/"), collapse = "")
+      dir.create(file.path(main_dir)); setwd(file.path(main_dir))
       
       sub_dir <- TreatmentVariables
       if (file.exists(file.path(main_dir, sub_dir))) {
@@ -1913,7 +1957,8 @@ CreateScatterPlots=function(AllData, Group, lin_mod_summaries, aa, bb, fn) {
       Treatment2 = TreatmentVariables
       colnames(jeps)[colnames(jeps) == 'HOMA-IR'] = 'HOMA.IR'
       colnames(jeps) <- gsub(" ", "\\.", colnames(jeps))
-      main_dir <- paste0(c("C://Users//patati//Desktop//Turku//R//", fn, Group, "/"), collapse = "")
+      main_dir <- paste0(c("C://Users//patati//Documents//GitHub//Steroid_Data_Analysis//", fn, Group, "/"), collapse = "")
+      dir.create(file.path(main_dir)); setwd(file.path(main_dir))
       sub_dir <- TreatmentVariables
       if (file.exists(file.path(main_dir, sub_dir))) {
         setwd(file.path(main_dir, sub_dir))
@@ -1963,7 +2008,8 @@ CreateScatterPlots=function(AllData, Group, lin_mod_summaries, aa, bb, fn) {
       Treatment2 = TreatmentVariables
       colnames(jeps)[colnames(jeps) == 'HOMA-IR'] = 'HOMA.IR'
       colnames(jeps) <- gsub(" ", "\\.", colnames(jeps))
-      main_dir <- paste0(c("C://Users//patati//Desktop//Turku//R//", fn, Group, "/"), collapse = "")
+      main_dir <- paste0(c("C://Users//patati//Documents//GitHub//Steroid_Data_Analysis//", fn, Group, "/"), collapse = "")
+      dir.create(file.path(main_dir)); setwd(file.path(main_dir))
       sub_dir <- TreatmentVariables
       if (file.exists(file.path(main_dir, sub_dir))) {
         setwd(file.path(main_dir, sub_dir))
@@ -2014,7 +2060,8 @@ CreateScatterPlots=function(AllData, Group, lin_mod_summaries, aa, bb, fn) {
       Treatment2 = TreatmentVariables
       colnames(jeps)[colnames(jeps) == 'HOMA-IR'] = 'HOMA.IR'
       colnames(jeps) <- gsub(" ", "\\.", colnames(jeps))
-      main_dir <- paste0(c("C://Users//patati//Desktop//Turku//R//", fn, Group, "/"), collapse = "")
+      main_dir <- paste0(c("C://Users//patati//Documents//GitHub//Steroid_Data_Analysis//", fn, Group, "/"), collapse = "")
+      dir.create(file.path(main_dir)); setwd(file.path(main_dir))
       sub_dir <- TreatmentVariables
       if (file.exists(file.path(main_dir, sub_dir))) {
         setwd(file.path(main_dir, sub_dir))
@@ -2047,7 +2094,8 @@ CreateScatterPlots=function(AllData, Group, lin_mod_summaries, aa, bb, fn) {
   # Convert results to a data frame and return
   hesa = lin_mod_summary
   hoi = as.data.frame(lin_mod_summary)
-  main_dir <- paste0(c("C://Users//patati//Desktop//Turku//R//", fn), collapse = "")
+  # main_dir <- paste0(c("C://Users//patati//Documents//GitHub//Steroid_Data_Analysis//", fn), collapse = "")
+  # dir.create(file.path(main_dir)); setwd(file.path(main_dir))
   setwd(main_dir)
   
   return(list(lin_mod_summaries))
@@ -2056,6 +2104,7 @@ CreateScatterPlots=function(AllData, Group, lin_mod_summaries, aa, bb, fn) {
 RunScatterPlotAnalysis=function(AllData,lin_mod_summaries) {
   RunAnalysis=c();heijaa=c('All','female','male'); 
   fn='metabnorm//covScaled//non_fdr//'#
+  fn='For'
   for (hrt in 1:3) {
     RunAnalysis=append(RunAnalysis,CreateScatterPlots(AllData,heijaa[hrt],lin_mod_summaries,aa,bb,fn))}
   return(RunAnalysis)}
@@ -2213,26 +2262,26 @@ segments(orig$x, orig$y, plane$x, plane$y,
 
 ```
 ```{r, echo=FALSE, out.width="50%", fig.cap="Correlations Scatter Plotted_All_Hexcer S",fig.align="left"}
-knitr::include_graphics('Correlations plotted All Hexcer S .jpg')
+knitr::include_graphics('C:/Users/patati/Documents/GitHub/Steroid_Data_Analysis/ForAll/Hexcer/Correlations plotted All Hexcer S .jpg')
 ```
 ```{r, echo=FALSE, out.width="50%", fig.cap="Correlations Scatter Plotted_Female_Hexcer S",fig.align="left"}
-knitr::include_graphics('Correlations plotted female Hexcer S .jpg')
+knitr::include_graphics('C:/Users/patati/Documents/GitHub/Steroid_Data_Analysis/Forfemale/Hexcer/Correlations plotted female Hexcer S .jpg')
 ```
 ```{r, echo=FALSE, out.width="50%", fig.cap="Correlations Scatter Plotted_Male_Hexcer S",fig.align="left"}
-knitr::include_graphics('Correlations plotted male Hexcer S .jpg')
+knitr::include_graphics('C:/Users/patati/Documents/GitHub/Steroid_Data_Analysis/Formale/Hexcer/Correlations plotted male Hexcer S .jpg')
 ```
 ```{r, echo=FALSE, out.width="50%", fig.cap="Correlations Scatter Plotted_All_C4_L P5",fig.align="left"}
-knitr::include_graphics('Correlations plotted All C4_L P5 .jpg')
+knitr::include_graphics('C:/Users/patati/Documents/GitHub/Steroid_Data_Analysis/ForAll/CA_L/Correlations plotted All CA_L A .jpg')
 ```
 ```{r, echo=FALSE, out.width="50%", fig.cap="Correlations Scatter Plotted_Female_C4_L P5",fig.align="left"}
-knitr::include_graphics('Correlations plotted female C4_L P5 .jpg')
+knitr::include_graphics('C:/Users/patati/Documents/GitHub/Steroid_Data_Analysis/Forfemale/CA_L/Correlations plotted female CA_L A .jpg')
 ```
 ```{r, echo=FALSE, out.width="50%", fig.cap="Correlations Scatter Plotted_Male_C4_L P5",fig.align="left"}
-knitr::include_graphics('Correlations plotted male C4_L P5 .jpg')
+knitr::include_graphics('C:/Users/patati/Documents/GitHub/Steroid_Data_Analysis/Formale/CA_L/Correlations plotted male CA_L A .jpg')
 ```
 
 
-# Making Network Plot
+# Making Network Plot 
 ```{r, warning=FALSE,message=FALSE,fig.width=10.0,fig.align="left",results='hide'}
 
 # Following the previous work for doing the network plot (https://r-graph-gallery.com/network.html)
@@ -2329,6 +2378,7 @@ coul  <- c('#B2BEB5','Green','Red','Orange')
 my_color <- coul[as.numeric(as.factor(V(network)$carac))]
 
 # Save the plot as a JPEG file with specified dimensions and quality
+setwd("C:/Users/patati/Documents/GitHub/Steroid_Data_Analysis")
 jpeg('network.jpg', width=4, height=4.7, units="in", quality=100, pointsize=7, res=1000)
 
 # Plot the network with specified parameters
@@ -2360,7 +2410,7 @@ daiR::image_to_pdf(eoh, pdf_name=paste0(eoh,'.pdf'))
 
 ```
 
-# Making Causal Mediation Analysis
+# Making Causal Mediation Analysis 
 ```{r, warning=FALSE,message=FALSE,fig.align="left"}
 
 # The basic hypothesis. All are variables (y~x+m;m~x)
@@ -2571,11 +2621,12 @@ sick_group = rowSums(ccova) > 4
 
 
 
-# Making Heatmaps for Indirect and Direct Effects
+# Making Heatmaps for Indirect and Direct Effects 
 ```{r, warning=FALSE,message=FALSE,fig.width=10.0,fig.align="left"}
 # setwd("C:/Users/patati/Desktop/Turku/R/tests6/tests_basic/") #check this if needed...
 library(readxl)
-all_all=read_xlsx(path = "C:/Users/patati/Desktop/Turku/R/tests6/tests_basic/100basic All tikka3624 .xlsx") # #_1
+setwd("C:/Users/patati/Documents/GitHub/Steroid_Data_Analysis")
+all_all=read_xlsx(path = "100basic All tikka3624 .xlsx") # #_1
 # all_all=read_xlsx(path = "C:/Users/patati/Desktop/Turku/R/hypo_basic/100 hypo_b_no_not sick All tikka221024 .xlsx") # #_2 :)
 all_all=as.data.frame(all_all); all_all=all_all[!is.na(all_all[,1]),];rownames(all_all)=all_all[,1]; all_all=all_all[,2:dim(all_all)[2]]; all_all=all_all[rev(order(all_all[,1])),]
 all_all=all_all; #all_all=all_all[all_all[,1]>0,]
@@ -2949,20 +3000,11 @@ path="C:/Users/patati/Documents/GitHub/Steroid_Data_Analysis/"; setwd(path)
 
 ```
 ```{r, warning=FALSE,message=FALSE,fig.width=8.0,fig.align="left",fig.cap="Heatmap of 'Indirect' Effects PFAS vs. Steroids with All Subjects"}
-knitr::include_graphics('Square Correlation Plot of_korkeatACME PFAS vs. steroids_ for the hypos_colors_stea 0 All transpose .jpg')
-```
-```{r, warning=FALSE,message=FALSE,fig.width=8.0,fig.align="left",fig.cap="Heatmap of 'Direct' Effects PFAS vs. Lipids and Bile Acids with All Subjects"}
-knitr::include_graphics('Square Correlation Plot of_korkeatACME PFAS vs. steroids_ for the hypos_colors_stea 1 All transpose .jpg')
-```
-
-```{r, warning=FALSE,message=FALSE,fig.width=8.0,fig.align="left",fig.cap="Heatmap of 'Indirect' Effects Steroids vs. Bile Acids and Lipids with All Subjects"}
-knitr::include_graphics('Heatmap of high ACME tikka111124 idir .jpg')
+knitr::include_graphics(paste0('Heatmap of highed_the_real_ade_mat dir ',date,' .jpg'))
 ```
 
 
-
-
-# Making Sankey Diagrams
+# Making Sankey Diagrams 
 ```{r, warning=FALSE,message=FALSE,fig.width=10.0,fig.align="left"}
 
 # To do these diagrams, you need to have a reduced dataset as well as a function that accounts for the group (male/female)
@@ -3058,15 +3100,14 @@ CreateSankeyPlots=function(RunAma, date, sick, Group, d) {
 
 library(readxl)
 # setwd("C:/Users/patati/Desktop/Turku/R/tests6/tests_basic/") #check this if needed...
-all_all=read_xlsx(path = "C:/Users/patati/Desktop/Turku/R/tests6/tests_basic/100basic All tikka3624 .xlsx") #total Male tikka76524 hyp4b_oki.xlsx") #
+all_all=read_xlsx(path = "100basic All tikka3624 .xlsx") #total Male tikka76524 hyp4b_oki.xlsx") #
 # all_all=read_xlsx(path = "C:/Users/patati/Desktop/Turku/R/hypo_basic/100 hypo_b_no_not sick All tikka221024 .xlsx") # #_2 :)
 all_all=as.data.frame(all_all); all_all=all_all[!is.na(all_all$ACME),]; all_all=na.omit(all_all); all_all1=all_all
-all_Female=read_xlsx(path = "C:/Users/patati/Desktop/Turku/R/tests6/tests_basic/100basic Female tikka3624 .xlsx") #total Male tikka76524 hyp4b_oki.xlsx") #
+all_Female=read_xlsx(path = "100basic Female tikka3624 .xlsx") #total Male tikka76524 hyp4b_oki.xlsx") #
 all_Female=as.data.frame(all_Female); all_Female=all_Female[!is.na(all_Female$ACME),]; all_Female=na.omit(all_Female);
-all_Male=read_xlsx(path = "C:/Users/patati/Desktop/Turku/R/tests6/tests_basic/100basic Male tikka3624 .xlsx") #total Male tikka76524 hyp4b_oki.xlsx") #
+all_Male=read_xlsx(path = "100basic Male tikka3624 .xlsx") #total Male tikka76524 hyp4b_oki.xlsx") #
 all_Male=as.data.frame(all_Male); all_Male=all_Male[!is.na(all_Male$ACME),]; all_Male=na.omit(all_Male);
-
-# setwd("C:/Users/patati/Documents/GitHub/Steroid_Data_Analysis/")
+ 
 sick='all samples';d='t'
 lkm=30;Group='All'; name='just alala';date=paste0(date,'_allds')#dim(all_all)[1];
 alma=ReduceData(all_all1,Group,name,lkm);
@@ -3199,9 +3240,6 @@ p + geom_sankeyedge(aes(fill = Weight), position = pos) +
 
 
 ```
-
-
-
 
 # Other Handy Functions 
 ```{r, warning=FALSE,message=FALSE,fig.width=10.0,fig.align="left"}
@@ -3525,6 +3563,7 @@ table(hoi_sick[,1])[rev(order(table(hoi_sick[,1])))];table(hoi_healthy[,1])[rev(
 # table(hoi_sick[,2])[rev(order(table(hoi_sick[,2])))];table(hoi_healthy[,2])[rev(order(table(hoi_healthy[,2])))]
 # Differences Between BAs/Lipids...
 # table(hoi_sick[,3])[rev(order(table(hoi_sick[,3])))];table(hoi_healthy[,3])[rev(order(table(hoi_healthy[,3])))]
+
 
 # Copiloting helped both with the comments and streamlines here in the above code segment.
 
