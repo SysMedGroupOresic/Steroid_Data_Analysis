@@ -47,6 +47,8 @@ packages <- c("bigsnpr", "binilib", "brickster", "car", "censReg", "circlize", "
 invisible(lapply(packages, library, character.only = TRUE))
 
 # Note: Do not load 'forestplot' as it conflicts with 'ggforestplot'
+# You may need to load both rmarkdown and rmdformats and install some dependencies (if prompted) to get this loading done.
+# If done together with Github, this maybe good to know: https://stackoverflow.com/questions/11384928/change-git-repository-directory-location
 
 # Install packages if not already installed
 # renv::install() # Installs from the basic R repository
