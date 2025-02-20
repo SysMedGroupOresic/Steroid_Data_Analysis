@@ -62,7 +62,7 @@ invisible(lapply(packages, library, character.only = TRUE))
 # First set your data folder:
 # setwd("C:/Users/patati/Documents/GitHub/Steroid_Data_Analysis")
 # or:"C:/Users/patati/Desktop/Turku/R" #check the wd with: here::here() #or getwd()
-# load("thereal.RData") #This is so to say real data, and it is not available here (at the site).
+# load("thereal_v2.RData") #This is so to say real data, and it is not available here (at the site).
 
 # It is easier to load the ready stiched data in one go with .RData file than one by one as below, but
 # for educational purposes I put some examples what may need to be done to get your data in ok form 
