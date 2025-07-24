@@ -69,7 +69,7 @@ invisible(lapply(packages, library, character.only = TRUE))
 # It is easier to load the ready stiched data in one go with .RData file than one by one as below, but
 # for educational purposes I put some examples what may need to be done to get your data in ok form 
 # for later purposes
-# setwd("C:/Users/patati/Desktop/Turku/R")
+setwd("C:/Users/patati/Desktop/Turku/R")
 NonAlcoholicFattyLiverDisease=read_excel("NAFLD_SteroidStudy.xlsx",sheet = "LFAT_steroidsDATA") # This is partly auxiliary
 columnNames=colnames(NonAlcoholicFattyLiverDisease); NonAlcoholicFattyLiverDisease=data.frame(NonAlcoholicFattyLiverDisease)
 
@@ -646,6 +646,7 @@ CalculateErrors(NonAlcoholicFattyLiverDisease,OutcomeVariables,Group,name12,orde
 
 
 ```
+ 
  
 ```{r,echo=FALSE, out.width="25%",fig.cap=name1,fig.align="left"} 
 path="C:/Users/patati/Documents/GitHub/Steroid_Data_Analysis/"; knitr::include_graphics(paste0(path,paste(name1 ,"divi.jpg")))
@@ -1563,9 +1564,9 @@ CalculateEstimates=function(CombinedData,Group,ok,fn,adj,sig.level,sick,sick_gro
         rs1[rs1>0.5]=0.5;rs1[rs1 < -0.5]=-0.5;
 
     
-    width=2500; height=4400
+    width=3.3*2500; height=3.3*4400
     order="original"; range='orig';corre='no_renorm'; type='full'; method='color';#ga='All';gf='Female';gm='Male' #color square
-    cl.offset=1.0;cl.length=15;cl.cex = 1.09;pch.cex=1.09;pch=11;cl.pos = 'n';#cl.pos = 'b' ;#pch.cex=0.95,1.3; height=6300; pos 'b' cl.pos = 'b'
+    cl.offset=1.0;cl.length=15;cl.cex = 1.09;pch.cex=1.49;pch=11;cl.pos = 'r';#cl.pos = 'b' ;#pch.cex=0.95,1.3; height=6300; pos 'b' cl.pos = 'b'
     ho=Group;hip1='BAs_lipids_as_y vs. steroids_as_x'
 
     # https://www.rdocumentation.org/packages/corrplot/versions/0.94/topics/corrplot
@@ -1575,13 +1576,13 @@ CalculateEstimates=function(CombinedData,Group,ok,fn,adj,sig.level,sick,sick_gro
 #I have driven these separately for html: 
     # for that you need:
     setwd("C:/Users/patati/Documents/GitHub/Steroid_Data_Analysis")
-    jpeg(paste("Linear Model Estimate Plot ofees5",hip1,Group,".jpg"), width = width, height = height, quality = 100,pointsize = 16, res=300);
+    jpeg(paste("Linear Model Estimate Plot ofees5",hip1,Group,".jpg"), width = width, height = height, quality = 100,pointsize = 16, res=1000);
 
     hepio=colorRampPalette(c('blue', 'white','orange'), alpha = TRUE)(150) #rev(COL2('RdBu')[25:(length(COL2('RdBu'))-25)])
     
     
-    
-    corrplot(rs1, type = type, order = order,method=method, p.mat=rs2, tl.col = "black", cl.cex = cl.cex,pch.cex=pch.cex,pch.col='black',pch=pch, ,sig.level = c(.001, .01, .05),cl.pos = cl.pos, 
+    # .001, .01,
+    corrplot(rs1, type = type, order = order,method=method, p.mat=rs2, tl.col = "black", cl.cex = cl.cex,pch.cex=pch.cex,pch.col='black',pch=pch, ,sig.level = c( .05),cl.pos = cl.pos, 
              insig = "label_sig",cl.offset=cl.offset,cl.length=cl.length,tl.cex=0.5, tl.srt = 90, diag = TRUE, #tl.pos='n'
              col = colorRampPalette(c('blue', 'white','orange'), alpha = TRUE)(100) ,is.corr = FALSE,col.lim=c(-0.5,0.5));   #https://cran.r-project.org/web/packages/corrplot/vignettes/corrplot-intro.html#change-color-spectra-color-legend-and-text-legend
     
@@ -1655,14 +1656,15 @@ CalculateEstimates=function(CombinedData,Group,ok,fn,adj,sig.level,sick,sick_gro
     rs1[rs1>0.4]=0.4;rs1[rs1 < -0.4]=-0.4;
 
   order="original"; range='orig';corre='no_renorm'; type='full'; method='color'; #ga='All';gf='Female';gm='Male' #color square
-  cl.offset=1.0;cl.length=11;cl.cex = 1.4;pch.cex=1.5;pch=20;cl.pos = 'n';#cl.pos = 'b' ;#pch.cex=0.95,1.3; height=6300; pos 'b' cl.pos = 'b'
+  cl.offset=1.0;cl.length=11;cl.cex = 1.4;pch.cex=2.4;pch=20;cl.pos = 'n';#cl.pos = 'b' ;#pch.cex=0.95,1.3; height=6300; pos 'b' cl.pos = 'b'
   ho=Group;hip1='Steroids_y vs. PFAS_as_x'
-  width=5500; height=1800
+  width=3.3*5500; height=3.3*1800
 #I have driven these separately for html: 
 setwd("C:/Users/patati/Documents/GitHub/Steroid_Data_Analysis")
-jpeg(paste("Linear Model Estimate Plot of_sa5",hip1,Group,".jpg"), width = width, height = height, quality = 100,pointsize = 16, res=300);
+jpeg(paste("Linear Model Estimate Plot of_sa5",hip1,Group,".jpg"), width = width, height = height, quality = 100,pointsize = 16, res=1000);
+# .001, .01, 
   corrplot(rs1, type = type, order = order,method=method, p.mat=rs2, tl.col = "black", cl.cex = cl.cex,pch.cex=pch.cex,pch.col='black',pch=pch,
-sig.level = c(.001, .01, .05),cl.pos =  cl.pos, insig = "label_sig",cl.offset=cl.offset,cl.length=cl.length, tl.cex=0.8, #tl.pos='n',
+sig.level = c(.05),cl.pos =  cl.pos, insig = "label_sig",cl.offset=cl.offset,cl.length=cl.length, tl.cex=0.8, #tl.pos='n',
 tl.srt = 90, diag = TRUE,col = colorRampPalette(c('blue','white', 'orange'), alpha = TRUE)(100),is.corr = FALSE,col.lim=c(-0.4,0.4)); 
 
 # https://cran.r-project.org/web/packages/corrplot/vignettes/corrplot-intro.html#change-color-spectra-color-legend-and-text-legend
