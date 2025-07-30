@@ -820,22 +820,22 @@ colnames(resulta) = ok[2:dim(CurrentData)[2]]
 rownames(resulta) = ok[2:dim(CurrentData)[2]]
 
 # Filter correlations based on significance level for female subjects
-Nrr = qpNrr(resultaf, verbose = FALSE)
-Nrr[is.na(Nrr)] = 1
-cond = data.frame(as.matrix(Nrr < n_level))
-RN = data.frame(resultaf)
-GraphMat = cond * RN
-GraphMat = as.matrix(GraphMat)
-resultaf = GraphMat
-
-# Filter correlations based on significance level for male subjects
-Nrr = qpNrr(resultam, verbose = FALSE)
-Nrr[is.na(Nrr)] = 1
-cond = data.frame(as.matrix(Nrr < n_level))
-RN = data.frame(resultam)
-GraphMat = cond * RN
-GraphMat = as.matrix(GraphMat)
-resultam = GraphMat
+# Nrr = qpNrr(resultaf, verbose = FALSE)
+# Nrr[is.na(Nrr)] = 1
+# cond = data.frame(as.matrix(Nrr < n_level))
+# RN = data.frame(resultaf)
+# GraphMat = cond * RN
+# GraphMat = as.matrix(GraphMat)
+# resultaf = GraphMat
+# 
+# # Filter correlations based on significance level for male subjects
+# Nrr = qpNrr(resultam, verbose = FALSE)
+# Nrr[is.na(Nrr)] = 1
+# cond = data.frame(as.matrix(Nrr < n_level))
+# RN = data.frame(resultam)
+# GraphMat = cond * RN
+# GraphMat = as.matrix(GraphMat)
+# resultam = GraphMat
 
 # Rename 'Gender' column to 'Sex(F-M+)' in correlation matrices
 colnames(resulta)[colnames(resulta) == 'Gender'] <- 'Sex(F-M+)'
@@ -948,7 +948,7 @@ title = 'All Variables'
 rem = x4
 modi = 5
 colt = 'black'
-a = length(x1) +1
+a = length(x1) -1 #check this '-1' together with length of resulta and column names
 b = length(x2)
 c = length(x3)
 d = length(x4)
@@ -2137,9 +2137,7 @@ CreateScatterPlots=function(AllData, Group, lin_mod_summaries, aa, bb, fn) {
         theme_classic()
       print(a)
       dev.off()
-      lin_mod_summary = rbind(lin_mod_summary, c(y[j], xnam[i], Group, r, p.valueList, rsadj))
-    }
-  }
+      lin_mod_summary = rbind(lin_mod_summary, c(y[j], xnam[i], Group, r, p.valueList, rsadj))}}
   
   # Convert results to a data frame and return
   hesa = lin_mod_summary
@@ -2148,13 +2146,11 @@ CreateScatterPlots=function(AllData, Group, lin_mod_summaries, aa, bb, fn) {
   # dir.create(file.path(main_dir)); setwd(file.path(main_dir))
   setwd(main_dir)
   
-  return(list(lin_mod_summaries))
-}
+  return(list(lin_mod_summaries))}
 
 RunScatterPlotAnalysis=function(AllData,lin_mod_summaries) {
   RunAnalysis=c();heijaa=c('All','female','male'); 
-  fn='metabnorm//covScaled//non_fdr//'#
-  fn='For'
+  fn='metabnorm//covScaled//non_fdr//'## this was excessive: fn='For' #:)...
   for (hrt in 1:3) {
     RunAnalysis=append(RunAnalysis,CreateScatterPlots(AllData,heijaa[hrt],lin_mod_summaries,aa,bb,fn))}
   return(RunAnalysis)}
@@ -2191,8 +2187,7 @@ plot3d(
   radius = .2,
   ylab = "PFHxS",
   xlab = "T/Epi-T",
-  zlab = "PE"
-)
+  zlab = "PE")
 
 # Fit a linear model for PFHxS based on T/Epi-T and PE
 my.lm <- lm(data[,'PFHxS'] ~ data[,'T/Epi-T'] + data[,'PE'])
@@ -2209,8 +2204,8 @@ s3d <- scatterplot3d(
   angle = 55, scale.y = 0.5,
   xlab = "T/Epi-T",
   ylab = "PFHxS",
-  zlab = "PE"
-)
+  zlab = "PE")
+
 s3d$plane3d(my.lm, lty = "dotted")
 
 # Convert coordinates for the original points and the fitted plane
@@ -2235,8 +2230,7 @@ plot3d(
   radius = .2,
   ylab = "PFOA",
   xlab = "AN",
-  zlab = "PC_O"
-)
+  zlab = "PC_O")
 
 # Fit a linear model for PFOA based on AN and PC_O
 my.lm <- lm(data[,'PFOA'] ~ data[,'AN'] + data[,'PC_O'])
@@ -2253,8 +2247,8 @@ s3d <- scatterplot3d(
   angle = 55, scale.y = 0.5,
   xlab = "AN",
   ylab = "PFOA",
-  zlab = "PC_O"
-)
+  zlab = "PC_O")
+
 s3d$plane3d(my.lm, lty = "dotted")
 
 # Convert coordinates for the original points and the fitted plane
@@ -2279,8 +2273,7 @@ plot3d(
   radius = .2,
   ylab = "PFHxA",
   xlab = "DHEA",
-  zlab = "PC"
-)
+  zlab = "PC")
 
 # Fit a linear model for PFHxA based on DHEA and PC
 my.lm <- lm(data[,'PFHxA'] ~ data[,'DHEA'] + data[,'PC'])
@@ -2297,8 +2290,8 @@ s3d <- scatterplot3d(
   angle = 55, scale.y = 0.5,
   xlab = "DHEA",
   ylab = "PFHxA",
-  zlab = "PC"
-)
+  zlab = "PC")
+
 s3d$plane3d(my.lm, lty = "dotted")
 
 # Convert coordinates for the original points and the fitted plane
@@ -2563,7 +2556,7 @@ RunMediationAnalysis = function(TreatmentVariables, MediatorVariables, OutcomeVa
   rownames(res) <- gsub("X17", "17", rownames(res))
   
   # Write the results to an Excel file
-  write.xlsx(res, file = paste(name, Group, date, '.xlsx'), append = FALSE, row.names = TRUE)
+  write.xlsx(res, file = paste(name, Group, date, 'b.xlsx'), append = FALSE, row.names = TRUE)
   
   return(res)
 }
@@ -2598,7 +2591,7 @@ RunEssentialAnalysis = function(TreatmentVariables, MediatorVariables, OutcomeVa
 
 # Set the number of simulations and other parameters
 simss = 100
-name = 'Jaot_OK_basica'
+name = 'Jaot_OK_basia'
 joo = 'ei'
 ip = 1
 
@@ -2613,23 +2606,24 @@ file_names = c("Steatosis", "Fibrosis", "Necroinflammation", "HOMAIR", 'Menopaus
 
 # Set additional parameters
 lkm = 30
-joo = 'ei'
-ip = 1
+# joo = 'ei'
+# ip = 1
 sick = 'yes'
 t.valueList = 'no'
 Group = 'All'
 # date='houdeesh'
 
+
 # Set parameters for the 'All' group analysis
-joo = 'joo'
-sick = 'no'
+# joo = 'joo'
+# sick = 'no'
 
 # Extract specific columns from the dataset for analysis
-ccova = CombinedData[, c("Steatosis.Grade.0.To.3", "Fibrosis.Stage.0.to.4", "Necroinflammation", "HOMA-IR")]
+# ccova = CombinedData[, c("Steatosis.Grade.0.To.3", "Fibrosis.Stage.0.to.4", "Necroinflammation", "HOMA-IR")]
 
 # Define the file name and group based on a condition (sum of specific columns > 4)
 fn = 'All'
-sick_group = rowSums(ccova) > 4
+# sick_group = rowSums(ccova) > 4
 
 # Driving the analysis takes more than 1h (with a basic laptop 2023,100sims and all three steroidGroups (all, female and male)) so drive the below only if needed:
 # RunEssentialAnalysis(TreatmentVariables, MediatorVariables, OutcomeVariables,AllData,Group,name,simss,t.valueList,test,sick, sick_group,fn,lkm,date,joo,ip)
@@ -2640,19 +2634,23 @@ sick_group = rowSums(ccova) > 4
 
 # In case, the 'case' sample/subject analysis would be needed: 
 # Steatosis
-# ccovae=CombinedData[,c("Steatosis.Grade.0.To.3")]; sick_group=ccovae>0 #toth# # hist(ccovae,breaks=100) # hist(ccova[,'HOMA-IR'],breaks=100)
-# fn=file_names[1];
-# RunEssentialAnalysis(TreatmentVariables, MediatorVariables, OutcomeVariables,AllData,Group,name,simss,t.valueList,test,sick,sick_group,fn,lkm,date,joo,ip)
+OutcomeVariables="Steatosis Grade"
+ccovae=CombinedData[,c("Steatosis.Grade.0.To.3")]; sick_group=ccovae>0 #toth# # hist(ccovae,breaks=100) # hist(ccova[,'HOMA-IR'],breaks=100)
+fn=file_names[1];
+RunEssentialAnalysis(TreatmentVariables, MediatorVariables, OutcomeVariables,AllData,Group,name,simss,t.valueList,test,sick,sick_group,fn,lkm,date,joo,ip)
 # #Fibrosis
+OutcomeVariables="Fibrosis Stage"
 # ccovae=CombinedData[,c("Fibrosis.Stage.0.to.4")]; 
 # sick_group=ccovae>0 #toth#
 # fn=file_names[2]; 
 # RunEssentialAnalysis(TreatmentVariables, MediatorVariables, OutcomeVariables,AllData,Group,name,simss,t.valueList,test,sick,sick_group,fn,lkm,date,joo,ip)
 # #Necroinfl.
+OutcomeVariables="Necroinflammation"
 # ccovae=CombinedData[,c("Necroinflammation")]; sick_group=ccovae>0 #toth#
 # fn=file_names[3];
 # RunEssentialAnalysis(TreatmentVariables, MediatorVariables, OutcomeVariables,AllData,Group,name,simss,t.valueList,test,sick,sick_group,fn,lkm,date,joo,ip)
 # Homa # remember to always test the function with minimun number setting or as light parameters as possible to get it through... before big runs
+# OutcomeVariables="HOMA-IR"
 # joo='ei';sick='yes'
 # ccovae=CombinedData[,c("HOMA-IR")]; sick_group=ccovae>1.5 #toth#
 # fn=file_names[4]; 
