@@ -56,6 +56,16 @@ invisible(lapply(packages, library, character.only = TRUE))
 # BiocManager::install(c("ComplexHeatmap", "DESeq2", "dmetar", "fgsea", "ggforestplot", "ggsankey", "limma", "Maaslin2", "metagenomeSeq", "MOFA2", "qpgraph", "scater", "scRNAseq", "sevenbridges"))
 # remotes::install_github(c("davidsjoberg/ggsankey", "fossbert/binilib", "MathiasHarrer/dmetar", "mattflor/chorddiag", "NightingaleHealth/ggforestplot"))
 # devtools::install_github("mattflor/chorddiag") # Alternative installation method
+
+#Fyi: Run Current Chunk:
+# Ctrl + Alt + C (Windows/Linux)
+# Run All Chunks Above:
+# Ctrl + Alt + P (Windows/Linux)
+# Run All Chunks Below:
+# Ctrl + Alt + N (Windows/Linux)
+# Run All Chunks in Document:
+# Ctrl + Alt + R (Windows/Linux)
+
 ```
 
 # Importing Data and Metadata 
@@ -91,7 +101,7 @@ groups2[,'Abbreviation'][groups2[,'Abbreviation']=='17aOH-P4']='17a-OHP4'
 
 #P4 was found from elsewhere to have the following characteristics:
 NonAlcoholicFattyLiverDisease[,'P4'] = as.numeric(NonAlcoholicFattyLiverDisease[,'P4'])
-NonAlcoholicFattyLiverDisease[,'P4'][is.na(NonAlcoholicFattyLiverDisease[,'P4'])] = 22557.3330346846 
+# NonAlcoholicFattyLiverDisease[,'P4'][is.na(NonAlcoholicFattyLiverDisease[,'P4'])] = 22557.3330346846 
 # median(NonAlcoholicFattyLiverDisease[,'P4'], na.rm=TRUE) 
 NonAlcoholicFattyLiverDisease[,5:7][NonAlcoholicFattyLiverDisease[,5:7]==0.01]=0; colnames(NonAlcoholicFattyLiverDisease)=columnNames
 MetabolicAssociatedLiverDisease=read_excel("Combined.Matrix.For.Pauli.2023.10.17.Excel.Formatv2.xlsx") # This is the main file
