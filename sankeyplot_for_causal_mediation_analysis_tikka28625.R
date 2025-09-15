@@ -6,6 +6,10 @@ library(ggsankey)
 library(dplyr)
 setwd("C:/Users/patati/Desktop/Turku/R/tests6/tests_basic/") #check this if needed...
 all_all=read_xlsx(path = "C:/Users/patati/Desktop/Turku/R/tests6/tests_basic/100basic All tikka3624 .xlsx") #total Male tikka76524 hyp4b_oki.xlsx") #
+
+all_all=read_xlsx(path = "C:/Users/patati/Documents/GitHub/Steroid_Data_Analysis/total_All_All_tikka15925_mediation_results.xlsx")
+  # C:\Users\patati\Documents\GitHub\Steroid_Data_Analysis
+
 sick='all samples';d='t'
 date <- strftime(Sys.Date(), "%d%m%y") #Do not take the old date from the load...
 
