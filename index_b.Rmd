@@ -16,7 +16,7 @@ output:
 # Introduction
 ```{r, warning=FALSE,message=FALSE}
 
-# Welcome to the 'steroid data analysis' webpage! a
+# Welcome to the 'steroid data analysis' webpage! 
 
 # The procedures and explanations to make all the analysis and plots are in their individual chapters below. 
 # These methods could be also easily applied to other types of data sets and metabolites than 'steroids' and their respective metadata per se. 
@@ -44,19 +44,7 @@ packages <- c("bigsnpr", "binilib", "brickster", "car", "censReg", "circlize", "
 
 # Load all libraries
 .libPaths(c("C:/Program Files/R/R-4.4.1/library", .libPaths()))
-# invisible(lapply(packages, library, character.only = TRUE))
-
-# invisible(lapply(packages, function(pkg) {
-#   if (!requireNamespace(pkg, quietly = TRUE)) {
-#     install.packages(pkg)
-#   }
-#   library(pkg, character.only = TRUE)
-# }))
-# 
-library(scales)
-invisible(lapply(setdiff(packages, "scales"), library, character.only = TRUE))
-
-
+invisible(lapply(packages, library, character.only = TRUE))
 
 # Note: Do not load 'forestplot' as it conflicts with 'ggforestplot'
 # You may need to load both rmarkdown and rmdformats and install some dependencies (if prompted) to get this loading done.
@@ -68,25 +56,15 @@ invisible(lapply(setdiff(packages, "scales"), library, character.only = TRUE))
 # BiocManager::install(c("ComplexHeatmap", "DESeq2", "dmetar", "fgsea", "ggforestplot", "ggsankey", "limma", "Maaslin2", "metagenomeSeq", "MOFA2", "qpgraph", "scater", "scRNAseq", "sevenbridges"))
 # remotes::install_github(c("davidsjoberg/ggsankey", "fossbert/binilib", "MathiasHarrer/dmetar", "mattflor/chorddiag", "NightingaleHealth/ggforestplot"))
 # devtools::install_github("mattflor/chorddiag") # Alternative installation method
-
-#Fyi: Run Current Chunk:
-# Ctrl + Alt + C (Windows/Linux)
-# Run All Chunks Above:
-# Ctrl + Alt + P (Windows/Linux)
-# Run All Chunks Below:
-# Ctrl + Alt + N (Windows/Linux)
-# Run All Chunks in Document:
-# Ctrl + Alt + R (Windows/Linux)
-
 ```
 
 # Importing Data and Metadata 
 ```{r, warning=FALSE,message=FALSE}
 
 # First set your data folder:
-setwd("C:/Users/patati/Documents/GitHub/Steroid_Data_Analysis")
+# setwd("C:/Users/patati/Documents/GitHub/Steroid_Data_Analysis")
 # or:"C:/Users/patati/Desktop/Turku/R" #check the wd with: here::here() #or getwd()
-load("thereal_v2.RData") #This is so to say real data, and it is not available here (at the site).
+# load("thereal_v2.RData") #This is so to say real data, and it is not available here (at the site).
 
 # It is easier to load the ready stiched data in one go with .RData file than one by one as below, but
 # for educational purposes I put some examples what may need to be done to get your data in ok form 
@@ -110,13 +88,10 @@ groups2=cbind(g1[,'Group'], groups2[,c('Abbreviation','Abbreviation_old','Name')
 groups2=groups2[groups2[,'Abbreviation']!='FF',]; colnames(groups2)[1]="Group";
 groups2=groups2[order(groups2[,'Group']),]
 groups2[,'Abbreviation'][groups2[,'Abbreviation']=='17aOH-P4']='17a-OHP4'
-groups2[,'Group'][groups2[,'Abbreviation_old']=='DOC']='Mineralocorticoids'
-# head(groups2)
-
 
 #P4 was found from elsewhere to have the following characteristics:
 NonAlcoholicFattyLiverDisease[,'P4'] = as.numeric(NonAlcoholicFattyLiverDisease[,'P4'])
-# NonAlcoholicFattyLiverDisease[,'P4'][is.na(NonAlcoholicFattyLiverDisease[,'P4'])] = 22557.3330346846 
+NonAlcoholicFattyLiverDisease[,'P4'][is.na(NonAlcoholicFattyLiverDisease[,'P4'])] = 22557.3330346846 
 # median(NonAlcoholicFattyLiverDisease[,'P4'], na.rm=TRUE) 
 NonAlcoholicFattyLiverDisease[,5:7][NonAlcoholicFattyLiverDisease[,5:7]==0.01]=0; colnames(NonAlcoholicFattyLiverDisease)=columnNames
 MetabolicAssociatedLiverDisease=read_excel("Combined.Matrix.For.Pauli.2023.10.17.Excel.Formatv2.xlsx") # This is the main file
@@ -199,11 +174,7 @@ C4Data[is.na(C4Data[,2]),2]=median(C4Data[!is.na(C4Data[,2]),2]) #assuming that 
 #https://stackoverflow.com/questions/50476717/i-want-to-align-match-two-unequal-columns
 
 #Matching two unequal columns.. match the names of one original column (dat2) to ones that are missing (dat1 with to other) #Not sure if this should be this difficult...
-CombinedData=cbind(MetabolicAssociatedLiverDisease[,1],NonAlcoholicFattyLiverDisease[,2:7],clinicalData[,'HOMA.IR'],
-                   MetabolicAssociatedLiverDisease[,colnames(NonAlcoholicFattyLiverDisease[,8:27])],
-                   bileAcidsLiverData[,2:dim(bileAcidsLiverData)[2]],C4Data[,2:dim(C4Data)[2]],
-                   serumBileAcidsData[,2:dim(serumBileAcidsData)[2]],
-                   PFASSerumData[,(2:(dim(PFASSerumData)[2]))], MetabolicAssociatedLiverDisease[,'PFAS']);
+CombinedData=cbind(MetabolicAssociatedLiverDisease[,1],NonAlcoholicFattyLiverDisease[,2:7],clinicalData[,'HOMA.IR'],MetabolicAssociatedLiverDisease[,colnames(NonAlcoholicFattyLiverDisease[,8:27])],bileAcidsLiverData[,2:dim(bileAcidsLiverData)[2]], C4Data[,2:dim(C4Data)[2]],serumBileAcidsData[,2:dim(serumBileAcidsData)[2]],PFASSerumData[,(2:(dim(PFASSerumData)[2]))], MetabolicAssociatedLiverDisease[,'PFAS']);
 colnames(CombinedData)[colnames(CombinedData)=='C4Data[, 2:dim(C4Data)[2]]']='C4Data';colnames(CombinedData)[colnames(CombinedData)=='clinicalData[, \"HOMA.IR\"]']='HOMA-IR'
 colnames(CombinedData)[colnames(CombinedData)=='MetabolicAssociatedLiverDisease[, \"PFAS\"]']='PFAS';
 colnames(CombinedData)[colnames(CombinedData)=="MetabolicAssociatedLiverDisease[, 1]" ]='PatientNumber';#colnames(CombinedData)#
@@ -218,17 +189,6 @@ CombinedData=cbind(CombinedData,MetabolicAssociatedLiverDisease[,(dim(MetabolicA
 # hupo=match(   colnames(CombinedData)[colnames(CombinedData) %in% groups2[,3]], groups2[,3] ) # do ni; https://www.geeksforgeeks.org/how-to-find-index-of-element-in-vector-in-r/
 # tvauxe=CombinedData
 # colnames(CombinedData)[colnames(CombinedData) %in% groups2[,3]]=groups2[hupo,2]
-
-# CombinedData_v2
-# 
-# vec1=colnames(serumBileAcidsData)
-# vec2=colnames(bileAcidsLiverData)
-# 
-# common_elements <- intersect(vec1, vec2)
-
-colnames(CombinedData)[colnames(CombinedData)=='C4Data']='C4'
-
-#.1:set on seerumia
 
 # The basic preprocessing is just the below lines:
 tve=CombinedData[,2:dim(CombinedData)[2]]; tve[tve == 0] <- NA; #Almost all variables are here
@@ -343,7 +303,6 @@ x3[x3=='C4Data_L']='C4_L'
 
 ```
 
-
 # Setting Global Variables  
 ```{r, setup, warning=FALSE, message=FALSE}
 options(scipen = 999) # Disable scientific notation
@@ -374,10 +333,6 @@ knitr::opts_knit$set(root.dir = 'C:/Users/patati/Documents/GitHub/Steroid_Data_A
 ```{r, warning=FALSE,message=FALSE,fig.width=8.0}
 #https://r-graph-gallery.com/265-grouped-boxplot-with-ggplot2.html
 #https://stackoverflow.com/questions/53724834/why-does-the-plot-size-differ-between-docx-and-html-in-rmarkdownrender
-
-
-windowsFonts(Arial = windowsFont("Arial"))
-
 CreateBoxplots <- function(tvt, Group, OutcomeVariables, Out, oute, other) {
   # Filter data based on gender
   tvt <- tvt %>%
@@ -391,7 +346,7 @@ CreateBoxplots <- function(tvt, Group, OutcomeVariables, Out, oute, other) {
   TreatmentVariables <- data2
   Concentration <- as.vector(unlist(tvt[, 9:28]))
   data <- data.frame(Steroid, TreatmentVariables, Concentration)
-  data$Group <- 0 
+  data$Group <- 0
   
   # Correct steroid names if the level exists
   if ("17aOH-P4" %in% levels(data$Steroid)) {
@@ -399,13 +354,10 @@ CreateBoxplots <- function(tvt, Group, OutcomeVariables, Out, oute, other) {
       mutate(Steroid = fct_recode(Steroid, '17a-OHP4' = '17aOH-P4'))
   }
   
-  
-  groups3[groups3[,1]=='Estrogens',1]  ='Estrog.' #''
-  
   # Assign steroidGroups
-  rownames(groups3) <- 1:20
-  for (i in seq_len(nrow(groups3))) {
-    data[data$Steroid %in% groups3$Abbreviation[i], 'Group'] <- groups3$Group[i]
+  rownames(groups2) <- 1:20
+  for (i in seq_len(nrow(groups2))) {
+    data[data$Steroid %in% groups2$Abbreviation[i], 'Group'] <- groups2$Group[i]
   }
   
   # Set plot title
@@ -418,261 +370,40 @@ CreateBoxplots <- function(tvt, Group, OutcomeVariables, Out, oute, other) {
   # Remove rows with NA concentrations
   data <- data %>% filter(!is.na(Concentration))
   
-  # Create a named vector for mapping (this and the below line was as per Copilot)
-  abbreviation_map <- setNames(groups3$Abbreviation_old, groups3$Abbreviation)
-  # Map the Steroid values to Abbreviation_old values
-  data$Abbreviation_old <- abbreviation_map[data$Steroid]
-  colnames(data)[1]='BigName'
-  colnames(data)[5]='Steroid'
-  data=data[,c(5,2,3,4)]
-
   # Create boxplot
-# Create boxplot
-# Create boxplot
-# p <- ggplot(data, aes(x = Steroid, y = Concentration, fill = TreatmentVariables)) +
-#   geom_boxplot(notch = FALSE, notchwidth = 0.5, outlier.shape = 1, outlier.size = 2, coef = 1.5, colour = "") + #grey50
-#   theme_classic2() +
-#   theme(
-#     axis.text.x = element_text(angle = 90, hjust = 0.95, vjust = 0.2, size = 16),
-#     axis.text = element_text(color = "black"),
-#     panel.grid.minor = element_blank(),
-#     text = element_text(size = 16, family = "Times New Roman"),
-#     axis.title = element_text(size = 16),
-#     plot.title = element_text(size = 16),
-#     legend.text = element_text(size = 16),
-#     legend.title = element_text(size = 16)
-#   ) +
-#   labs(x = "Steroids", y = "Log2 of Picomolar Concentrations", title = title) +
-#   scale_fill_manual(values = c("orange", "blue"), name = oute, labels = c(e1, e2)) +
-#   facet_grid(~Group, scales = "free_x", space = "free") +
-#   stat_compare_means(
-#     hide.ns = TRUE, label = "p.signif", method = "wilcox.test",
-#     symnum.args = list(
-#       cutpoints = c(0, 0.001, 0.01, 0.05, 0.1, 1),
-#       symbols = c("****", "***", "**", "*", "ns")
-#     ),
-#     size = 8, paired = FALSE, label.y = 15.5
-#   )
-
-library(ggplot2)
-library(ggpubr)  # for stat_compare_means
-library(ggthemes)  # for theme_classic2
-library(extrafont)  # if needed for Times New Roman
-
-# p <- ggplot(data, aes(x = Steroid, y = Concentration, fill = TreatmentVariables)) +
-#   geom_boxplot(
-#     notch = FALSE, notchwidth = 0.5,
-#     outlier.shape = 1, outlier.size = 2,
-#     coef = 1.5 
-#     # colour = ""
-#   ) +
-#   theme_classic2(base_family = "Times New Roman") +
-#   theme(
-#     axis.text.x = element_text(angle = 90, hjust = 0.95, vjust = 0.2, size = 16, family = "Times New Roman"),
-#     axis.text = element_text(color = "black", family = "Times New Roman"),
-#     axis.title.x = element_text(size = 16, face = "bold", family = "Times New Roman"),
-#     axis.title.y = element_text(size = 16, face = "bold", family = "Times New Roman"),
-#     plot.title = element_text(size = 16, face = "bold", family = "Times New Roman"),
-#     legend.text = element_text(size = 16, family = "Times New Roman"),
-#     legend.title = element_text(size = 16, face = "bold", family = "Times New Roman"),
-#     strip.text = element_text(size = 16, face = "bold", family = "Times New Roman"),
-#     strip.background = element_rect(fill = "lightblue", color = "black"),  # customize color here
-#     panel.grid.minor = element_blank()
-#   ) +
-#   labs(
-#     x = "Steroids",
-#     y = "Log2 of Picomolar Concentrations",
-#     title = title
-#   ) +
-#   scale_fill_manual(
-#     values = c("orange", "blue"),
-#     name = oute,
-#     labels = c(e1, e2)
-#   ) +
-#   facet_grid(~Group, scales = "free_x", space = "free") +
-#   stat_compare_means(
-#     hide.ns = TRUE, label = "p.signif", method = "wilcox.test",
-#     symnum.args = list(
-#       cutpoints = c(0, 0.001, 0.01, 0.05, 0.1, 1),
-#       symbols = c("****", "***", "**", "*", "ns")
-#     ),
-#     size = 8, paired = FALSE, label.y = 15.5
-#   )
-
-
-p <- ggplot(data, aes(x = Steroid, y = Concentration, fill = TreatmentVariables)) +
-  geom_boxplot(
-    notch = FALSE,
-    outlier.shape = 1,
-    outlier.size = 2,
-    coef = 1.5
-  ) +
-  theme_classic2(base_family = "Arial") +
-  theme(
-    axis.text.x = element_text(angle = 90, hjust = 0.95, vjust = 0.2, size = 16),
-    axis.text.y = element_text(size = 16),
-    axis.title = element_text(size = 16, face = "bold"),
-    plot.title = element_text(size = 16, face = "bold"),
-    legend.text = element_text(size = 16),
-    legend.title = element_text(size = 16, face = "bold"),
-    strip.text = element_text(size = 16, face = "bold"),
-    strip.background = element_rect(fill = "lightblue", color = "black")
-  ) +
-  labs(
-    x = "Steroids",
-    y = "Log2 of Picomolar Concentrations",
-    title = title
-  ) +
-  scale_fill_manual(
-    values = c("orange", "blue"),
-    name = oute,
-    labels = c(e1, e2)
-  ) +
-  facet_grid(~Group, scales = "free_x", space = "free") +
-  stat_compare_means(
-    hide.ns = TRUE,
-    label = "p.signif",
-    method = "wilcox.test",symnum.args = list(
-      cutpoints = c(0, 0.001, 0.01, 0.05, 0.1, 1),
-      symbols = c("****", "***", "**", "*", "ns")
-    ),
-    size = 8,paired = FALSE, label.y = 15.3,
-  )
-
-
-# Define output path
-path <- "C:/Users/patati/Documents/GitHub/Steroid_Data_Analysis/"
-fs::dir_create(path)  # Ensure directory exists
-
-# === Extract statistics table (same tests used in stat_compare_means) ===
-stats_tbl <- ggpubr::compare_means(
-  formula = Concentration ~ TreatmentVariables,
-  group.by = "Steroid",
-  data = data,
-  method = "wilcox.test"
-)
-
-# Define statistics output path
-stats_file <- fs::path(path, paste0(Group, "_", Out, "_stats.csv"))
-
-# Save stats table
-write.csv(stats_tbl, stats_file, row.names = FALSE)
-
-message("✅ Stats table saved: ", stats_file)
-
-
-# === WILCOXON TEST + SAVE CSV ===
-library(rstatix)
-
-stats_tbl <- data %>%
-  group_by(Steroid) %>%
-  wilcox_test(Concentration ~ TreatmentVariables, paired = FALSE) %>%
-  adjust_pvalue(method = "BH") %>%       # FDR correction
-  add_significance("p.adj")              # significance stars
-
-stats_file <- fs::path(path, paste0(Group, "_", Out, "_wilcox_stats.csv"))
-write.csv(stats_tbl, stats_file, row.names = FALSE)
-
-message("✅ Wilcoxon stats saved: ", stats_file)
-
-# Save as PNG
-pngfile <- fs::path(path, paste0(Group, Out, "BoxB", ".png"))
-try({
-  ragg::agg_png(filename = pngfile, width = 60, height = 36, units = "cm", res = 300, scaling = 2)
-  print(p)
-  dev.off()
-  if (file.exists(pngfile)) {
-    message("✅ PNG saved successfully: ", pngfile)
-  } else {
-    warning("❌ PNG file not found after saving.")
-  }
-}, silent = FALSE)
-
-# Save as JPEG
-jpgfile <- fs::path(path, paste0(Group, Out, "BoxB", ".jpg"))
-try({
-  if (requireNamespace("ragg", quietly = TRUE) && "agg_jpeg" %in% getNamespaceExports("ragg")) {
-    ragg::agg_jpeg(filename = jpgfile, width = 60, height = 36, units = "cm", res = 300, scaling = 2, quality = 95)
-  } else {
-    grDevices::jpeg(filename = jpgfile, width = 60, height = 36, units = "cm", res = 300, quality = 95)
-  }
-  print(p)
-  dev.off()
-  if (file.exists(jpgfile)) {
-    message("✅ JPEG saved successfully: ", jpgfile)
-  } else {
-    warning("❌ JPEG file not found after saving.")
-  }
-}, silent = FALSE)
-
-
-# ===== SAVE REAL SVG (VECTOR) =====
-svgfile <- fs::path(path, paste0(Group, Out, "BoxB", ".svg"))
-
-svglite::svglite(
-  file = svgfile,
-  width = 60 / 2.54,   # cm → inches
-  height = 36 / 2.54
-)
-print(p)
-dev.off()
-
-if (file.exists(svgfile)) {
-  message("✅ SVG saved successfully: ", svgfile)
-} else {
-  warning("❌ SVG file not found after saving.")
-}
-
-
-# Convert PNG to PDF
-# pdffile <- fs::path(path, paste0(Group, Out, "BoxB", ".pdf"))
-# try({
-#   daiR::image_to_pdf(files = as.character(pngfile), pdf_name = as.character(pdffile))
-#   if (file.exists(pdffile)) {
-#     message("✅ PDF created successfully: ", pdffile)
-#   } else {
-#     warning("❌ PDF file not found after conversion.")
-#   }
-# }, silent = FALSE)
-# 
-# # Optionally include PNG in document (e.g., RMarkdown)
-# if (file.exists(pngfile)) {
-#   knitr::include_graphics(pngfile)
-# }
-
-# ==== REAL PDF (VECTOR) ====
-pdffile <- fs::path(path, paste0(Group, Out, "BoxB.pdf"))
-cairo_pdf(pdffile, width = 60/2.54, height = 36/2.54)
-print(p)
-dev.off()
-
-
+  p <- ggplot(data, aes(x = Steroid, y = Concentration, fill = TreatmentVariables)) +
+    geom_boxplot(notch = FALSE, notchwidth = 0.5, outlier.shape = 1, outlier.size = 2, coef = 1.5) +
+    theme_classic2() +
+    theme(axis.text.x = element_text(angle = 90, hjust = 0.95, vjust = 0.2, size = 10.5),
+          axis.text = element_text(color = "black"),
+          panel.grid.minor = element_blank(),
+          text = element_text(size = 10.5, family = "Calibri"),
+          axis.title = element_text(size = 14),
+          plot.title = element_text(size = 14),
+          legend.text = element_text(size = 14),
+          legend.title = element_text(size = 14)) +
+    labs(x = "Steroids", y = "Log2 of Picomolar Concentrations", title = title) +
+    scale_fill_manual(values = c("orange", "blue"), name = oute, labels = c(e1, e2)) +
+    facet_grid(~Group, scales = "free_x", space = "free") +
+    stat_compare_means(hide.ns = TRUE, label = "p.signif", method = "wilcox.test",
+                       symnum.args = list(cutpoints = c(0, 0.001, 0.01, 0.05, 0.1, 1),
+                                          symbols = c("****", "***", "**", "*", "ns")),
+                       size = 8, paired = FALSE, label.y = 15.5)
+  
+  
+  # Save plot as PNG
+  path <- "C:/Users/patati/Documents/GitHub/Steroid_Data_Analysis/"
+  pngfile <- fs::path(path, paste0(Group, Out, 'boxe', ".png"))
+  ragg::agg_png(pngfile, width = 60, height = 36, units = "cm", res = 300,scaling = 2)
+  plot(p)
+  invisible(dev.off())
+  knitr::include_graphics(pngfile)
 }
 
 # Example usage
-LogCovariatesNonScaledData[, '11-KA4'][LogCovariatesNonScaledData[, '11-KA4'] ==
-                                         min(LogCovariatesNonScaledData[, '11-KA4'])] <- median(LogCovariatesNonScaledData[, '11-KA4'])
-# other <- '261124'
+LogCovariatesNonScaledData[, '11-KA4'][LogCovariatesNonScaledData[, '11-KA4'] == min(LogCovariatesNonScaledData[, '11-KA4'])] <- median(LogCovariatesNonScaledData[, '11-KA4'])
+other <- '261124'
 ie <- LogCovariatesNonScaledData#
-
-# This is partly auxiliary
-# setwd("C:/Users/patati/Desktop/Turku/R")
-# or:"C:/Users/patati/Desktop/Turku/R" 
-# groups2=data.frame(steroidNames)[,1:4]; g1=read.csv("C:/Users/patati/Desktop/Turku/R/groups_17823.csv", header = TRUE, sep=";")
-# groups2=cbind(g1[,'Group'], groups2[,c('Abbreviation','Abbreviation_old','Name')])
-# groups2=groups2[groups2[,'Abbreviation']!='FF',]; colnames(groups2)[1]="Group";
-# groups2=groups2[order(groups2[,'Group']),]
-# groups2[,'Group'][groups2[,'Abbreviation_old']=='DOC']='Mineralocorticoids'
-# 
-# groups2[,'Abbreviation'][groups2[,'Abbreviation']=='17aOH-P4']='17a-OHP4'
-# #The Further Abbreviations:
-groups3=groups2
-groups3[groups3[,1]=='Glucocorticoids',1]  ='Glucoc.' #'Glucoc.' G.C.'
-groups3[groups3[,1]=='Mineralocorticoids',1]  ='Mineralc.' #'Miner.c.' M.C.
-#groups2[groups2[,1]=='Progestogens',1]  ='P.G.' #''
-groups2[groups2[,1]=='Estrogens',1]  ='Estrog.' #''
-
-setwd("C:/Users/patati/Documents/GitHub/Steroid_Data_Analysis")
 hupo <- match(colnames(ie)[colnames(ie) %in% groups2[, 3]], groups2[, 3])
 colnames(ie)[colnames(ie) %in% groups2[, 3]] <- groups2[hupo, 2]
 windowsFonts(A = windowsFont("Calibri (Body)"))
@@ -680,9 +411,7 @@ knitr::opts_knit$set(root.dir = 'C:/Users/patati/Documents/GitHub/Steroid_Data_A
 
 # The significance levels are: '****<0.001', '***<0.01', '**<0.05', '*<0.1'
 OutcomeVariables='Steatosis Grade';Out='Steatosis'; oute='Steatosis Grade';num=0;Group='All';
-CreateBoxplots(ie,Group,OutcomeVariables,Out,oute,other);
-
-Group='Female';
+CreateBoxplots(ie,Group,OutcomeVariables,Out,oute,other);Group='Female';
 CreateBoxplots(ie,Group,OutcomeVariables,Out,oute,other);Group='Male';
 CreateBoxplots(ie,Group,OutcomeVariables,Out,oute,other)
 
@@ -699,6 +428,7 @@ OutcomeVariables='HOMA-IR';Out='HOMA-IR'; oute='HOMA-IR';num=1.5;Group='All';
 CreateBoxplots(ie,Group,OutcomeVariables,Out,oute,other);Group='Female';
 CreateBoxplots(ie,Group,OutcomeVariables,Out,oute,other);Group='Male';
 CreateBoxplots(ie,Group,OutcomeVariables,Out,oute,other)
+
 
 ```
 
@@ -722,907 +452,201 @@ if (length(patterns) == length(replacements)) {
     colnames(NonAlcoholicFattyLiverDisease) <- gsub(patterns[i], replacements[i], colnames(NonAlcoholicFattyLiverDisease))}} else {
       stop("Patterns and replacements vectors must be of the same length.")}
 
-#' CalculateErrors
-#' Builds ratio (case/control) with log CI, maps groups via groups2, creates forest plot, saves images.
-#' @param NonAlcoholicFattyLiverDisease data.frame
-#' @param OutcomeVariables character; binary outcome column in NAFLD data (0 vs >0)
-#' @param Group character; "Male" | "Female" | "All"
-#' @param name character; output file stem (e.g., "MyPlot")
-#' @param ordera character vector of abbreviations to order rows; if NULL, inferred from groups2
-#' @param oute (kept for compatibility; unused in this function)
-#' @param first logical; when Group=="All" and first==TRUE, reverse order
-#' @param e character; reference analyte used for ratio construction (kept from your code)
-#' @param xlim numeric length-2 or NULL; x axis limits (log scale). If NULL, inferred from data
-#' @param groups2 data.frame with columns: Group, Abbreviation, Abbreviation_old, Name
-#' @return ordera vector used for the y order
-
-CalculateErrors <- function(NonAlcoholicFattyLiverDisease,
-                            OutcomeVariables,
-                            Group,
-                            name,
-                            ordera = NULL,
-                            oute = NULL,
-                            first = FALSE,
-                            e,
-                            xlim = NULL,
-                            groups2) {
+# This works with the autoscaled (raw if loge=1 and remove 1 in the means) data NonAlcoholicFattyLiverDisease as well...
+CalculateErrors=function(NonAlcoholicFattyLiverDisease,OutcomeVariables,Group,name,ordera,oute,first,e,xlim) { # Group='Female'
   
-  ## ---- Safety checks ----
-  stopifnot(is.data.frame(NonAlcoholicFattyLiverDisease))
-  if (!OutcomeVariables %in% colnames(NonAlcoholicFattyLiverDisease)) {
-    stop("OutcomeVariables='", OutcomeVariables, "' not found in data.")
-  }
-  if (!'SEX.1F.2M' %in% colnames(NonAlcoholicFattyLiverDisease)) {
-    stop("'SEX.1F.2M' column not found in data.")
-  }
-  needed_g2 <- c("Group", "Abbreviation", "Abbreviation_old", "Name")
-  if (!all(needed_g2 %in% colnames(groups2))) {
-    stop("groups2 must contain columns: ", paste(needed_g2, collapse = ", "))
-  }
-  
-  ## ---- Helper: name normalization used for matching ----
-  norm_key <- function(x) {
-    x <- toupper(as.character(x))
-    x <- gsub("^X(?=[0-9])", "", x, perl = TRUE) # drop leading X before digits
-    gsub("[^A-Z0-9]", "", x)                     # strip non-alphanumerics
-  }
-  
-  ## ---- 1) Filter by Group ----
+  # Filter data based on the 'Group' variable
   NAFLDo <- switch(Group,
-                   "Male"   = NonAlcoholicFattyLiverDisease[NonAlcoholicFattyLiverDisease[, 'SEX.1F.2M'] == 2, ],
-                   "Female" = NonAlcoholicFattyLiverDisease[NonAlcoholicFattyLiverDisease[, 'SEX.1F.2M'] == 1, ],
-                   "All"    = NonAlcoholicFattyLiverDisease,
-                   stop("Group must be one of 'Male', 'Female', 'All'."))
-  if (nrow(NAFLDo) == 0) stop("No rows after filtering by Group = '", Group, "'.")
+                   "Male" = NonAlcoholicFattyLiverDisease[NonAlcoholicFattyLiverDisease[,'SEX.1F.2M'] == 2, ],
+                   "Female" = NonAlcoholicFattyLiverDisease[NonAlcoholicFattyLiverDisease[,'SEX.1F.2M'] == 1, ],
+                   "All" = NonAlcoholicFattyLiverDisease)
   
-  ## ---- 2) Find analyte (steroid) columns dynamically via groups2 ----
-  keys   <- unique(na.omit(c(groups2$Abbreviation, groups2$Abbreviation_old, groups2$Name)))
-  keys_n <- norm_key(keys)
-  cn     <- colnames(NAFLDo)
-  cn_n   <- norm_key(cn)
-  
-  match_idx    <- which(cn_n %in% keys_n)
-  measure_cols <- cn[match_idx]
-  # Exclude non-measure columns
-  measure_cols <- setdiff(measure_cols, c(OutcomeVariables, "SEX.1F.2M"))
-  # Keep numeric
-  measure_cols <- measure_cols[sapply(measure_cols, function(v) is.numeric(NAFLDo[[v]]))]
-  
-  if (length(measure_cols) == 0) {
-    stop(
-      "Could not find any analyte columns by matching groups2 to your data.\n",
-      "Check that your data column names correspond to groups2 Abbreviation/Abbreviation_old/Name."
-    )
-  }
-  
-  ## ---- 3) Split by outcome and summarize ----
-  sample_data <- vector("list", 2)
+  # Initialize vectors to store sample data and counts
+  sample_data <- list();
   n0 <- n1 <- 0
-  
+
+  # Loop through the two steroidGroups (OutcomeVariables == 0 and OutcomeVariables > 0)
   for (i in 1:2) {
     SG0 <- if (i == 1) {
-      NAFLDo[NAFLDo[[OutcomeVariables]] == 0, , drop = FALSE]
+      NAFLDo[NAFLDo[, OutcomeVariables] == 0, ]
     } else {
-      NAFLDo[NAFLDo[[OutcomeVariables]] > 0, , drop = FALSE]
-    }
-    if (i == 1) n0 <- nrow(SG0) else n1 <- nrow(SG0)
-    if (nrow(SG0) == 0) stop("Outcome split ", i, " has zero rows. Check '", OutcomeVariables, "' coding.")
+      NAFLDo[NAFLDo[, OutcomeVariables] > 0, ]}
     
-    means <- sapply(measure_cols, function(v) median(SG0[[v]], na.rm = TRUE))
-    sds   <- sapply(measure_cols, function(v) sd(SG0[[v]],     na.rm = TRUE))
-    
-    sample_data[[i]] <- data.frame(
-      study  = measure_cols,
-      index  = measure_cols,
-      result = as.numeric(means),
-      error  = as.numeric(sds),
-      stringsAsFactors = FALSE
-    )
-  }
+    # Store the count of samples in each group
+    if (i == 1) {
+      n0 <- nrow(SG0)
+    } else {
+      n1 <- nrow(SG0)}
   
-  # Merge (control arm i=1 with case arm i=2) by analyte name
-  df <- merge(sample_data[[1]], sample_data[[2]], by = c("study", "index"), suffixes = c("", ".1"))
+  # Calculate medians and standard deviations for columns 9 to 28
+  means <- apply(SG0[, 9:28], 2, median, na.rm = TRUE)
+  sds <- apply(SG0[, 9:28], 2, sd, na.rm = TRUE)
   
-  ## ---- 4) Wilcoxon p-values per analyte (vector interface, avoids formula pitfalls) ----
-  ov <- NAFLDo[[OutcomeVariables]]
-  ctrl_rows <- ov == 0
-  case_rows <- ov > 0
+  # Calculate error margins
+  error_lower <- means - sds
+  error_upper <- means + sds
+  error <- sds
   
-  ps <- sapply(measure_cols, function(v) {
-    x <- NAFLDo[ctrl_rows, v]
-    y <- NAFLDo[case_rows, v]
-    x <- x[is.finite(x)]
-    y <- y[is.finite(y)]
-    if (length(x) < 1 || length(y) < 1) return(NA_real_)
-    tryCatch(wilcox.test(x, y, exact = FALSE)$p.value, error = function(e) NA_real_)
-  })
-  names(ps) <- measure_cols
-  ## ---- 5) Ratio/log values & cleanup ----
-  # Keep your 'e' reference ratio (not used downstream, but retained)
-  suppressWarnings({
-    a <- tryCatch(
-      df[df[, "study"] == e, 'result.1'] / df[df[, "study"] == e, 'result'],
-      error = function(e) NA_real_
-    )
-  })
+  # Append results to sample_data
+  sample_data[[i]] <- data.frame(study = colnames(NonAlcoholicFattyLiverDisease[, 9:28]),
+                                 index = colnames(NonAlcoholicFattyLiverDisease[, 9:28]),
+                                 result = means,
+                                 error = error)}
+  df=data.frame(sample_data) #
   
+  # Calculate p-values using Wilcoxon test for columns 9 to 28
+  ps <- sapply(9:28, function(j) {
+    xnam <- colnames(NAFLDo)[j]
+    fmla <- as.formula(paste(xnam, "~", OutcomeVariables))
+    wilcox.test(fmla, data = NAFLDo, exact = FALSE)$p.value})
+    #https://en.wikipedia.org/wiki/Wilcoxon_signed-rank_test
+  
+  # Calculate the ratio of results and log-transform
+  a <- df[df[, 1] == e, 'result.1'] / df[df[, 1] == e, 'result']
   ResComb <- data.frame(log(df$result.1 / df$result))
-  ResComb$result   <- ResComb[, 1]
-  ResComb$name_raw <- df$study
-  ResComb          <- ResComb[, c("result", "name_raw")]
   
-  # Pretty names for plotting (match your prior cleanup)
-  ResComb$name <- ResComb$name_raw
+  # Rename columns and clean up variable names
+  ResComb$result <- ResComb[, 1]
+  ResComb$name <- df$study
+  ResComb <- ResComb[, 2:3]
   ResComb$name <- gsub("\\.", "-", ResComb$name)
-  ResComb$name <- sub("^X11", "11", ResComb$name)
-  ResComb$name <- sub("^X17", "17", ResComb$name)
+  ResComb$name <- gsub("X11", "11", ResComb$name)
+  ResComb$name <- gsub("X17", "17", ResComb$name)
   ResComb$name[ResComb$name == "T-Epi-T"] <- "T/Epi-T"
-  
-  # Attach p‑values by original raw colname
-  ResComb$pval <- ps[match(ResComb$name_raw, names(ps))]
-  
-  ## ---- 6) Error / CI on ratio (as in your code) ----
+  ResComb$pval <- ps
+
+  # Calculate result_pure and error
   ResComb$result_pure <- df$result.1 / df$result
-  ResComb$error <- (abs((1 / df$result) * df$error.1) +
-                      abs((df$result.1 / (df$result^2)) * df$error)) / nrow(NAFLDo) * 1.64
+  ResComb$error <- (abs((1 / df$result) * df$error.1) + abs((df$result.1 / df$result^2) * df$error)) / nrow(NAFLDo) * 1.64
   
-  # Cap extremes
-  medE <- median(ResComb$error, na.rm = TRUE)
-  sdE  <- sd(ResComb$error,     na.rm = TRUE)
-  ResComb$error <- ifelse(ResComb$error > (medE + sdE), medE * 1.25, ResComb$error)
+  # Adjust error values
+  ResComb$error <- ifelse(ResComb$error > (median(ResComb$error) + sd(ResComb$error)), median(ResComb$error) * 1.25, ResComb$error)
   
-  # Bounds + log transform (guard negative/zero to avoid -Inf)
-  ResComb$errord1a <- pmax(ResComb$result_pure - ResComb$error, .Machine$double.eps)
-  ResComb$errord2a <- pmax(ResComb$result_pure + ResComb$error, .Machine$double.eps)
-  ResComb$errord1  <- log(ResComb$errord1a)
-  ResComb$errord2  <- log(ResComb$errord2a)
-  ResComb$result   <- log(ResComb$result_pure)
-  ResComb$Control  <- df$result
-  ResComb$Case     <- df$result.1
-  # P-values & flags
+  # Calculate error bounds and log-transformed values
+  ResComb$errord1a <- ResComb$result_pure - ResComb$error
+  ResComb$errord2a <- ResComb$result_pure + ResComb$error
+  ResComb$errord1 <- log(ResComb$errord1a)
+  ResComb$errord2 <- log(ResComb$errord2a)
+  ResComb$result <- log(ResComb$result_pure)
+  ResComb$Control <- df$result
+  ResComb$Case <- df$result.1
+  
+  # Add p-values and significance
   ResComb$pval0 <- ResComb$pval
   ResComb$pval1 <- ResComb$pval
   ResComb$Significance0 <- ifelse(ResComb$pval0 < 0.1, 'Yes', 'No')
-  ResComb$Color0        <- ifelse(ResComb$pval0 < 0.1, 'blue', 'grey')
+  ResComb$Color0 <- ifelse(ResComb$pval0 < 0.1, 'blue', 'grey')
   ResComb$Significance1 <- ifelse(ResComb$pval1 < 0.1, 'Yes', 'No')
-  ResComb$Color1        <- ifelse(ResComb$pval1 < 0.1, 'blue', 'grey')
+  ResComb$Color1 <- ifelse(ResComb$pval1 < 0.1, 'blue', 'grey')
   
-  ## ---- 7) Map Group via groups2 (match by Abbrev / old / Name) ----
-  key_tbl <- unique(do.call(rbind, list(
-    data.frame(key = as.character(groups2$Abbreviation),     Group = groups2$Group, stringsAsFactors = FALSE),
-    data.frame(key = as.character(groups2$Abbreviation_old), Group = groups2$Group, stringsAsFactors = FALSE),
-    data.frame(key = as.character(groups2$Name),             Group = groups2$Group, stringsAsFactors = FALSE)
-  )))
-  key_tbl <- key_tbl[!is.na(key_tbl$key) & nzchar(key_tbl$key), ]
-  key_tbl$key_norm <- norm_key(key_tbl$key)
-  ResComb$key_norm <- norm_key(ResComb$name)
-  
-  map_df <- merge(ResComb[, c("name", "key_norm")],
-                  unique(key_tbl[, c("key_norm", "Group")]),
-                  by = "key_norm", all.x = TRUE)
-  ResComb$Group <- map_df$Group[match(ResComb$key_norm, map_df$key_norm)]
-  
-  # Warn on unmapped
-  unmapped <- sort(unique(ResComb$name[is.na(ResComb$Group)]))
-  if (length(unmapped)) {
-    warning("Some analytes could not be mapped to a group in groups2: ",
-            paste(unmapped, collapse = ", "))
-  }
-  
-  # Facet order: as in groups2
-  group_levels <- unique(groups2$Group)
-  ResComb$Group <- factor(ResComb$Group, levels = group_levels)
-  
-  ## ---- 8) Order y-axis levels (names) ----
-  if (is.null(ordera)) {
-    g2_abbr  <- groups2$Abbreviation
-    ordera_n <- norm_key(g2_abbr)
-    present  <- g2_abbr[ordera_n %in% unique(ResComb$key_norm)]
-    ordera   <- present
-    if (identical(Group, "All") && isTRUE(first)) ordera <- rev(ordera)
-  } else {
-    if (identical(Group, "All") && isTRUE(first)) ordera <- rev(ordera)
-  }
-  
-  # Convert ordera (abbreviations) to displayed levels present in ResComb$name
-  ordera_norm     <- norm_key(ordera)
-  display_levels  <- ResComb$name[match(ordera_norm, ResComb$key_norm)]
-  display_levels  <- display_levels[!is.na(display_levels)]
-  if (length(display_levels) == 0) display_levels <- ResComb$name
-  ResComb$name <- factor(ResComb$name, levels = unique(display_levels))
-  
-  # Numeric group index for strip fills
-  ResComb$Group2 <- as.numeric(as.factor(ResComb$Group))
-  
-  ## ---- 9) xlim ----
-  if (is.null(xlim) || length(xlim) != 2 || any(!is.finite(xlim))) {
-    xlim <- range(c(ResComb$errord1, ResComb$errord2), na.rm = TRUE)
-  }
-  
-  ## ---- 10) Build forest plot ----
-  plote2 <- forestplot(
-    df       = ResComb,
-    estimate = result,
-    se       = 0,
-    pvalue   = pval1,
-    psignif  = 0.1,
-    xlim     = xlim,
-    xlab     = 'Logged Ratio between Raw Concentrations of Case and Control with 90% CI',
-    ylab     = 'Steroid Groups',
-    title    = '',
-    colour   = Significance1
-  ) +
-    # ggforce::facet_col(facets = ~Group, scales = "free_y",  space = "free",strip.position = 'left') + #space = "free",
-   # ggforce::facet_col(facets = ~Group, scales = "free_y", strip.position = 'left')+
-  # facet_grid(
-  #   Group ~ .,
-  #   scales = "free_y",
-  #   space = "free_y")+ #strip.position = 'left'
+  # Merge with group data and sort
+  gn <- steroidGroups[steroidGroups$Abbreviation != 'F', c('Group', 'Abbreviation')]
+  gn <- gn[order(gn$Abbreviation), ]
+  ResComb <- ResComb[order(ResComb$name), ]
+  ResComb <- cbind(ResComb, gn[order(gn$Abbreviation), ])
+  ResComb <- ResComb[order(-ResComb$result), ]
 
+  xlab = "Autoscaled Concentrations (SE)"
+  xlim=c(min(ResComb$errord1),max(ResComb$errord2))
+  
+ # Create forest plot
+  plote2 <- forestplot(df = ResComb,
+                       estimate = result,
+                       se = 0,
+                       pvalue = pval1,
+                       psignif = 0.1,
+                       xlim = xlim,
+                       xlab = 'Logged Ratio between Raw Concentrations of Case and Control with 90% CI',
+                       ylab = 'Steroid Groups',
+                       title = '',
+                       colour = Significance1) +
+    ggforce::facet_col(facets = ~Group, scales = "free_y", space = "free", strip.position = 'left') +
     geom_errorbarh(aes(xmin = errord1, xmax = errord2, height = .0, colour = Significance1))
   
-  # Point color palette
-  hp <- if (sum(ResComb$Significance1 == 'Yes', na.rm = TRUE) == length(levels(ResComb$name))) {
-    c('blue', 'blue')
-  } else {
-    c('#999999', 'blue')
-  }
+  # Set color palette
+  hp <- if (sum(ResComb$Significance1 == 'Yes') == 20) c('blue', 'blue') else c('#999999', 'blue')
   
-  # Try stripes transparency (guard in case layer indexing differs)
-  try({ plote2$layers[[1]]$aes_params$odd <- "#00000000" }, silent = TRUE)
+  # Order factor levels based on Group and first
+  if (Group=='All' & first==TRUE) {ordera=rev(steroidGroups$Abbreviation)#ResComb$name[order(ResComb$result)]; #
+  plote2[["data"]][["name"]]=factor(plote2[["data"]][["name"]], levels = ordera)} else if
+  (Group=='All' & first==FALSE) {plote2[["data"]][["name"]]=factor(plote2[["data"]][["name"]], levels = ordera)} else if
+  (Group=='Female') {plote2[["data"]][["name"]]=factor(plote2[["data"]][["name"]], levels = ordera)} else if
+  (Group=='Male') {plote2[["data"]][["name"]]=factor(plote2[["data"]][["name"]], levels = ordera)}
+  #https://www.r-bloggers.com/2020/03/how-to-standardize-group-colors-in-data-visualizations-in-r/
+  plote2$layers[[1]]$aes_params$odd <- "#00000000" #https://stackoverflow.com/questions/71745719/how-to-control-stripe-transparency-using-ggforestplot-geom-stripes
   
-  PlotVar  <- plote2 + theme(axis.text.y = element_blank()) + theme_classic2()
-  PlotVar2 <- PlotVar +
-    geom_point(aes(colour = factor(Significance1)), colour = ResComb$Color1) +
-    scale_color_manual(values = hp) +
-    theme(legend.position = "none") +
-    theme(strip.text.y = element_text(size = -Inf))
+  ResComb$Group2=ResComb$Group
+  ResComb <- transform(ResComb,Group2 = as.numeric(as.factor(Group2)))
+  ResComb$facet_fill_color <- c("red", "green", "blue", "yellow", "brown")[ResComb$Group2]
+  
+  # Create plot with custom themes
+  PlotVar <- plote2 + theme(axis.text.y = element_blank()) + theme_classic2()
+  PlotVar2 <- PlotVar + geom_point(aes(colour = factor(Significance1)), colour = ResComb$Color1) +
+    scale_color_manual(values = hp) + theme(legend.position = "none") + theme(strip.text.y = element_text(size = -Inf))
   
   # Customize facet strip colors
-  # g      <- ggplot_gtable(ggplot_build(PlotVar2))
-  # stripr <- which(grepl('strip-l', g$layout$name))
-  # fills  <- c("red", "green", "blue", "yellow", "brown")
-  # if (length(stripr) > 0) {
-  #   fills <- rep(fills, length.out = length(stripr))
-  #   for (i in seq_along(stripr)) {
-  #     j <- tryCatch(which(grepl('rect', g$grobs[[stripr[i]]]$grobs[[1]]$childrenOrder)),
-  #                   error = function(e) integer(0))
-  #     if (length(j) > 0) {
-  #       g$grobs[[stripr[i]]]$grobs[[1]]$children[[j]]$gp$fill <- fills[i]
-  #     }
-  #   }
-  # }
+  g <- ggplot_gtable(ggplot_build(PlotVar2))
+  stripr <- which(grepl('strip-l', g$layout$name))
+  fills <- c("red", "green", "blue", "yellow", "brown")
+  for (i in seq_along(stripr)) {
+    j <- which(grepl('rect', g$grobs[[stripr[i]]]$grobs[[1]]$childrenOrder))
+    g$grobs[[stripr[i]]]$grobs[[1]]$children[[j]]$gp$fill <- fills[i]}
+  # grid::grid.draw(g)
   
-  jpeg(paste0(name, "divi.jpg"), width = 7500, height = 11000, quality = 100, pointsize = 16, res = 1000)
-  print(PlotVar2)
+  # Save plot as JPEG and convert to PDF and SVG
+  setwd("C:/Users/patati/Documents/GitHub/Steroid_Data_Analysis")
+  jpeg(paste(name, "divi.jpg"), width = 7500, height = 11000, quality = 100, pointsize = 16, res = 1000)
+  print(grid::grid.draw(g))
   dev.off()
   
-  ## ---- 11) Save outputs ----
-  setwd("C:/Users/patati/Documents/GitHub/Steroid_Data_Analysis")
+  daiR::image_to_pdf(paste(name, "divi.jpg"), pdf_name = paste0(paste(name, "divi.jpg"), '.pdf'))
+  my_image <- image_read(paste(name, "divi.jpg"))
+  my_svg <- image_convert(my_image, format = "svg")
+  image_write(my_svg, paste(name, "divi.svg"))
   
-  # jpeg(paste0(name, "divi.jpg"), width = 7500, height = 11000, quality = 100, pointsize = 16, res = 1000)
-  # print(grid::grid.draw(g))
-  # dev.off()
-  
-  daiR::image_to_pdf(paste0(name, "divi.jpg"), pdf_name = paste0(paste0(name, "divi.jpg"), '.pdf'))
-  my_image <- magick::image_read(paste0(name, "divi.jpg"))
-  my_svg   <- magick::image_convert(my_image, format = "svg")
-  magick::image_write(my_svg, paste0(name, "divi.svg"))
-  
-  return(ordera)
-}
-
+  return(ordera) #If you do not want to have 'null' to the Rmarkdown/html take this away
+  } 
 
 
 # This is with first(!!). Use it. 
 OutcomeVariables='Steatosis.Grade.0.To.3';Out='Steatosis'; oute='Steatosis';first=TRUE; e='P4';ordera=c();
 Group='All';name1=paste("Forest plot of",Group, "Steroid Ratios in",Out);
-hel=CalculateErrors(NonAlcoholicFattyLiverDisease,OutcomeVariables,Group,name1,ordera,oute,first,e,xlim, groups2)
+hel=CalculateErrors(NonAlcoholicFattyLiverDisease,OutcomeVariables,Group,name1,ordera,oute,first,e,xlim)
 # #Afterwards:
 first=FALSE;
 Group='Female';name2=paste("Forest plot of",Group, "Steroid Ratios in",Out);
-CalculateErrors(NonAlcoholicFattyLiverDisease,OutcomeVariables,Group,name2,ordera,oute,first,e,xlim, groups2)
+CalculateErrors(NonAlcoholicFattyLiverDisease,OutcomeVariables,Group,name2,ordera=hel,oute,first,e,xlim)
 Group='Male'; name3=paste("Forest plot of",Group, "Steroid Ratios in",Out);
-CalculateErrors(NonAlcoholicFattyLiverDisease,OutcomeVariables,Group,name3,ordera,oute,first,e,xlim, groups2)
+CalculateErrors(NonAlcoholicFattyLiverDisease,OutcomeVariables,Group,name3,ordera=hel,oute,first,e,xlim)
 # 
 OutcomeVariables='Fibrosis.Stage.0.to.4'; Out='Fibrosis';oute='Fibrosis';
 Group='All'; name4=paste("Forest plot of",Group, "Steroid Ratios in",Out);
-CalculateErrors(NonAlcoholicFattyLiverDisease,OutcomeVariables,Group,name4,ordera,oute,first,e,xlim, groups2)
+CalculateErrors(NonAlcoholicFattyLiverDisease,OutcomeVariables,Group,name4,ordera=hel,oute,first,e,xlim)
 Group='Female';name5=paste("Forest plot of",Group, "Steroid Ratios in",Out);
-CalculateErrors(NonAlcoholicFattyLiverDisease,OutcomeVariables,Group,name5,ordera,oute,first,e,xlim, groups2)
+CalculateErrors(NonAlcoholicFattyLiverDisease,OutcomeVariables,Group,name5,ordera=hel,oute,first,e,xlim)
 Group='Male'; name6=paste("Forest plot of",Group, "Steroid Ratios in",Out);
-CalculateErrors(NonAlcoholicFattyLiverDisease,OutcomeVariables,Group,name6,ordera=hel,oute,first,e,xlim, groups2)
+CalculateErrors(NonAlcoholicFattyLiverDisease,OutcomeVariables,Group,name6,ordera=hel,oute,first,e,xlim)
 # 
 OutcomeVariables='Necroinflammation'; Out='Necroinflammation';oute='Necroinflammation';
 Group='All'; name7=paste("Forest plot of",Group, "Steroid Ratios in",Out); 
-CalculateErrors(NonAlcoholicFattyLiverDisease,OutcomeVariables,Group,name7,ordera=hel,oute,first,e,xlim, groups2) #not the very first though...
+CalculateErrors(NonAlcoholicFattyLiverDisease,OutcomeVariables,Group,name7,ordera=hel,oute,first,e,xlim) #not the very first though...
 Group='Female';name8=paste("Forest plot of",Group, "Steroid Ratios in",Out);
-CalculateErrors(NonAlcoholicFattyLiverDisease,OutcomeVariables,Group,name8,ordera=hel,oute,first,e,xlim, groups2)
+CalculateErrors(NonAlcoholicFattyLiverDisease,OutcomeVariables,Group,name8,ordera=hel,oute,first,e,xlim)
 Group='Male'; name9=paste("Forest plot of",Group, "Steroid Ratios in",Out); 
-CalculateErrors(NonAlcoholicFattyLiverDisease,OutcomeVariables,Group,name9,ordera=hel,oute,first,e,xlim, groups2)
+CalculateErrors(NonAlcoholicFattyLiverDisease,OutcomeVariables,Group,name9,ordera=hel,oute,first,e,xlim)
 # 
 OutcomeVariables='HOMA.IR';Out='HOMA-IR';oute='HOMAIR';
 Group='All';name10=paste("Forest plot of",Group, "Steroid Ratios in",Out);
-CalculateErrors(NonAlcoholicFattyLiverDisease,OutcomeVariables,Group,name10,ordera=hel,oute,first,e,xlim, groups2) #not the very first though...
+CalculateErrors(NonAlcoholicFattyLiverDisease,OutcomeVariables,Group,name10,ordera=hel,oute,first,e,xlim) #not the very first though...
 Group='Female';name11=paste("Forest plot of",Group, "Steroid Ratios in",Out); 
-CalculateErrors(NonAlcoholicFattyLiverDisease,OutcomeVariables,Group,name11,ordera=hel,oute,first,e,xlim, groups2)
+CalculateErrors(NonAlcoholicFattyLiverDisease,OutcomeVariables,Group,name11,ordera=hel,oute,first,e,xlim)
 Group='Male'; name12=paste("Forest plot of",Group, "Steroid Ratios in",Out); 
-CalculateErrors(NonAlcoholicFattyLiverDisease,OutcomeVariables,Group,name12,ordera=hel,oute,first,e,xlim, groups2)
-
-##Alternative calculation and plotting style, you need to have the linear model results saved as excel: #'lms_tikka19324_v2.xlsx'
-
-
-library(readxl)
-library(ggplot2)
-library(ggh4x)   # per-facet y-limits, themed strips, facet_grid2(..., space='free_y')
-library(grid)
-library(magick)
-
-setwd("C:/Users/patati/Documents/GitHub/Steroid_Data_Analysis")
-
-
-build_fixed_orders <- function(groups2, global_y_order = NULL) {
-  stopifnot(all(c("Group","Abbreviation_old") %in% colnames(groups2)))
-  
-  fixed_group_levels <- unique(as.character(groups2$Group))  # facet row order
-  
-  if (is.null(global_y_order)) {
-    global_y_order <- unique(as.character(groups2$Abbreviation_old))
-  } else {
-    global_y_order <- as.character(global_y_order)
-  }
-  
-  group_to_abbr <- lapply(fixed_group_levels, function(gl) {
-    grp_set <- as.character(groups2$Abbreviation_old[groups2$Group == gl])
-    global_y_order[global_y_order %in% grp_set]
-  })
-  names(group_to_abbr) <- fixed_group_levels
-  
-  list(
-    group_levels   = fixed_group_levels,
-    group_to_abbr  = group_to_abbr,
-    global_y_order = global_y_order
-  )
-}
-
-
-
-
-CalculateErrors <- function(
-    Group,
-    name,
-    groups2,
-    lm_path,
-    lm_sheet = "Steroids' adjusted lms",
-    lm_condition = NULL,
-    
-    use_qval = FALSE,
-    alpha = 0.10,
-    se_multiplier = 0.5,
-    strict_gender = TRUE,
-    
-    fixed_group_levels = NULL,
-    fixed_y_by_group   = NULL,
-    global_y_order     = NULL,
-    
-    group_strip_fills  = NULL,
-    shorten_long_group_names = TRUE,
-    
-    strip_hjust = 0.50,
-    strip_vjust = 0.30,
-    strip_margin_left  = 6,
-    strip_margin_right = 4,
-    
-    axis_title_size = 14,
-    axis_text_size  = 12,
-    strip_text_size = 12,
-    title_face = "plain",
-    text_face  = "plain",
-    strip_face = "plain",
-    
-    device_width_px  = 8500,
-    device_height_px = NULL,
-    device_res       = 800,
-    
-    symmetric_x      = TRUE,
-    x_breaks_n       = 7,
-    x_nice_step      = 0.05,
-    x_minor_width    = 0.025,
-    x_expand         = c(0.02, 0.02),
-    x_label_accuracy = 0.01,
-    x_title_top_margin = 12,
-    
-    xlim = NULL,
-    output_dir = getwd(),
-    save_outputs = TRUE,
-    return_plot = FALSE,
-    ...
-)
-{
-  # ================================================================
-  # Helpers
-  # ================================================================
-  
-  
-  # ✅ FIX FOR NULL HEIGHT
-  if (is.null(device_height_px)) {
-    device_height_px <- 8000
-  }
-  
-  
-  norm_key <- function(x) {
-    x <- toupper(as.character(x))
-    x <- gsub("^X(?=[0-9])","", x, perl = TRUE)
-    gsub("[^A-Z0-9]", "", x)
-  }
-  header_norm <- function(x) {
-    x <- tolower(as.character(x))
-    x <- gsub("[\r\n]+", " ", x); x <- gsub('"', "", x)
-    x <- gsub("\\s+",  " ", x);  x <- trimws(x)
-    gsub("[^a-z0-9]","", x)
-  }
-  parse_num <- function(x) {
-    if (is.numeric(x)) return(x)
-    x <- gsub("\\s+","", as.character(x))
-    x <- gsub(",", ".", x)
-    suppressWarnings(as.numeric(x))
-  }
-  infer_condition_from_name <- function(s) {
-    if (is.null(s)) return(NA_character_)
-    st <- tolower(s)
-    if (grepl("steatosis", st)) return("Steatosis")
-    if (grepl("fibrosis", st)) return("Fibrosis")
-    if (grepl("necro[- ]?inflam", st)) return("Necroinflammation")
-    if (grepl("homa", st)) return("HOMAIR")
-    NA_character_
-  }
-  normalize_cond <- function(s) gsub("[^a-z0-9]","", tolower(as.character(s)))
-  
-  # ================================================================
-  # Safety checks
-  # ================================================================
-  stopifnot(is.data.frame(groups2))
-  req_cols <- c("Group","Abbreviation","Abbreviation_old","Name")
-  stopifnot(all(req_cols %in% colnames(groups2)))
-  if (!file.exists(lm_path)) stop("LM file not found: ", lm_path)
-  
-  gender_token <- switch(tolower(Group),
-                         "all"="both",
-                         "male"="male",
-                         "female"="female",
-                         "both")
-  
-  # ================================================================
-  # Read LM file
-  # ================================================================
-  lm_raw <- readxl::read_excel(lm_path, sheet = lm_sheet, .name_repair = "minimal")
-  if (nrow(lm_raw) == 0) stop("LM sheet empty.")
-  
-  cn_norm <- header_norm(colnames(lm_raw))
-  idx_steroid <- which(cn_norm=="steroid")[1]
-  idx_gender  <- which(cn_norm=="genderincondition")[1]
-  idx_cond    <- which(cn_norm=="condition")[1]
-  idx_coef    <- which(cn_norm=="coef")[1]
-  idx_se      <- which(cn_norm=="stderr")[1]
-  idx_pval    <- which(cn_norm=="pval")[1]
-  idx_qval    <- which(cn_norm=="qval")[1]
-  
-  LM <- data.frame(
-    Steroid      = trimws(as.character(lm_raw[[idx_steroid]])),
-    GenderInCond = trimws(as.character(lm_raw[[idx_gender]])),
-    Condition    = trimws(as.character(lm_raw[[idx_cond]])),
-    Coef         = parse_num(lm_raw[[idx_coef]]),
-    Stderr       = parse_num(lm_raw[[idx_se]]),
-    Pval         = if (!is.na(idx_pval)) parse_num(lm_raw[[idx_pval]]) else NA_real_,
-    Qval         = if (!is.na(idx_qval)) parse_num(lm_raw[[idx_qval]]) else NA_real_,
-    stringsAsFactors = FALSE
-  )
-  LM <- LM[is.finite(LM$Coef) & is.finite(LM$Stderr), ]
-  
-  # ================================================================
-  # Condition & gender filtering
-  # ================================================================
-  if (is.null(lm_condition)) {
-    lm_condition <- infer_condition_from_name(name)
-    if (is.na(lm_condition)) {
-      conds <- sort(unique(LM$Condition))
-      if (length(conds) == 1) lm_condition <- conds[1]
-      else stop("Multiple conditions; specify lm_condition.")
-    }
-  }
-  rows_cond <- normalize_cond(LM$Condition) == normalize_cond(lm_condition)
-  
-  gic_token <- sub(".*_", "", tolower(LM$GenderInCond))
-  rows_gender <- gic_token == gender_token
-  
-  LM_sel <- LM[rows_cond & rows_gender, ]
-  if (nrow(LM_sel) == 0) {
-    if (strict_gender) stop("No LM rows for gender=", gender_token)
-    LM_sel <- LM[rows_cond, ]
-  }
-  
-  # ================================================================
-  # Build data for plotting
-  # ================================================================
-  p_used <- if (use_qval && any(is.finite(LM_sel$Qval))) LM_sel$Qval else LM_sel$Pval
-  
-  Res <- data.frame(
-    name = LM_sel$Steroid,
-    result = LM_sel$Coef,
-    se_lm = LM_sel$Stderr,
-    pval1 = p_used,
-    stringsAsFactors = FALSE
-  )
-  
-  # ================================================================
-  # Mapping analyte names to groups2
-  # ================================================================
-  map_tbl <- do.call(rbind, list(
-    data.frame(alias=groups2$Abbreviation_old, Group=groups2$Group, AbbrevOld=groups2$Abbreviation_old),
-    data.frame(alias=groups2$Abbreviation,     Group=groups2$Group, AbbrevOld=groups2$Abbreviation_old),
-    data.frame(alias=groups2$Name,             Group=groups2$Group, AbbrevOld=groups2$Abbreviation_old)
-  ))
-  map_tbl <- map_tbl[!is.na(map_tbl$alias) & nzchar(map_tbl$alias), ]
-  map_tbl$key_norm <- norm_key(map_tbl$alias)
-  Res$key_norm     <- norm_key(Res$name)
-  
-  MapDF <- merge(
-    Res[,c("name","key_norm")],
-    unique(map_tbl[,c("key_norm","Group","AbbrevOld")]),
-    by="key_norm", all.x=TRUE
-  )
-  
-  Res$Group     <- MapDF$Group
-  Res$AbbrevOld <- MapDF$AbbrevOld
-  
-  # Drop unmapped
-  drop_mask <- is.na(Res$Group) | is.na(Res$AbbrevOld)
-  if (any(drop_mask)) {
-    warning("Dropped unmapped analytes: ",
-            paste(sort(unique(Res$name[drop_mask])), collapse=", "))
-    Res <- Res[!drop_mask, ]
-  }
-  
-  # ================================================================
-  # Error bars
-  # ================================================================
-  eb <- se_multiplier * Res$se_lm
-  Res$errord1 <- Res$result - eb
-  Res$errord2 <- Res$result + eb
-  Res$Significance1 <- ifelse(Res$pval1 < alpha, "Yes", "No")
-  
-  # ================================================================
-  # Fixed ordering logic
-  # ================================================================
-  if (is.null(fixed_group_levels) || is.null(fixed_y_by_group)) {
-    
-    fixed_group_levels <- unique(as.character(groups2$Group))
-    
-    if (is.null(global_y_order)) {
-      global_y_order <- unique(as.character(groups2$Abbreviation_old))
-    }
-    
-    fixed_y_by_group <- lapply(fixed_group_levels, function(gl){
-      grp_set <- groups2$Abbreviation_old[groups2$Group == gl]
-      global_y_order[global_y_order %in% grp_set]
-    })
-    names(fixed_y_by_group) <- fixed_group_levels
-  }
-  
-  # label shortening
-  shorten_label <- function(x) {
-    x <- as.character(x)
-    if (shorten_long_group_names)
-      x <- sub("^Glucocorticoids$", "Glucoc.", x)
-    x
-  }
-  group_label_map <- setNames(shorten_label(fixed_group_levels), fixed_group_levels)
-  
-  Res$Group <- factor(Res$Group, levels=fixed_group_levels)
-  
-  groups_frame <- do.call(rbind, lapply(fixed_group_levels, function(gl) {
-    data.frame(
-      Group = factor(gl, levels=fixed_group_levels),
-      GroupDisp = factor(group_label_map[[gl]], levels=group_label_map[fixed_group_levels]),
-      AbbrevOld = fixed_y_by_group[[gl]],
-      stringsAsFactors = FALSE
-    )
-  }))
-  ResFull <- merge(groups_frame, Res,
-                   by=c("Group","AbbrevOld"),
-                   all.x=TRUE, sort=FALSE)
-  
-  # ================================================================
-  # X limits
-  # ================================================================
-  nice_up <- function(z, step=0.05) step * ceiling(z / step)
-  
-  if (is.null(xlim)) {
-    if (symmetric_x) {
-      max_abs <- max(abs(ResFull$errord1), abs(ResFull$errord2), na.rm=TRUE)
-      xmax <- nice_up(max_abs, step=x_nice_step)
-      xlim <- c(-xmax, xmax)
-    } else {
-      xlim <- range(c(ResFull$errord1, ResFull$errord2), na.rm=TRUE)
-    }
-  }
-  
-  # ================================================================
-  # Strip color fix — theme() instead of strip_themed
-  # ================================================================
-  if (is.null(group_strip_fills)) {
-    base_cols <- c("#1f77b4","#d62728","#2ca02c","#9467bd","#ff7f0e")
-    group_strip_fills <- setNames(base_cols[seq_along(fixed_group_levels)],
-                                  fixed_group_levels)
-  }
-  
-  # we need a strip color per facet row, in the order of GroupDisp
-  strip_bg_map <- group_strip_fills[group_label_map]
-  
-  # ================================================================
-  # Build plot
-  # ================================================================
-  sig_cols <- c(No="#999999", Yes="blue")
-  
-  p <- ggplot2::ggplot(
-    ResFull,
-    aes(y = AbbrevOld, x = result, colour = Significance1)
-  ) +
-    geom_vline(xintercept = 0, linewidth = 0.3, colour = "#cccccc") +
-    
-    # ✅ ggplot2 4.0-compliant horizontal error bars
-    geom_errorbar(
-      aes(xmin = errord1, xmax = errord2),
-      width = 0,
-      na.rm = TRUE
-    ) +
-    
-    geom_point(size = 1.8, na.rm = TRUE) +
-    scale_colour_manual(values = sig_cols) +
-    scale_x_continuous(
-      limits = xlim,
-      breaks = scales::pretty_breaks(n = x_breaks_n),
-      minor_breaks = scales::breaks_width(x_minor_width),
-      labels = scales::label_number(accuracy = x_label_accuracy),
-      expand = expansion(mult = x_expand)
-    ) +
-    
-    ggh4x::facet_grid2(
-      rows = vars(GroupDisp),
-      scales = "free_y",
-      space = "free_y",
-      switch = "y"
-    ) +
-    
-    ggh4x::facetted_pos_scales(
-      y = lapply(fixed_group_levels, function(gl) {
-        scale_y_discrete(limits = fixed_y_by_group[[gl]], drop = FALSE)
-      })
-    ) +
-    
-    xlab("Linear Model Estimates (SE)") +
-    ylab("Steroids") +
-    
-    theme_classic() +
-    theme(
-      axis.title.x = element_text(size=axis_title_size, face="bold",
-                                  margin=margin(t=x_title_top_margin)),
-      axis.title.y = element_text(size=axis_title_size, face="bold"),
-      axis.text.x  = element_text(size=axis_text_size, face=text_face),
-      axis.text.y  = element_text(size=axis_text_size, face=text_face),
-      legend.position = "none",
-      
-      # ✅ NEW strip background fix — safe alternative
-      strip.background.y = element_rect(
-        fill = strip_bg_map,
-        colour = NA
-      ),
-      
-      strip.text.y.left = element_text(
-        angle = 90,
-        hjust = strip_hjust,
-        vjust = strip_vjust,
-        size  = strip_text_size,
-        face  = strip_face,
-        colour = "white",
-        margin = margin(l = strip_margin_left, r = strip_margin_right)
-      )
-    )
-  
-  # ================================================================
-  # Save outputs (NO MAGICK)
-  # ================================================================
-  if (save_outputs) {
-    
-    if (!dir.exists(output_dir)) dir.create(output_dir, recursive = TRUE)
-    safe_stem <- gsub("[^A-Za-z0-9._-]+","_", name)
-    
-    width_in  <- device_width_px  / device_res
-    height_in <- device_height_px / device_res
-    
-    # JPG
-    ggsave(
-      filename = file.path(output_dir, paste0(safe_stem, ".jpg")),
-      plot = p,
-      width = width_in,
-      height = height_in,
-      dpi = device_res,
-      units = "in"
-    )
-    
-    # PDF (vector)
-    ggsave(
-      filename = file.path(output_dir, paste0(safe_stem, ".pdf")),
-      plot = p,
-      width = width_in,
-      height = height_in
-    )
-    
-    # SVG (vector)
-    ggsave(
-      filename = file.path(output_dir, paste0(safe_stem, ".svg")),
-      plot = p,
-      width = width_in,
-      height = height_in
-    )
-  }
-  
-  if (return_plot) return(list(plot = p, data = ResFull))
-  invisible(NULL)
-}
-
-run_all_combinations <- function(
-    groups2,
-    lm_path,
-    lm_sheet = "Steroids' adjusted lms",
-    groups = c("All", "Female", "Male"),
-    conditions = c("Steatosis", "Fibrosis", "Necroinflammation", "HOMA-IR"),
-    name_prefix = "Forest plot of",
-    global_y_order = NULL,
-    use_qval = FALSE,
-    alpha = 0.10,
-    se_multiplier = 0.5,
-    strict_gender = TRUE,
-    group_strip_fills = NULL,
-    shorten_long_group_names = TRUE,
-    output_dir = getwd(),
-    save_outputs = TRUE,
-    return_plots = FALSE,
-    verbose = TRUE,
-    ...
-) {
-  stopifnot(is.data.frame(groups2))
-  req_cols <- c("Group","Abbreviation","Abbreviation_old","Name")
-  stopifnot(all(req_cols %in% colnames(groups2)))
-  if (!file.exists(lm_path)) stop("LM results file not found: ", lm_path)
-  
-  ord <- build_fixed_orders(groups2, global_y_order = global_y_order)
-  fixed_group_levels <- ord$group_levels
-  fixed_y_by_group   <- ord$group_to_abbr
-  global_y_order     <- ord$global_y_order
-  
-  logs  <- list(); plots <- list(); k <- 0
-  for (g in groups) {
-    for (cond in conditions) {
-      k <- k + 1
-      plot_name <- paste(name_prefix, g, "Steroid Coefs in", cond)
-      if (isTRUE(verbose)) message(sprintf("[INFO] %s | %s", g, cond))
-      out <- tryCatch({
-        CalculateErrors(
-          Group = g,
-          name = plot_name,
-          groups2 = groups2,
-          lm_path = lm_path,
-          lm_sheet = lm_sheet,
-          lm_condition = cond,
-          use_qval = use_qval,
-          alpha = alpha,
-          se_multiplier = se_multiplier,
-          strict_gender = strict_gender,
-          fixed_group_levels = fixed_group_levels,
-          fixed_y_by_group   = fixed_y_by_group,
-          global_y_order     = global_y_order,
-          group_strip_fills  = group_strip_fills,
-          shorten_long_group_names = shorten_long_group_names,
-          output_dir = output_dir,
-          save_outputs = save_outputs,
-          return_plot = return_plots,
-          ...
-        )
-      }, error = function(e) e)
-      
-      if (inherits(out, "error")) {
-        msg <- conditionMessage(out)
-        if (isTRUE(verbose)) message("[WARN] Skipped ", g, " | ", cond, " — ", msg)
-        logs[[k]] <- data.frame(Group=g, Condition=cond, Status="error", Message=msg, stringsAsFactors=FALSE)
-      } else {
-        if (isTRUE(verbose) && isTRUE(save_outputs)) {
-          message(sprintf("[OK] Saved to: %s", normalizePath(output_dir)))
-        }
-        logs[[k]] <- data.frame(Group=g, Condition=cond, Status="ok", Message="", stringsAsFactors=FALSE)
-        if (isTRUE(return_plots)) plots[[paste(g, cond, sep = " | ")]] <- out$gtable
-      }
-    }
-  }
-  log_df <- do.call(rbind, logs)
-  if (isTRUE(return_plots)) return(list(log = log_df, plots = plots))
-  log_df
-}
-
-
-
-outdir <- file.path(getwd(), "forest_plots_fix")
-dir.create(outdir, showWarnings = FALSE)
-
-global_order <- c("11b-OHA4","11-KDHT","11-KT","11-KA4","A4","AN","DHEA","DHT","T/Epi-T",
-                  "E2","E1","S","E","A","B","DOC","17a-OHP5","17a-OHP4","P5","P4")
-
-my_strip_fills <- c(
-  Androgens          = "#1f77b4",
-  Estrogens          = "#d62728",
-  Glucocorticoids    = "#2ca02c",
-  Mineralocorticoids = "#9467bd",
-  Progestogens       = "#ff7f0e"
-)
-
-# groups2red=groups2
-
-# groups2red[groups2red[,1]=='Estrogens',1]='Estrog.'
-
-# In case you need run just one case and gender/s:
-# CalculateErrors(
-#   Group = "All",
-#   name  = "TEST_All_Steatosis4a",
-#   groups2 = groups2,
-#   lm_path = "lms_tikka19324_v2.xlsx",
-#   lm_sheet = "Steroids' adjusted lms",
-#   lm_condition = "Steatosis",
-#   global_y_order = global_order,
-#   group_strip_fills = my_strip_fills,
-#   # label placement toward panel & margins
-#   strip_vjust = 0.28, strip_margin_left = 8, strip_margin_right = 8,
-#   # fonts
-#   axis_title_size = 12, axis_text_size = 12, strip_text_size = 12,
-#   # x-axis
-#   symmetric_x = TRUE, x_breaks_n = 7, x_nice_step = 0.05,
-#   x_minor_width = 0.025, x_expand = c(0.02,0.02), x_label_accuracy = 0.01,
-#   # device
-#   device_width_px = 5000, device_height_px = 8800, device_res = 800,
-#   output_dir = outdir, save_outputs = TRUE, return_plot = FALSE
-# )
-
-
-#2) Batch
-log_df <- run_all_combinations(
-  groups2 = groups2,
-  lm_path = "lms_tikka19324_v2.xlsx",
-  lm_sheet = "Steroids' adjusted lms",
-  groups = c("All","Female","Male"),
-  conditions = c("Steatosis","Fibrosis","Necroinflammation","HOMA-IR"),
-  name_prefix = "Forest plot of",
-  global_y_order = global_order,
-  group_strip_fills = my_strip_fills,
-  # same visual knobs as above (they’ll pass through):
-  strip_vjust = 0.28, strip_margin_left = 8, strip_margin_right = 8,
-  # fonts
-  axis_title_size = 14, axis_text_size = 12, strip_text_size = 12,
-  # x-axis
-  symmetric_x = TRUE, x_breaks_n = 7, x_nice_step = 0.05,
-  x_minor_width = 0.025, x_expand = c(0.02,0.02), x_label_accuracy = 0.01,
-  # device
-  device_width_px = 5000, device_height_px = 8800, device_res = 800,
-  output_dir = outdir, save_outputs = TRUE, return_plot = FALSE
-)
-
-log_df
-
-
-
-
+CalculateErrors(NonAlcoholicFattyLiverDisease,OutcomeVariables,Group,name12,ordera=hel,oute,first,e,xlim)
 # Fyi: I was able to revise some of the above codes with Copilot...
 
 
 ```
+ 
  
 ```{r,echo=FALSE, out.width="25%",fig.cap=name1,fig.align="left"} 
 path="C:/Users/patati/Documents/GitHub/Steroid_Data_Analysis/"; knitr::include_graphics(paste0(path,paste(name1 ,"divi.jpg")))
@@ -1667,11 +691,6 @@ path="C:/Users/patati/Documents/GitHub/Steroid_Data_Analysis/"; knitr::include_g
 ```{r, warning=FALSE,message=FALSE,fig.width=9.0,fig.align="left"}
 # First the correlations for the chord diagrams (both male and female as well as total subjects):
 
-library(extrafont)
-# font_import()  # Run once to import system fonts
-# loadfonts(device = "win")  # For Windows
-
-
 # Copy the tvauxe to  CurrentData
 CurrentData = tvauxe
 # setwd("C:/Users/patati/Documents/GitHub/Steroid_Data_Analysis")
@@ -1714,11 +733,6 @@ tvm = tvtest[[3]]
 # Rename specific value in x4
 x4[x4 == "X7.oxo.DCA_S"] = "X7-oxo-DCA_S"
 
-colnames(CurrentData)[9:28]=colnames(LogCovariatesNonScaledData)[9:28]
-colnames(tvf)[9:28]=colnames(LogCovariatesNonScaledData)[9:28]
-colnames(tvm)[9:28]=colnames(LogCovariatesNonScaledData)[9:28]
-ok = colnames(CurrentData)
-
 # Calculate Spearman correlations for total subjects
 dat = CurrentData
 dat = dat %>% select(-c('PatientNumber'))  # Remove 'PatientNumber' column
@@ -1757,7 +771,7 @@ etl = length(et)
 ftl = length(ft)
 
 # Set significance level for correlations
-n_level = 0.03
+n_level = 0.01
 
 # Filter correlations based on significance level for total subjects
 Nrr = qpNrr(resulta, verbose = FALSE)
@@ -1767,8 +781,6 @@ RN = data.frame(resulta)
 GraphMat = cond * RN
 GraphMat = as.matrix(GraphMat)
 resulta = GraphMat
-colnames(resulta) = ok[2:dim(CurrentData)[2]]
-rownames(resulta) = ok[2:dim(CurrentData)[2]]
 
 # Filter correlations based on significance level for female subjects
 Nrr = qpNrr(resultaf, verbose = FALSE)
@@ -1793,25 +805,22 @@ colnames(resulta)[colnames(resulta) == 'Gender'] <- 'Sex(F-M+)'
 rownames(resulta)[rownames(resulta) == 'Gender'] <- 'Sex(F-M+)'
 
 # Update column and row names in correlation matrices
-# colnames(resulta)[2:dim(resulta)[2]] = ok[3:dim(CurrentData)[2]]
-# rownames(resulta)[2:dim(resulta)[2]] = ok[3:dim(CurrentData)[2]]
-# colnames(resultaf)[2:dim(resultaf)[2]] = ok[4:dim(CurrentData)[2]]
-# rownames(resultaf)[2:dim(resultaf)[2]] = ok[4:dim(CurrentData)[2]]
-# colnames(resultam)[2:dim(resultam)[2]] = ok[4:dim(CurrentData)[2]]
-# rownames(resultam)[2:dim(resultam)[2]] = ok[4:dim(CurrentData)[2]]
+colnames(resulta)[2:dim(resulta)[2]] = ok[3:dim(CurrentData)[2]]
+rownames(resulta)[2:dim(resulta)[2]] = ok[3:dim(CurrentData)[2]]
+colnames(resultaf)[2:dim(resultaf)[2]] = ok[4:dim(CurrentData)[2]]
+rownames(resultaf)[2:dim(resultaf)[2]] = ok[4:dim(CurrentData)[2]]
+colnames(resultam)[2:dim(resultam)[2]] = ok[4:dim(CurrentData)[2]]
+rownames(resultam)[2:dim(resultam)[2]] = ok[4:dim(CurrentData)[2]]
 
 # Function to create chord diagrams for different steroidGroups
-CreateChordDiagrams <- function(vars, n_level, big, rem, modi, colt, gend, colors, a, b, c, d, e, f) {
-  # vars=vars[[2]]
+CreateChordDiagrams <- function(vars, n_level, fig_name, big, rem, modi, colt, gend, colors, a, b, c, d, e, f) {
   classes <- 5
   tot <- rownames(resulta)[2:dim(resulta)[1]]
   range <- 1:(a + b + c + e + f)
   layout(matrix(1:1, 1, 1))
   title <- 'Sex'
   genders <- gend
-  windowsFonts(A = windowsFont("Arial"))
-
-  # windowsFonts(A = windowsFont("Calibri (Body)"))
+  windowsFonts(A = windowsFont("Calibri (Body)"))
   i <- 1
   GraphMat <- vars    
   
@@ -1823,7 +832,7 @@ CreateChordDiagrams <- function(vars, n_level, big, rem, modi, colt, gend, color
     rownames(GraphMat) <- rownames(resultaf)}
   
   # Define steroidGroups for different variables
-  g1 <- c(rep('Clinical', a), rep('Steroids', b), rep('Bile Acids', c), rep('Contaminants', e), rep('Lipids', f))
+  g1 <- c(rep('Clinical', a), rep('Steroids', b), rep('BA_liver', c), rep('Contaminants', e), rep('Lipids', f))
   
   # Remove self-correlations within each group
   GraphMat[1:a, 1:a] <- 0
@@ -1847,211 +856,58 @@ CreateChordDiagrams <- function(vars, n_level, big, rem, modi, colt, gend, color
   
   # Define color function for edges
   col_fun <- colorRamp2(c(-1, 0, 1), c("blue", 'white', "orange"), transparency = 0.25)
-  # c("orange", "blue")
   
   # Remove specified elements from the data frame
   df <- df[!df$V1 %in% rem, ]
   df <- df[!df$V2 %in% rem, ]
   
   # Define legends for the plot
+  lgd_group <- Legend(at = gend, type = "points", legend_gp = gpar(col = colors), title_position = "topleft", title = title)
+  lgd_points <- Legend(at = unique(g1), type = "points", legend_gp = gpar(col = unique(grid.col)), title_position = "topleft", title = "Class")
+  lgd_lines <- Legend(at = c("Positive", "Negative"), type = "points", legend_gp = gpar(col = c('orange', 'blue')), title_position = "topleft", title = "Correlation")
+  lgd_edges <- Legend(at = c(-1, 1), col_fun = col_fun, title_position = "topleft", title = "Edges")
+  lgd_list_vertical <- packLegend(lgd_group, lgd_points, lgd_lines, lgd_edges)
   
-  # Define legends for the plot with larger font size
-  # lgd_group <- Legend(at = gend, type = "points", legend_gp = gpar(col = colors, fontsize = 24, fontfamily = "Arial"), title_position = "topleft", title = title)
-  # lgd_points <- Legend(at = unique(g1), type = "points", legend_gp = gpar(col = unique(grid.col), fontsize = 24), title_position = "topleft", title = "Class")
-  
-  
-lgd_group  <- Legend(
-  at = gend,
-  type = "points",
-  legend_gp = gpar(col = colors),
-  title_position = "topleft",
-  size = unit(6, "mm"),      # ✅ makes dots bigger
-  background = NA,          # ✅ remove grey background  title_position = "topleft",
-  title = title,
-  title_gp = gpar(fontsize = 32, fontface = "bold", fontfamily = "Arial"),
-  labels_gp = gpar(fontsize = 30, fontfamily = "Arial")
-)
-
-lgd_points <- Legend(
-  at = unique(g1),
-  type = "points",
-  legend_gp = gpar(col = unique(grid.col)),
-  size = unit(6, "mm"),      # ✅ makes dots bigger
-  background = NA,          # ✅ remove grey background  title_position = "topleft",
-  title = "Class",
-  title_gp = gpar(fontsize = 32, fontface = "bold"),
-  labels_gp = gpar(fontsize = 30,family = "Arial")
-)
-
-lgd_lines  <- Legend(
-  at = c("Positive", "Negative"),
-  type = "points",
-  size = unit(6, "mm"),      # ✅ makes dots bigger
-  background = NA,          # ✅ remove grey background  title_position = "topleft",
-  legend_gp = gpar(col = c("orange", "blue")),
-  title_position = "topleft",
-  title = "Correlation",
-  title_gp = gpar(fontsize = 32, fontface = "bold"),
-  labels_gp = gpar(fontsize = 30, family = "Arial")
-)
-
-lgd_edges  <- Legend(
-  at = c(-1, 0, 1),
-  col_fun = col_fun,
-  title_position = "topleft",
-  title_gap = unit(4, "mm"),
-  title = "Edges",
-  title_gp = gpar(fontsize = 32, fontface = "bold"),
-  labels_gp = gpar(fontsize = 30, family = "Arial")
-)
-
-lgd_list_vertical <- packLegend(lgd_group, lgd_points, lgd_lines, lgd_edges)
-
-
-  
-  
-  # lgd_lines <- Legend(at = c("Positive", "Negative"), type = "points", legend_gp = gpar(col = c("orange", "blue"), fontsize = 24), title_position = "topleft", title = "Correlation")
-  # lgd_edges <- Legend(at = c(-1, 1), col_fun = col_fun, title_position = "topleft", title = "Edges", legend_gp = gpar(fontsize = 24))
-  # lgd_list_vertical <- packLegend(lgd_group, lgd_points, lgd_lines, lgd_edges)
-
-     # jpeg(filename = paste0(gend, n_level, 'cd.jpg'), width = 17, height = 16.5, units = "in", res = 1000)
-
-  
-# ===== OPEN REAL SVG DEVICE =====
-svgfile <- paste0(gend, n_level, "_cd.svg")
-
-svglite::svglite(
-  file = svgfile,
-  width  = 37,   # inches (match your PNG width)
-  height = 32
-)
-
-
-
   # Set parameters for the chord diagram
-  # circos.par(gap.after = 1.5, start.degree = 90)
-  
-  circos.par(
-  gap.after = 1.5,
-  start.degree = 90,
-  
-cell.padding = c(0, 0, 0, 0),  # ✅ remove inner padding
-  track.margin = c(0.01, 0.01)  # ✅ allow thicker band
-)
-#   canvas.xlim = c(-1.2, 1.0),  # ⬅ leaves space on the right
-#   canvas.ylim = c(-1.1, 1.1)
-# )
-  
-#   circos.par(
-#   gap.after = 1.5,
-#   start.degree = 90,
-#   canvas.xlim = c(-1.4, 0.8),
-#   canvas.ylim = c(-1.1, 1.1)
-# )
-  
-#   circos.par(
-#   gap.after = 1.5,
-#   start.degree = 90,
-#   canvas.xlim = c(-1.4, 0.8),  # ⬅ aggressive left shift
-#   canvas.ylim = c(-1.1, 1.1)
-# )
-  
-  
-# cell.padding = c(0, 0, 0, 0),  # ✅ remove inner padding
-  # track.margin = c(0.01, 0.01)  # ✅ allow thicker band
-
-
-par(lwd = 1.2)   # ✅ sector border thickness (SVG-visible)
-
-  chordDiagram(df, annotationTrack = c("grid"), grid.col = grid.col, directional = FALSE, symmetric = TRUE, scale = FALSE,preAllocateTracks = list(track.height = 0.08),  # ✅ ADD THIS
-               link.lwd = 0.3, link.border = "white", order = rownames(GraphMat),  col = col_fun, annotationTrackHeight = 0.08,    transparency = 0.25, big.gap = 10, small.gap = 1) #preAllocateTracks = list(track.height = 0.12),  # ✅ ADD THIS
+  circos.par(gap.after = 1.5, start.degree = 90)
+  chordDiagram(df, annotationTrack = c("grid"), grid.col = grid.col, directional = FALSE, symmetric = TRUE, scale = FALSE,
+               link.lwd = 0.3, link.border = "white", order = rownames(GraphMat), preAllocateTracks = 1, col = col_fun, transparency = 0.25, big.gap = 10, small.gap = 1)
   
   # Add text and axis to the plot
   circos.trackPlotRegion(track.index = 1, panel.fun = function(x, y) {
     xlim <- get.cell.meta.data("xlim")
     ylim <- get.cell.meta.data("ylim")
     sector.name <- get.cell.meta.data("sector.index")
-    circos.text(mean(xlim), ylim[1] + .12, sector.name, facing = "clockwise", niceFacing = TRUE, adj = c(0, 0.5),cex = 3.0,font = 2, family = "Arial") #cex =1.57, font = 1
-    circos.axis(h = "top", labels.cex = 0.000001, major.tick.length = 0.2, sector.index = sector.name, track.index = 2) #labels.cex = 0.000001, 1.2
+    circos.text(mean(xlim), ylim[1] + .1, sector.name, facing = "clockwise", niceFacing = TRUE, adj = c(0, 0.5))
+    circos.axis(h = "top", labels.cex = 0.000001, major.tick.length = 0.2, sector.index = sector.name, track.index = 2)
   }, bg.border = NA)
   
   # Set font and draw legends
-  # windowsFonts(A = windowsFont("Calibri (Body)"))
-  windowsFonts(A = windowsFont("Arial"))
-  # draw(lgd_list_vertical, x = unit(5, "mm"), y = unit(5, "mm"), just = c("right", "bottom"))
-  
-  draw(
-  lgd_list_vertical,
-  # x = unit(1, "npc") - unit(2, "mm"),
-  x = unit(1, "npc") - unit(50, "mm"),   # right edge, pulled slightly inward
-  y = unit(0.5, "npc"),                  # vertical center
-  just = c("left", "center")
-)
-  
-#   ComplexHeatmap::draw(
-#   lgd_list_vertical,
-#   annotation_legend_side = "right",
-#   padding = unit(c(5, 20, 5, 5), "mm")  # ⬅ space for legend
-# )
-#   
-  
-# x = unit(1, "npc") - unit(2, "mm")
+  windowsFonts(A = windowsFont("Calibri (Body)"))
+  draw(lgd_list_vertical, x = unit(5, "mm"), y = unit(5, "mm"), just = c("left", "bottom"))
   
   # Save the plot as a JPEG file
-  # dev.copy(jpeg, paste0(gend, n_level, 'cd.jpg'), width = 25, height = 22, units = "in", res = 1000,family = "Arial" )       # ✅ added)
-
-  
-  # dev.copy(png, paste0(gend, n_level, 'cd.png'),
-  #        width = 36, height = 25, units = "in", res = 700)
-  
-#   dev.copy(
-#   png,
-#   paste0(gend, n_level, 'cd.png'),
-#   width = 32,
-#   height = 22,
-#   units = "in",
-#   res = 600
-# )
-  
-    dev.off() #sometimes the male print do not work, then drive separately this, including different name
-  
-  # library(Cairo)
-  # CairoJPEG(filename = paste0(gend, n_level, 'cd.jpg'), width = 17, height = 16.5, units = "in", res = 1000, family = "Arial")
-
+  dev.copy(jpeg, paste0(gend, n_level, 'cd.jpg'), width = 12, height = 12, units = "in", res = 1000)
+  dev.off()
   
   # Include the plot in the report and convert it PDF and SVG
-  # knitr::include_graphics(paste0(gend, n_level, 'cd.jpg'))
-  # daiR::image_to_pdf(paste0(gend, n_level, 'cd.jpg'), pdf_name = paste0(paste0(gend, n_level, 'cd'), '.pdf'))
-  # my_image <- image_read(paste0(gend, n_level, 'cd.jpg'))
-  # my_svg <- image_convert(my_image, format = "svg")
-  # image_write(my_svg, paste(paste0(gend, n_level, 'cde'), ".svg"))
-#   knitr::include_graphics(paste0(gend, n_level, 'cd.png'))
-# 
-# daiR::image_to_pdf(
-#   paste0(gend, n_level, 'cd.png'),
-#   pdf_name = paste0(gend, n_level, 'cd.pdf')
-# )
-# 
-# my_image <- image_read(paste0(gend, n_level, 'cd.png'))
-# my_svg <- image_convert(my_image, format = "svg")
-# image_write(my_svg, paste0(gend, n_level, 'cde.svg'))
-#   
-#     
-    
+  knitr::include_graphics(paste0(gend, n_level, 'cd.jpg'))
+  daiR::image_to_pdf(paste0(gend, n_level, 'cd.jpg'), pdf_name = paste0(paste0(gend, n_level, 'cd'), '.pdf'))
+  my_image <- image_read(paste0(gend, n_level, 'cd.jpg'))
+  my_svg <- image_convert(my_image, format = "svg")
+  image_write(my_svg, paste(paste0(gend, n_level, 'cd'), ".svg"))
 }
 
-# For all 
-n_level = n_level
+# All variables
+n_level = 0.01
 circos.clear()
-
-#All Variables
 vars = list(resulta)
 big = 'Yes'
 title = 'All Variables'
 rem = x4
 modi = 5
 colt = 'black'
-a = length(x1) -1 #check this '-1' together with length of resulta and column names
+a = length(x1) - 1
 b = length(x2)
 c = length(x3)
 d = length(x4)
@@ -2059,44 +915,28 @@ e = length(x5)
 f = length(x6)
 gend = c('All')
 colors = c('blue')
-CreateChordDiagrams(vars[[1]], n_level, big, rem, modi, colt, gend, colors, a, b, c, d, e, f)
+CreateChordDiagrams(vars[[1]], n_level, fig_name, big, rem, modi, colt, gend, colors, a, b, c, d, e, f)
 
 # Genderwise:
-# gend = 'Female'
-# # circos.clear()
-# vars = list(resultaf, resultam)
-# big = 'No'
-# title = 'Genders Separated_v2'
-# rem = x4
-# modi = 4
-# colt = 'black'
-# a = length(x1) - 2
-# b = length(x2)
-# c = length(x3)
-# d = length(x4)
-# e = length(x5)
-# f = length(x6)
-# colors = c('white')
-# CreateChordDiagrams(vars[[1]], n_level, big, rem, modi, colt, gend, colors, a, b, c, d, e, f)
-# 
-# gend = 'Male'
-# # circos.clear()
-# vars = list(resultaf, resultam)
-# big = 'No'
-# title = 'Genders Separated_v2'
-# rem = x4
-# modi = 4
-# colt = 'black'
-# a = length(x1) - 2
-# b = length(x2)
-# c = length(x3)
-# d = length(x4)
-# e = length(x5)
-# f = length(x6)
-# colors = c('black')
-# circos.clear()
-# CreateChordDiagrams(vars[[2]], n_level, big, rem, modi, colt, gend, colors, a, b, c, d, e, f)
-
+vars = list(resultaf, resultam)
+big = 'No'
+title = 'Genders Separated'
+rem = x4
+modi = 4
+colt = 'black'
+colors = c('white', 'black')
+a = length(x1) - 2
+b = length(x2)
+c = length(x3)
+d = length(x4)
+e = length(x5)
+f = length(x6)
+gend = c('Female')
+colors = c('white')
+CreateChordDiagrams(vars[[1]], n_level, fig_name, big, rem, modi, colt, gend, colors, a, b, c, d, e, f)
+gend = c('Male')
+colors = c('black')
+CreateChordDiagrams(vars[[2]], n_level, fig_name, big, rem, modi, colt, gend, colors, a, b, c, d, e, f)
 
 #Copiloting is not working very well here, so I just let it comment some of the lines ...
 ```
@@ -2152,24 +992,18 @@ PlotVarianceExplained <- function(AllData, Group) {
   tv2 <- t(RelevantColumns[, 9:ncol(tv_red)])
   
   # Create SingleCellExperiment object
-  # sce <- SingleCellExperiment(tv2)
-  sce <- SingleCellExperiment(assays = list(logcounts = tv2))
-  # logcounts(sce) <- tv2
-  # sce@colData <- DataFrame(RelevantColumns[, 2:8])
-  colData(sce) <- S4Vectors::DataFrame(RelevantColumns[, 2:8])
+  sce <- SingleCellExperiment(tv2)
+  logcounts(sce) <- tv2
+  sce@colData <- DataFrame(RelevantColumns[, 2:8])
   colnames(colData(sce)) <- colnames(AllData)[2:8]
   colnames(colData(sce))[1] <- 'The Gender'
 
   # Calculate variance explained
-  # vars <- getVarianceExplained(sce, variables = colnames(colData(sce))[1:7])
-  vars <- getVarianceExplained(
-  sce,
-  variables = colnames(colData(sce))[1:7])
+  vars <- getVarianceExplained(sce, variables = colnames(colData(sce))[1:7])
   colVars(vars)
 
   # Set font and color palette
-  # windowsFonts(A = windowsFont("Calibri (Body)"))
-  windowsFonts(A = windowsFont("Times New Roman"))
+  windowsFonts(A = windowsFont("Calibri (Body)"))
   mypalette <- scales::hue_pal()(ncol(colData(sce)))
   names(mypalette) <- colnames(AllData)[2:8]
   
@@ -2180,18 +1014,13 @@ PlotVarianceExplained <- function(AllData, Group) {
   
   # Plot explanatory variables
   p <- plotExplanatoryVariables(vars) +
-    # theme(text = element_text(size = 25, family = "Calibri")) +
-    theme(text = element_text(size = 25, family = "Times New Roman")) +
+    theme(text = element_text(size = 25, family = "Calibri")) +
     theme(axis.text = element_text(size = 20, family = "Calibri"))
   
   # Clean up plot data
-  # p[[1]] <- p[[1]][!is.na(p[[1]][, 1]), ]
-  # p[[1]][, 1] <- as.vector(unlist(p[[1]][, 1]))
-  # p[[1]] <- p[[1]][order(p[[1]][, 1]), ]
-  
-  p$data <- p$data[!is.na(p$data[,1]), ]
-  p$data[,1] <- as.vector(p$data[,1])
-  p$data <- p$data[order(p$data[,1]), ]
+  p[[1]] <- p[[1]][!is.na(p[[1]][, 1]), ]
+  p[[1]][, 1] <- as.vector(unlist(p[[1]][, 1]))
+  p[[1]] <- p[[1]][order(p[[1]][, 1]), ]
 
   # Save plot as PNG
   path <- "C:/Users/patati/Documents/GitHub/Steroid_Data_Analysis/"
@@ -2213,12 +1042,11 @@ PlotVarianceExplained <- function(AllData, Group) {
   }
 
 # Example usage:
-PlotVarianceExplained(AllData, Group = 'All') #ok :)
+PlotVarianceExplained(AllData, Group = 'All')
 PlotVarianceExplained(AllData, Group = 'female')
 PlotVarianceExplained(AllData, Group = 'male')
 
 #Copilot helped a bit with the commenting here.
-#Check
 
 ```
 
@@ -2306,9 +1134,9 @@ x <- data.frame(n)
 row.names(x) <- colnames(AllData[, 9:28])
 
 # Adjust group names
-steroidGroupse <- steroidGroups
-# steroidGroupse[steroidGroupse[,'Abbreviation'] == "17aOH-P4",2] <- "17a-OHP4"
-op <- steroidGroupse[order(steroidGroupse$Group), 'Abbreviation']
+steroidGroups <- steroidGroups
+steroidGroups[steroidGroups == "17a-OHP4"] <- "17aOH-P4"
+op <- steroidGroups[order(steroidGroups$Group), 'Abbreviation']
 op <- op[op %in% row.names(x)]
 x <- x[op, ]
 
@@ -2321,7 +1149,6 @@ brks_heatmap <- function(mat, color_palette) {
 
 # Define color palette
 color_palette <- colorRampPalette(c('blue', 'white', 'orange'), alpha = TRUE)(150)
-c("orange", "blue")
 
 # Save heatmap as JPEG
 setwd("C:/Users/patati/Documents/GitHub/Steroid_Data_Analysis")
@@ -2441,8 +1268,8 @@ x1 <- c(x1[3:6], x1[1], x1[2])
 x5 <- x5[!x5 == 'Perfluorodecyl.ethanoic.acid']
 colnames(correlation_results[[1]]$result)[colnames(correlation_results[[1]]$result) == "17aOH-P4"] <- "17a-OHP4"
 colnames(correlation_results[[1]]$p.mat.adjusted)[colnames(correlation_results[[1]]$p.mat.adjusted) == "17aOH-P4"] <- "17a-OHP4"
-# x2[x2 == "17aOH-P4"] <- "17a-OHP4"
-# x2 <- x2[order(match(x2, steroidGroups[, 2]))]
+x2[x2 == "17aOH-P4"] <- "17a-OHP4"
+x2 <- x2[order(match(x2, steroidGroups[, 2]))]
 x5 <- x5[!x5 == 'Perfluorodecyl.ethanoic.acid']
 
 # Extract specific results (bile acids and lipids vs. PFAS)
@@ -2480,10 +1307,7 @@ order="original"; range='orig';corre='no_rendorm'; type='full';
 method='color';ga='All';gf='Female';gm='Male' #color square
 hip1='transpose';width = 2400;height=6000;pch.cex=1.2;ho='PFAS vs. BAs and lipids'
 col = colorRampPalette(c('blue', 'white','orange'), alpha = TRUE)(100)
-# c("orange", "blue")
-cl.offset=1.0;cl.length=5;cl.cex = 1.3;
-pch.cex=0.75;
-pch=15;cl.pos = 'r';#cl.pos = 'b' ;#pch.cex=0.95,1.3; height=6300; pos 'b' cl.pos = 'b'
+cl.offset=1.0;cl.length=5;cl.cex = 1.3;pch.cex=1.3;pch=20;cl.pos = 'r';#cl.pos = 'b' ;#pch.cex=0.95,1.3; height=6300; pos 'b' cl.pos = 'b'
 filenames <- c("Correlations with Full Plot of All_vok_nes", "Correlations with Full Plot of Female_voek", "Correlations with Full Plot of Male_voeka")
 
 for (i in 1:length(correlation_results)) {
@@ -2532,9 +1356,8 @@ x1=c(x1[3:6],x1[1],x1[2])#x1[2],
 x5=x5[!x5=='Perfluorodecyl.ethanoic.acid']
 colnames(resulta)[colnames(resulta)=="17aOH-P4"]="17a-OHP4"
 colnames(p.mat.a)[colnames(p.mat.a)=="17aOH-P4"]="17a-OHP4"
-x2=groups2[,'Abbreviation_old']
-# x2[x2=="17aOH-P4"]="17a-OHP4"
-# x2=x2[order(match(x2,groups2[,2]))] #https://stackoverflow.com/questions/1568511/how-do-i-sort-one-vector-based-on-values-of-another
+x2[x2=="17aOH-P4"]="17a-OHP4"
+x2=x2[order(match(x2,groups[,2]))] #https://stackoverflow.com/questions/1568511/how-do-i-sort-one-vector-based-on-values-of-another
 x5=x5[!x5=='Perfluorodecyl.ethanoic.acid']
 
 resulta11=resulta[c(x1,x3,x6),x2];  p.mat.a11=p.mat.aa[c(x1,x3,x6),x2]
@@ -2550,22 +1373,16 @@ resulta33[resulta33 < -0.5] = -0.5
 
 # Function to generate and save plots
 generate_and_save_plots <- function(result, p.mat, filename, width, height, col, cl.cex, pch.cex, pch, cl.pos, cl.offset, cl.length) {
-  # 
-  p=corrplot(result, type = "full", order = "original", method = "color", p.mat = p.mat, 
+  jpeg(filename, width = width, height = height, quality = 100, pointsize = 14, res = 300)
+  corrplot(result, type = "full", order = "original", method = "color", p.mat = p.mat, 
            tl.col = "black", cl.cex = cl.cex, pch.cex = pch.cex, pch.col = 'black', pch = pch, sig.level = c(.001, .05, .2), 
            cl.pos = cl.pos, insig = "label_sig", cl.offset = cl.offset, cl.length = cl.length, tl.srt = 90, diag = TRUE, 
            col = col, is.corr = FALSE, col.lim = c(-0.5, 0.5))
-  # dev.off()
-  # jpeg(filename, width = width, height = height, quality = 100, pointsize = 14, res = 300)
-  
-  # Save the plot again for quality reasons
-  dev.copy(jpeg, paste0(filename, date, ".jpg"), width = 9, height = 12, units = "in", res = 1000)
   dev.off()
   daiR::image_to_pdf(filename, pdf_name = paste0(filename, '.pdf'))
   my_image <- image_read(filename)
   my_svg <- image_convert(my_image, format = "svg")
-  image_write(my_svg, paste0(filename, ".svg"))
-  }
+  image_write(my_svg, paste0(filename, ".svg"))}
 
 # Generate additional plots with specific results
 hip1 <- 'transpose'
@@ -2573,22 +1390,20 @@ width = 3200;height=2000
 ho <- 'steroids vs. all others except PFAS'
 ps <- 28
 col <- colorRampPalette(c('blue', 'white', 'orange'), alpha = TRUE)(150)
-# c("orange", "blue")
 hip1='transpose'; ho='steroids vs. all others except PFAS';ps=12 #pch=10;
 
-cl.offset <- 1.5
+cl.offset <- 1.0
 cl.length <- 5
-cl.cex <- 0.7
-pch.cex <- 0.7 #0.7 1.1
-pch <- 16
+cl.cex <- 1.0
+pch.cex <- 1.0
+pch <- 20
 cl.pos <- 'r'
 
 # Loop for imaging plots
 plot_data <- list(
   list(result = resulta11, p.mat = p.mat.a11, filename = paste("Square Correlation Plot ofrra", ho, "All", hip1, "3.jpg")),
   list(result = resulta22, p.mat = p.mat.f22, filename = paste("Square Correlation Plot ofa", ho, "Female", hip1, "3.jpg")),
-  list(result = resulta33, p.mat = p.mat.m33, filename = paste("Square Correlation Plot ofa", ho, "Male", hip1, "3.jpg"))
-  )
+  list(result = resulta33, p.mat = p.mat.m33, filename = paste("Square Correlation Plot ofa", ho, "Male", hip1, "3.jpg")))
 
 for (plot_info in plot_data) {
   generate_and_save_plots(plot_info$result, plot_info$p.mat, plot_info$filename, width, height, col, cl.cex, pch.cex, pch, cl.pos, cl.offset, cl.length)}
@@ -2749,9 +1564,9 @@ CalculateEstimates=function(CombinedData,Group,ok,fn,adj,sig.level,sick,sick_gro
         rs1[rs1>0.5]=0.5;rs1[rs1 < -0.5]=-0.5;
 
     
-    width=2500; height=4400
+    width=3.3*2500; height=3.3*4400
     order="original"; range='orig';corre='no_renorm'; type='full'; method='color';#ga='All';gf='Female';gm='Male' #color square
-    cl.offset=1.0;cl.length=5;cl.cex = 1.09;pch.cex=1.27;pch=16;cl.pos = 'n';#cl.pos = 'b' ;#pch.cex=0.95,1.3; height=6300; pos 'b' cl.pos = 'b', cl.length=15
+    cl.offset=1.0;cl.length=15;cl.cex = 1.09;pch.cex=1.49;pch=11;cl.pos = 'r';#cl.pos = 'b' ;#pch.cex=0.95,1.3; height=6300; pos 'b' cl.pos = 'b'
     ho=Group;hip1='BAs_lipids_as_y vs. steroids_as_x'
 
     # https://www.rdocumentation.org/packages/corrplot/versions/0.94/topics/corrplot
@@ -2761,78 +1576,20 @@ CalculateEstimates=function(CombinedData,Group,ok,fn,adj,sig.level,sick,sick_gro
 #I have driven these separately for html: 
     # for that you need:
     setwd("C:/Users/patati/Documents/GitHub/Steroid_Data_Analysis")
-    # jpeg(paste("Linear Model Estimate Plot of (big)",hip1,Group,".jpg"), width = width, height = height, quality = 100,pointsize = 16, res=300);
+    jpeg(paste("Linear Model Estimate Plot ofees5",hip1,Group,".jpg"), width = width, height = height, quality = 100,pointsize = 16, res=1000);
 
     hepio=colorRampPalette(c('blue', 'white','orange'), alpha = TRUE)(150) #rev(COL2('RdBu')[25:(length(COL2('RdBu'))-25)])
-    c("orange", "blue")
     
     
-    # corrplot(rs1, type = type, order = order,method=method, p.mat=rs2, tl.col = "black", cl.cex = cl.cex,pch.cex=pch.cex,pch.col='black',pch=pch, ,sig.level = c(.001, .01, .05),cl.pos = cl.pos, 
-    #          insig = "label_sig",cl.offset=cl.offset,cl.length=cl.length,tl.cex=0.9, tl.srt = 90, diag = TRUE, #tl.pos='n'
-    #          col = hepio ,is.corr = FALSE,col.lim=c(-0.5,0.5));   #colorRampPalette(c('blue', 'white','orange'), alpha = TRUE)(100)
-    #https://cran.r-project.org/web/packages/corrplot/vignettes/corrplot-intro.html#change-color-spectra-color-legend-and-text-legend
+    # .001, .01,
+    corrplot(rs1, type = type, order = order,method=method, p.mat=rs2, tl.col = "black", cl.cex = cl.cex,pch.cex=pch.cex,pch.col='black',pch=pch, ,sig.level = c( .05),cl.pos = cl.pos, 
+             insig = "label_sig",cl.offset=cl.offset,cl.length=cl.length,tl.cex=0.5, tl.srt = 90, diag = TRUE, #tl.pos='n'
+             col = colorRampPalette(c('blue', 'white','orange'), alpha = TRUE)(100) ,is.corr = FALSE,col.lim=c(-0.5,0.5));   #https://cran.r-project.org/web/packages/corrplot/vignettes/corrplot-intro.html#change-color-spectra-color-legend-and-text-legend
     
-    # dev.off()  #,is.corr = FALSE
-    # eoh=paste("Linear Model Estimate Plot of (big)",hip1,Group,".jpg")
-    # daiR::image_to_pdf(eoh, pdf_name=paste0(eoh,'black.pdf'))
-    # my_image <- image_read(eoh);my_svg <- image_convert(my_image, format="svg"); image_write(my_svg, paste(eoh,".svg"))
-    
-    svgfile <- paste0(
-  "Linear Model Estimate Plot of (big) ",
-  hip1, " ", Group, ".svg"
-)
-
-# svg(
-#   filename = svgfile,
-#   width  = width / 72,   # pixels → inches
-#   height = height / 72,
-#   pointsize = 16
-# )
-
-
-# svg(
-#   filename = svgfile,
-#   width  = 13,    # inches
-#   height = 10,
-#   pointsize = 10
-# )
-
-svglite::svglite(
-  file = svgfile,
-  width  = 13,
-  height = 10,
-  pointsize = 10
-)
-
-corrplot(
-  rs1,
-  type = type,
-  order = order,
-  method = method,
-  p.mat = rs2,
-  tl.col = "black",
-  cl.cex = cl.cex,
-  pch.cex = pch.cex,
-  pch.col = "black",
-  pch = pch,
-  sig.level = c(.001, .01, .05),
-  insig = "label_sig",
-  cl.offset = cl.offset,
-  cl.length = cl.length,
-  tl.cex = 0.9,
-  tl.srt = 90,
-  diag = TRUE,
-  col = hepio,
-  is.corr = FALSE,
-  col.lim = c(-0.5, 0.5)
-)
-
-dev.off()
-
-message("✅ REAL SVG saved: ", svgfile)
-
-    
-    
+    dev.off()  #,is.corr = FALSE
+    eoh=paste("Linear Model Estimate Plot ofees5",hip1,Group,".jpg")
+    daiR::image_to_pdf(eoh, pdf_name=paste0(eoh,'.pdf'))
+    my_image <- image_read(eoh);my_svg <- image_convert(my_image, format="svg"); image_write(my_svg, paste(eoh,".svg"))
 
     #https://stackoverflow.com/questions/26574054/how-to-change-font-size-of-the-correlation-coefficient-in-corrplot
     #https://stackoverflow.com/questions/9543343/plot-a-jpg-image-using-base-graphics-in-r
@@ -2899,80 +1656,22 @@ message("✅ REAL SVG saved: ", svgfile)
     rs1[rs1>0.4]=0.4;rs1[rs1 < -0.4]=-0.4;
 
   order="original"; range='orig';corre='no_renorm'; type='full'; method='color'; #ga='All';gf='Female';gm='Male' #color square
-  cl.offset=1.0;cl.length=5;cl.cex = 1.4;pch.cex=2.0;pch=24;cl.pos = 'n';#cl.pos = 'b' ;#pch.cex=0.95,1.3; height=6300; pos 'b' cl.pos = 'b', cl.length=11
+  cl.offset=1.0;cl.length=11;cl.cex = 1.4;pch.cex=2.4;pch=20;cl.pos = 'n';#cl.pos = 'b' ;#pch.cex=0.95,1.3; height=6300; pos 'b' cl.pos = 'b'
   ho=Group;hip1='Steroids_y vs. PFAS_as_x'
-  width=5500; height=1800
-  hepio=colorRampPalette(c('blue', 'white','orange'), alpha = TRUE)(150)
+  width=3.3*5500; height=3.3*1800
 #I have driven these separately for html: 
 setwd("C:/Users/patati/Documents/GitHub/Steroid_Data_Analysis")
-# jpeg(paste("Linear Model Estimate Plot of (small)",hip1,Group,".jpg"), width = width, height = height, quality = 100,pointsize = 16, res=300);
-
-# corrplot(rs1, type = type, order = order,method=method, p.mat=rs2, tl.col = "black", cl.cex = cl.cex,pch.cex=pch.cex,pch.col='black',pch=pch,
-# sig.level = c(.001, .01, .05),cl.pos =  cl.pos, insig = "label_sig",cl.offset=cl.offset,cl.length=cl.length, tl.cex=1.2, #tl.pos='n',
-# tl.srt = 90, diag = TRUE,col = hepio,is.corr = FALSE,col.lim=c(-0.4,0.4)); #colorRampPalette(c('blue','white', 'orange'), alpha = TRUE)(100)
+jpeg(paste("Linear Model Estimate Plot of_sa5",hip1,Group,".jpg"), width = width, height = height, quality = 100,pointsize = 16, res=1000);
+# .001, .01, 
+  corrplot(rs1, type = type, order = order,method=method, p.mat=rs2, tl.col = "black", cl.cex = cl.cex,pch.cex=pch.cex,pch.col='black',pch=pch,
+sig.level = c(.05),cl.pos =  cl.pos, insig = "label_sig",cl.offset=cl.offset,cl.length=cl.length, tl.cex=0.8, #tl.pos='n',
+tl.srt = 90, diag = TRUE,col = colorRampPalette(c('blue','white', 'orange'), alpha = TRUE)(100),is.corr = FALSE,col.lim=c(-0.4,0.4)); 
 
 # https://cran.r-project.org/web/packages/corrplot/vignettes/corrplot-intro.html#change-color-spectra-color-legend-and-text-legend
-# dev.off();
-    # eoh=paste("Linear Model Estimate Plot of (small)",hip1,Group,".jpg")
-    # daiR::image_to_pdf(eoh, pdf_name=paste0(eoh,'black.pdf'))
-    # my_image <- image_read(eoh);my_svg <- image_convert(my_image, format="svg"); image_write(my_svg, paste(eoh,".svg"))
-
-svgfile <- paste0(
-  "Linear Model Estimate Plot of (small) ",
-  hip1, " ", Group, ".svg"
-)
-
-# svg(
-#   filename = svgfile,
-#   width  = width / 72,
-#   height = height / 72,
-#   pointsize = 16
-# )
-
-# svg(
-#   filename = svgfile,
-#   width  = 12,    # inches
-#   height = 7,
-#   pointsize = 14
-# )
-
-svglite::svglite(
-  file = svgfile,
-  width  = 12,
-  height = 7,
-  pointsize = 14
-)
-
-
-
-
-corrplot(
-  rs1,
-  type = type,
-  order = order,
-  method = method,
-  p.mat = rs2,
-  tl.col = "black",
-  cl.cex = cl.cex,
-  pch.cex = pch.cex,
-  pch.col = "black",
-  pch = pch,
-  sig.level = c(.001, .01, .05),
-  insig = "label_sig",
-  cl.offset = cl.offset,
-  cl.length = cl.length,
-  tl.cex = 0.9,
-  tl.srt = 90,
-  diag = TRUE,
-  col = hepio,
-  is.corr = FALSE,
-  col.lim = c(-0.5, 0.5)
-)
-
-dev.off()
-
-
-
+dev.off();
+    eoh=paste("Linear Model Estimate Plot of_sa5",hip1,Group,".jpg")
+    daiR::image_to_pdf(eoh, pdf_name=paste0(eoh,'.pdf'))
+    my_image <- image_read(eoh);my_svg <- image_convert(my_image, format="svg"); image_write(my_svg, paste(eoh,".svg"))
   } 
   
   return(list(lin_mod_summaries))
@@ -3392,7 +2091,9 @@ CreateScatterPlots=function(AllData, Group, lin_mod_summaries, aa, bb, fn) {
         theme_classic()
       print(a)
       dev.off()
-      lin_mod_summary = rbind(lin_mod_summary, c(y[j], xnam[i], Group, r, p.valueList, rsadj))}}
+      lin_mod_summary = rbind(lin_mod_summary, c(y[j], xnam[i], Group, r, p.valueList, rsadj))
+    }
+  }
   
   # Convert results to a data frame and return
   hesa = lin_mod_summary
@@ -3401,11 +2102,13 @@ CreateScatterPlots=function(AllData, Group, lin_mod_summaries, aa, bb, fn) {
   # dir.create(file.path(main_dir)); setwd(file.path(main_dir))
   setwd(main_dir)
   
-  return(list(lin_mod_summaries))}
+  return(list(lin_mod_summaries))
+}
 
 RunScatterPlotAnalysis=function(AllData,lin_mod_summaries) {
   RunAnalysis=c();heijaa=c('All','female','male'); 
-  fn='metabnorm//covScaled//non_fdr//'## this was excessive: fn='For' #:)...
+  fn='metabnorm//covScaled//non_fdr//'#
+  fn='For'
   for (hrt in 1:3) {
     RunAnalysis=append(RunAnalysis,CreateScatterPlots(AllData,heijaa[hrt],lin_mod_summaries,aa,bb,fn))}
   return(RunAnalysis)}
@@ -3442,7 +2145,8 @@ plot3d(
   radius = .2,
   ylab = "PFHxS",
   xlab = "T/Epi-T",
-  zlab = "PE")
+  zlab = "PE"
+)
 
 # Fit a linear model for PFHxS based on T/Epi-T and PE
 my.lm <- lm(data[,'PFHxS'] ~ data[,'T/Epi-T'] + data[,'PE'])
@@ -3459,8 +2163,8 @@ s3d <- scatterplot3d(
   angle = 55, scale.y = 0.5,
   xlab = "T/Epi-T",
   ylab = "PFHxS",
-  zlab = "PE")
-
+  zlab = "PE"
+)
 s3d$plane3d(my.lm, lty = "dotted")
 
 # Convert coordinates for the original points and the fitted plane
@@ -3485,7 +2189,8 @@ plot3d(
   radius = .2,
   ylab = "PFOA",
   xlab = "AN",
-  zlab = "PC_O")
+  zlab = "PC_O"
+)
 
 # Fit a linear model for PFOA based on AN and PC_O
 my.lm <- lm(data[,'PFOA'] ~ data[,'AN'] + data[,'PC_O'])
@@ -3502,8 +2207,8 @@ s3d <- scatterplot3d(
   angle = 55, scale.y = 0.5,
   xlab = "AN",
   ylab = "PFOA",
-  zlab = "PC_O")
-
+  zlab = "PC_O"
+)
 s3d$plane3d(my.lm, lty = "dotted")
 
 # Convert coordinates for the original points and the fitted plane
@@ -3528,7 +2233,8 @@ plot3d(
   radius = .2,
   ylab = "PFHxA",
   xlab = "DHEA",
-  zlab = "PC")
+  zlab = "PC"
+)
 
 # Fit a linear model for PFHxA based on DHEA and PC
 my.lm <- lm(data[,'PFHxA'] ~ data[,'DHEA'] + data[,'PC'])
@@ -3545,8 +2251,8 @@ s3d <- scatterplot3d(
   angle = 55, scale.y = 0.5,
   xlab = "DHEA",
   ylab = "PFHxA",
-  zlab = "PC")
-
+  zlab = "PC"
+)
 s3d$plane3d(my.lm, lty = "dotted")
 
 # Convert coordinates for the original points and the fitted plane
@@ -3557,50 +2263,6 @@ plane <- s3d$xyz.convert(x, y, fitted(my.lm))
 i.negpos <- 1 + (resid(my.lm) > 0)
 segments(orig$x, orig$y, plane$x, plane$y,
          col = c("blue", "red")[i.negpos], lty = (2:1)[i.negpos])
-
-
-#This is for female subjects. Checking estrogen levels at menopausal age.
-CombinedData_f=CombinedData[CombinedData[,'SEX.1F.2M']==min(CombinedData[,'SEX.1F.2M']),]
-# CombinedData_f=CombinedData
-AllData_f=AllData[AllData[,'Gender']==min(AllData[,'Gender']),]
-# AllData_f=AllData
-
-# CombinedData_fa=cbind(CombinedData_f[,'AGE'],AllData_f[,'E2']/AllData_f[,'E1'])
-# CombinedData_fa=cbind(CombinedData_f[,'AGE'],AllData_f[,'E2'])
-CombinedData_fa=cbind(CombinedData_f[,'AGE'],CombinedData_f[,'E2']/CombinedData_f[,'E1'])
-colnames(CombinedData_fa) = c('AGE', 'E2_per_E1')
-
-# Remove outliers using z-score
-# Assuming CombinedData_fa is your original data frame
-z_scores <- data.frame(scale(CombinedData_fa))
-
-# Rename your data frame to avoid conflict
-df <- CombinedData_fa; df_clean <- df
-# Remove outliers using z-score
-# df_clean <- df[apply(abs(z_scores), 1, function(row) all(row < 3)), ]
-
-# Fit linear model
-model <- lm(E2_per_E1 ~ AGE, data = data.frame(df_clean))
-summary_model <- summary(model)
-
-# Extract coefficients and R-squared
-slope <- coef(model)[2]
-intercept <- coef(model)[1]
-r_squared <- summary_model$r.squared
-
-# Create plot
-var='E2/E1'
-ggplot(df_clean, aes(x = AGE, y = E2_per_E1)) +
-  geom_point(color = "blue") +
-  geom_smooth(method = "lm", se = FALSE, color = "red") +
-  labs(title = "Scatter Plot with Linear Regression (for Female Subjects)",
-    subtitle = paste0("y = ", round(slope, 2), "x + ", round(intercept, 2),
-                      ", R² = ", round(r_squared, 2)),
-    x = "AGE (years)",
-    y = paste0(var, " (pM)")) + 
-  theme_minimal()
-
-
 
 ```
 ```{r, echo=FALSE, out.width="50%", fig.cap="Correlations Scatter Plotted_All_Hexcer S",fig.align="left"}
@@ -3697,27 +2359,13 @@ xb=x3[x3 %in% nodess$label]
 xl=x6[x6 %in% nodess$label]
 x2[x2 =='17aOH-P4']='17a-OHP4' #Next time check these wrong names early on... :)
 xs=x2[x2 %in% nodess$label]
-# nodess$label=c(xc,xb,xl,xs) #ok, do not use this
-
-# nodess <- nodess[nodess$label %in% c(xc, xb, xl, xs), ]
-nodess <- data.frame(label = nodess, stringsAsFactors = FALSE)
+nodess$label=c(xc,xb,xl,xs)
 
 # Create a data frame 'nodes' with two columns: 'name' and 'carac'
 # 'name' is taken from the first column of 'nodess'
 # 'carac' is a categorical variable indicating the type of each node
-# nodes <- data.frame(name=nodess[,1], 
-#                     carac=( c(rep("Contaminants",length(xc)),rep("Bile Acids",length(xb)),rep("Lipids",length(xl)),rep("Steroids",length(xs))))) #range on kaikki +1
-
-nodes <- data.frame(
-  name = nodess$label,
-  carac = dplyr::case_when(
-    nodess$label %in% xc ~ "Contaminants",
-    nodess$label %in% xb ~ "Bile Acids",
-    nodess$label %in% xl ~ "Lipids",
-    nodess$label %in% xs ~ "Steroids",
-    TRUE ~ "Unknown"
-  )
-)
+nodes <- data.frame(name=nodess[,1], 
+                    carac=( c(rep("Contaminants",length(xc)),rep("Bile Acids",length(xb)),rep("Lipids",length(xl)),rep("Steroids",length(xs))))) #range on kaikki +1
 
 # Convert the data frame 'links' and 'nodes' into an igraph object
 network <- graph_from_data_frame(d=links, vertices=nodes, directed=F) 
@@ -3770,249 +2418,175 @@ daiR::image_to_pdf(eoh, pdf_name=paste0(eoh,'.pdf'))
 ```{r, warning=FALSE,message=FALSE,fig.align="left"}
 
 # The basic hypothesis. All are variables (y~x+m;m~x)
-RunMediationAnalysis <- function(TreatmentVariables, MediatorVariables, OutcomeVariables, AllData, Group, name, simss, t.valueList, test, sick, sick_group, date = format(Sys.Date(), "%Y-%m-%d"),fn) {
-  
-  # Ensure AllData is a data frame
-  if (!is.data.frame(AllData)) {
-    AllData <- as.data.frame(AllData)
-    message("Converted AllData to data frame.")
-  }
-
+RunMediationAnalysis = function(TreatmentVariables, MediatorVariables, OutcomeVariables, AllData, Group, name, simss, t.valueList, test, sick, sick_group) {
   # Determine the condition based on the group
   if (Group == 'female') {
-    cond <- AllData[, 'Gender'] == min(AllData[, 'Gender'], na.rm = TRUE)
+    cond = AllData[,'Gender'] == min(AllData[,'Gender'])
   } else if (Group == 'male') {
-    cond <- AllData[, 'Gender'] == max(AllData[, 'Gender'], na.rm = TRUE)
-  } else {
-    cond <- rep(TRUE, nrow(AllData))
+    cond = AllData[,'Gender'] == max(AllData[,'Gender'])
+  } else if (Group == 'All') {
+    cond = rep(TRUE, dim(AllData)[1])
   }
-
-  print(paste("Group:", Group, "- Rows after filtering:", sum(cond)))
-
+  
   # Filter the dataset based on the condition and sickness status
+  tv_red = c()
   if (sick == 'yes') {
-    tv_red <- AllData[cond & as.vector(sick_group), ]
+    tv_red = AllData[cond & as.vector(sick_group),]
   } else {
-    tv_red <- AllData[cond, ]
+    tv_red = AllData[cond,]
   }
-
-  print(paste("Group:", Group, "- Rows after sick filter:", nrow(tv_red)))
-
-  # Extract variables
-  X <- tv_red[, TreatmentVariables, drop = FALSE]
-  M <- tv_red[, MediatorVariables, drop = FALSE]
-  Y <- tv_red[, OutcomeVariables, drop = FALSE]
-
-  # Combine and clean data
-  Data <- na.omit(data.frame(cbind(X, M, Y)))
-
-  # Get variable names
-  x_names <- make.names(colnames(X))
-  m_names <- make.names(colnames(M))
-  y_names <- make.names(colnames(Y))
-
-  # Define control and treatment values
-  control.value <- colMins(as.matrix(Data[, x_names]))
-  treat.value <- colMaxs(as.matrix(Data[, x_names]))
-
-  # Initialize results
-  res <- data.frame()
-  rn <- c()
-
-  for (y in y_names) {
-    for (m in m_names) {
-      for (x in x_names) {
-
-        # Build formulas
-        fmla1 <- as.formula(paste0("`", m, "` ~ `", x, "`"))
-        fmla2 <- as.formula(paste0("`", y, "` ~ ", paste0("`", c(x, m), "`", collapse = " + ")))
-
-        model_m <- lm(fmla1, data = Data)
-        model_y <- lm(fmla2, data = Data)
-
-        # Determine treatment and control values
-        if (t.valueList == "no") {
-          treat_val <- 1
-          control_val <- 0
-        } else if (t.valueList == "yes") {
-          if (!is.na(Data[test, x])) {
-            treat_val <- Data[test, x]
-            control_val <- control.value[x]
-          } else {
-            print(paste("Skipping due to NA test value for:", x))
-            next
-          }
-        } else if (t.valueList == "minmax") {
-          treat_val <- treat.value[x]
-          control_val <- control.value[x]
-        } else {
-          treat_val <- 1
-          control_val <- 0
+  
+  # Extract the treatment, mediator, and outcome variables
+  X <- tv_red[, TreatmentVariables]  # Standard values did not give errors
+  M <- tv_red[, MediatorVariables]
+  Y <- tv_red[, OutcomeVariables]  # "Steatosis.Grade.0.To.3", "Fibrosis.Stage.0.to.4", "Necroinflammation", "HOMA-IR"
+  
+  # Combine the variables into a single data frame
+  Data <- cbind(X, M, Y)
+  colnames(Data) <- gsub(" ", "_", colnames(Data))
+  Data = data.frame(Data)
+  
+  # Define control and treatment values for the mediation analysis
+  control.value = colMins(as.matrix(X))  # Test also with colMedians
+  treat.value = colMaxs(as.matrix(X))
+  
+  # Initialize vectors for storing variable names
+  x = c()
+  m = c()
+  y = c()
+  
+  # Create variable names for the treatment, mediator, and outcome
+  for (i in 1:length(colnames(X))) {
+    x = append(x, paste("Data[, ", i , "]", sep = ""))
+  }
+  for (j in (dim(X)[2] + 1):(length(colnames(M)) + dim(X)[2])) {
+    m = append(m, paste("Data[, ", j , "]", sep = ""))
+  }
+  for (z in (dim(M)[2] + dim(X)[2] + 1):(dim(Data)[2])) {
+    y = append(y, paste("Data[, ", z , "]", sep = ""))
+  }
+  
+  # Initialize vectors for storing results
+  med_out = c()
+  res = c()
+  tmp = c()
+  rn = c()
+  i=1;j=1;z=1
+  
+  # Loop through each combination of outcome, mediator, and treatment
+  for (i in 1:length(y)) {
+    for (j in 1:length(m)) {
+      for (z in 1:length(x)) {
+        # Define the formula for the mediator model (M ~ X)
+        fmla1 <- as.formula(paste(paste(m[j], collapse = "+"), " ~ ", paste(x[z], collapse = "+")))
+        b = lm(fmla1, Data)
+        
+        # Define the formula for the outcome model (Y ~ M + X)
+        xm = paste(paste(c(x[z], m[j]), collapse = "+"))
+        fmla2 <- as.formula(paste(y[i], " ~ ", xm))
+        c = lm(fmla2, Data)
+        
+        # Perform the mediation analysis
+        if (t.valueList == 'no') {
+          med_oute = mediation::mediate(b, c, treat = x[z], mediator = m[j], sims = simss)
+        } else if (t.valueList == 'yes') {
+          med_oute = mediation::mediate(b, c, treat = x[z], mediator = m[j], sims = simss, control.value = control.value[z], treat.value = X[test, z])
+        } else if (t.valueList == 'minmax') {
+          med_oute = mediation::mediate(b, c, treat = x[z], mediator = m[j], sims = simss, control.value = control.value[z], treat.value = treat.value[z])
         }
-
-        print(paste("Running mediation for:", x, m, y, "- Treat val:", treat_val, "- Control val:", control_val))
-
-        # Run mediation
-        med_out <- tryCatch({
-          if (t.valueList == "no") {
-            mediation::mediate(model_m, model_y, treat = x, mediator = m, sims = simss)
-          } else if (!is.null(treat_val) && !is.null(control_val)) {
-            mediation::mediate(model_m, model_y, treat = x, mediator = m, sims = simss,
-                               control.value = control_val, treat.value = treat_val)
-          } else {
-            warning(paste("Skipping due to missing treatment/control values for:", x, m, y))
-            return(NULL)
-          }
-        }, error = function(e) {
-          warning(paste("Mediation failed for:", x, m, y, ":", e$message))
-          return(NULL)
-        })
-
-        if (!is.null(med_out)) {
-          summary_out <- summary(med_out)
-          tmp <- c(summary_out$d0, summary_out$d0.p, summary_out$d0.ci[1], summary_out$d0.ci[2],
-                   summary_out$z0, summary_out$z0.p, summary_out$z0.ci[1], summary_out$z0.ci[2],
-                   summary_out$n1, summary_out$n1.p, summary_out$n1.ci[1], summary_out$n1.ci[2],
-                   summary_out$tau.coef, summary_out$tau.p, summary_out$tau.ci[1], summary_out$tau.ci[2])
-          res <- rbind(res, tmp)
-          rn <- c(rn, paste(x, m, y, sep = "_"))
-        } else {
-          print(paste("Mediation returned NULL for:", x, m, y))
-        }
+        
+        # Summarize the mediation analysis results
+        med_out = summary(med_oute)
+        tmp = c(med_out$d0, med_out$d0.p, med_out$d0.ci[1], med_out$d0.ci[2], med_out$z0, med_out$z0.p, med_out$z0.ci[1], med_out$z0.ci[2], med_out$n1, med_out$n1.p, med_out$n1.ci[1], med_out$n1.ci[2], med_out$tau.coef, med_out$tau.p, med_out$tau.ci[1], med_out$tau.ci[2])
+        res <- rbind(res, tmp)
+        rn = append(rn, paste(colnames(X)[z], colnames(M)[j], colnames(Y)[i], sep = " "))
+        remove(tmp)
       }
     }
   }
-
-  # Finalize results
-  # if (dim(res)[1]==0 & dim(res)[2]==0) {res=t(data.frame(rep(0,16)))}
   
-# if (nrow(res) == 0) {
-#   cat("No results found — saving empty file for group:", Group, "\n")
-#   res <- data.frame(Note = paste("No mediation results for group:", Group))
-# }
-# Define column names
-col_names <- c('ACME', 'd0.p', 'd0.ci_l', 'd0.ci_u',
-               'ADE', 'z0.p', 'z0.ci_l', 'z0.ci_u',
-               'Proportion Mediated', 'n1.p', 'n1.ci_l', 'n1.ci_u',
-               'Total Effect', 'tau.p', 'tau.ci_l', 'tau.ci_u')
-
-# If results exist, finalize and sort
-if (nrow(res) > 0) {
-  rownames(res) <- rn
-  colnames(res) <- col_names
-  res <- res[order(res[, 'd0.p']), ]
+  # Assign row and column names to the results
+  rownames(res) = rn
+  colnames(res) = c('ACME', 'd0.p', 'd0.ci_l', 'd0.ci_u', 'ADE', 'z0.p', 'z0.ci_l', 'z0.ci_u', 'Proportion Mediated', 'n1.p', 'n.ci_l', 'n1.ci_u', 'Total Effect', 'tau.p', 'tau.ci_l', 'tau.ci_u')
+  
+  # Order the results by p-value
+  res = res[order(res[, 2]),]
+  
+  # Clean up row names
   rownames(res) <- gsub("X11", "11", rownames(res))
   rownames(res) <- gsub("X17", "17", rownames(res))
-} else {
-  # Create an empty data frame with the correct column names
-  res <- data.frame(matrix(ncol = length(col_names), nrow = 0))
-  colnames(res) <- col_names
-  rownames(res) <- "No results"
-  res[1, 1] <- paste("No mediation results for group (perhaps due similar output values or colinearity):", Group, fn)
-  cat("No results found — saving message row for group:", Group, "\n")
-
-}
-
-# Save to Excel
-file_path <- paste0("C:/Users/patati/Documents/GitHub/Steroid_Data_Analysis/", name, "_", fn, "_", Group, "_", date, "_mediation_results.xlsx")
-cat("Saving results to:", file_path, "\n")
-write.xlsx(res, file = file_path, append = FALSE, row.names = TRUE)
-
+  
+  # Write the results to an Excel file
+  write.xlsx(res, file = paste(name, Group, date, '.xlsx'), append = FALSE, row.names = TRUE)
+  
   return(res)
 }
 
-RunEssentialAnalysis <- function(TreatmentVariables, MediatorVariables, OutcomeVariables, AllData, Group, name, simss, t.valueList, test, sick, sick_group, date = format(Sys.Date(), "%Y-%m-%d"), fn, lkm, joo) {
+# Testing hypothesis one:
+RunEssentialAnalysis = function(TreatmentVariables, MediatorVariables, OutcomeVariables, CombinedData, Group, name, simss, t.valueList, test, sick, sick_group, fn, lkm, date, joo, ip) {
+  # Set the working directory to the specified path
+  hoi1 = paste("C:/Users/patati/Desktop/Turku/R/basic causal mediation with the counterfactuals/", fn, sep = '')
+  setwd(hoi1)  # Set the working directory
   
-  # Ensure AllData is a data frame
-  if (!is.data.frame(AllData)) {
-    AllData <- as.data.frame(AllData)
-    message("Converted AllData to data frame.")
-  }
-
-  # Set the working directory
-  hoi1 <- paste0("C:/Users/patati/Desktop/Turku/R/basic causal mediation with the counterfactuals/", fn)
-  if (!dir.exists(hoi1)) {
-    dir.create(hoi1, recursive = TRUE)
-    message("Created directory: ", hoi1)
-  }
-  setwd(hoi1)
-
   # Define the name for the output files
-  name <- paste(simss, 'basic_divisions')
-
-  # Run for all
-  Group <- 'All'
-  message("Starting mediation analysis for group: All")
-  RunAma <- tryCatch({
-    RunMediationAnalysis(TreatmentVariables, MediatorVariables, OutcomeVariables, AllData, Group, name, simss, t.valueList, test, sick, sick_group, date,fn)
-  }, error = function(e) {
-    warning(paste("Error in All group:", e$message))
-    data.frame()
-  })
-  save(RunAma, file = paste0(fn, 'all.RData'))
-
-  # Run for females
-  Group <- 'female'
-  message("Starting mediation analysis for group: female")
-  RunAf <- tryCatch({
-    RunMediationAnalysis(TreatmentVariables, MediatorVariables, OutcomeVariables, AllData, Group, name, simss, t.valueList, test, sick, sick_group, date,fn)
-  }, error = function(e) {
-    warning(paste("Error in female group:", e$message))
-    data.frame()
-  })
-  save(RunAf, file = paste0(fn, 'female.RData'))
-
-  # Run for males
-  Group <- 'male'
-  message("Starting mediation analysis for group: male")
-  RunAm <- tryCatch({
-    RunMediationAnalysis(TreatmentVariables, MediatorVariables, OutcomeVariables, AllData, Group, name, simss, t.valueList, test, sick, sick_group, date,fn)
-  }, error = function(e) {
-    warning(paste("Error in male group:", e$message))
-    data.frame()
-  })
-  save(RunAm, file = paste0(fn, 'male.RData'))
-
-  message("Mediation analysis completed for all groups.")
+  name = paste(simss, 'basic_divisions')
+  
+  # Perform mediation analysis for all steroidGroups
+  Group = 'All'
+  RunAma = RunMediationAnalysis(TreatmentVariables, MediatorVariables, OutcomeVariables, AllData, Group, name, simss, t.valueList, test, sick, sick_group)
+  try({RunAma}, {RunAma = data.frame(0)})  # Handle errors gracefully
+  save(RunAma, file = paste(fn, 'all.RData'))  # Save the results
+  
+  # Perform mediation analysis for female group
+  Group = 'female'
+  RunAf = RunMediationAnalysis(TreatmentVariables, MediatorVariables, OutcomeVariables, AllData, Group, name, simss, t.valueList, test, sick, sick_group)
+  try({RunAf}, {RunAf = data.frame(0)})  # Handle errors gracefully
+  save(RunAf, file = paste(fn, 'female.RData'))  # Save the results
+  
+  # Perform mediation analysis for male group
+  Group = 'male'
+  RunAm = RunMediationAnalysis(TreatmentVariables, MediatorVariables, OutcomeVariables, AllData, Group, name, simss, t.valueList, test, sick, sick_group)
+  try({RunAm}, {RunAm = data.frame(0)})  # Handle errors gracefully
+  save(RunAm, file = paste(fn, 'male.RData'))  # Save the results
 }
-
 
 # Set the number of simulations and other parameters
 simss = 100
-name = 'Jaot_OK_basic'
+name = 'Jaot_OK_basica'
 joo = 'ei'
+ip = 1
 
 # Extract specific columns from the dataset for analysis
-# ccova = CombinedData[, c("Steatosis.Grade.0.To.3", "Fibrosis.Stage.0.to.4", "Necroinflammation", "HOMA-IR")]
+ccova = CombinedData[, c("Steatosis.Grade.0.To.3", "Fibrosis.Stage.0.to.4", "Necroinflammation", "HOMA-IR")]
 
 # Define a group based on a condition (sum of specific columns > 4)
-# sick_group = rowSums(ccova) > 4
+sick_group = rowSums(ccova) > 4
 
 # Define file names for different outcomes
 file_names = c("Steatosis", "Fibrosis", "Necroinflammation", "HOMAIR", 'Menopause')
 
 # Set additional parameters
 lkm = 30
-# joo = 'ei'
+joo = 'ei'
+ip = 1
 sick = 'yes'
 t.valueList = 'no'
 Group = 'All'
 # date='houdeesh'
-
 
 # Set parameters for the 'All' group analysis
 joo = 'joo'
 sick = 'no'
 
 # Extract specific columns from the dataset for analysis
-# ccova = CombinedData[, c("Steatosis.Grade.0.To.3", "Fibrosis.Stage.0.to.4", "Necroinflammation", "HOMA-IR")]
+ccova = CombinedData[, c("Steatosis.Grade.0.To.3", "Fibrosis.Stage.0.to.4", "Necroinflammation", "HOMA-IR")]
 
 # Define the file name and group based on a condition (sum of specific columns > 4)
 fn = 'All'
-# sick_group = rowSums(ccova) > 4
+sick_group = rowSums(ccova) > 4
 
 # Driving the analysis takes more than 1h (with a basic laptop 2023,100sims and all three steroidGroups (all, female and male)) so drive the below only if needed:
-RunEssentialAnalysis(TreatmentVariables, MediatorVariables, OutcomeVariables,AllData,Group,name,simss,t.valueList,test,sick, sick_group,fn,lkm,date,joo) #ok
+# RunEssentialAnalysis(TreatmentVariables, MediatorVariables, OutcomeVariables,AllData,Group,name,simss,t.valueList,test,sick, sick_group,fn,lkm,date,joo,ip)
 # setwd("C:/Users/patati/Desktop/Turku/R/basic causal mediation with the counterfactuals/") #check this if needed...
 
 # Error in mediate(b, c, treat = x[z], mediator = m[j], sims = simss) : 
@@ -4020,24 +2594,19 @@ RunEssentialAnalysis(TreatmentVariables, MediatorVariables, OutcomeVariables,All
 
 # In case, the 'case' sample/subject analysis would be needed: 
 # Steatosis
-OutcomeVariables="Steatosis Grade"
-ccovae=CombinedData[,c("Steatosis.Grade.0.To.3")]; sick_group=ccovae>0 #toth# # hist(ccovae,breaks=100) # hist(ccova[,'HOMA-IR'],breaks=100)
-fn=file_names[1];
-RunEssentialAnalysis(TreatmentVariables, MediatorVariables, OutcomeVariables, AllData, Group, name, simss, t.valueList, test, sick, sick_group, date = format(Sys.Date(), "%Y-%m-%d"), fn, lkm, joo) #toimiinnee/toimi (25725), jos ei niin copilotaa 
+# ccovae=CombinedData[,c("Steatosis.Grade.0.To.3")]; sick_group=ccovae>0 #toth# # hist(ccovae,breaks=100) # hist(ccova[,'HOMA-IR'],breaks=100)
+# fn=file_names[1];
+# RunEssentialAnalysis(TreatmentVariables, MediatorVariables, OutcomeVariables,AllData,Group,name,simss,t.valueList,test,sick,sick_group,fn,lkm,date,joo,ip)
 # #Fibrosis
-OutcomeVariables="Fibrosis Stage"
-ccovae=CombinedData[,c("Fibrosis.Stage.0.to.4")];
-sick_group=ccovae>0 #toth#
-fn=file_names[2];
-RunEssentialAnalysis(TreatmentVariables, MediatorVariables, OutcomeVariables, AllData, Group, name, simss, t.valueList, test, sick, sick_group, date = format(Sys.Date(), "%Y-%m-%d"), fn, lkm, joo)
-
+# ccovae=CombinedData[,c("Fibrosis.Stage.0.to.4")]; 
+# sick_group=ccovae>0 #toth#
+# fn=file_names[2]; 
+# RunEssentialAnalysis(TreatmentVariables, MediatorVariables, OutcomeVariables,AllData,Group,name,simss,t.valueList,test,sick,sick_group,fn,lkm,date,joo,ip)
 # #Necroinfl.
-# OutcomeVariables="Necroinflammation"
 # ccovae=CombinedData[,c("Necroinflammation")]; sick_group=ccovae>0 #toth#
 # fn=file_names[3];
 # RunEssentialAnalysis(TreatmentVariables, MediatorVariables, OutcomeVariables,AllData,Group,name,simss,t.valueList,test,sick,sick_group,fn,lkm,date,joo,ip)
 # Homa # remember to always test the function with minimun number setting or as light parameters as possible to get it through... before big runs
-# OutcomeVariables="HOMA-IR"
 # joo='ei';sick='yes'
 # ccovae=CombinedData[,c("HOMA-IR")]; sick_group=ccovae>1.5 #toth#
 # fn=file_names[4]; 
@@ -4061,7 +2630,7 @@ RunEssentialAnalysis(TreatmentVariables, MediatorVariables, OutcomeVariables, Al
 # setwd("C:/Users/patati/Desktop/Turku/R/tests6/tests_basic/") #check this if needed...
 library(readxl)
 setwd("C:/Users/patati/Documents/GitHub/Steroid_Data_Analysis")
-all_all=read_xlsx(path = "100basic All tikka3624 .xlsx") # #ok
+all_all=read_xlsx(path = "100basic All tikka3624 .xlsx") # #_1
 # all_all=read_xlsx(path = "C:/Users/patati/Desktop/Turku/R/hypo_basic/100 hypo_b_no_not sick All tikka221024 .xlsx") # #_2 :)
 all_all=as.data.frame(all_all); all_all=all_all[!is.na(all_all[,1]),];rownames(all_all)=all_all[,1]; all_all=all_all[,2:dim(all_all)[2]]; all_all=all_all[rev(order(all_all[,1])),]
 all_all=all_all; #all_all=all_all[all_all[,1]>0,]
@@ -4231,8 +2800,7 @@ CreateHeatmaps=function(hoi, rt2, switch, mn, z, corr, date, neg) {
   AuxMed=as.data.frame(AuxMed)
   AuxMedr=matrix(as.numeric(unlist(AuxMed)),nrow=dim(AuxMed)[1],ncol=dim(AuxMed)[2])
   colnames(AuxMedr)=colnames(AuxMed); rownames(AuxMedr)=rownames(AuxMed)
-  resulta1 <- AuxMedr   # ok define resulta1
- 
+  
   # Ensure all rows and columns from myData are present in AuxMedr
   if (sum(!rownames(myData) %in% rownames(AuxMedr)) > 0) {
     to_df=rownames(myData)[!rownames(myData) %in% rownames(AuxMedr)]
@@ -4254,7 +2822,6 @@ CreateHeatmaps=function(hoi, rt2, switch, mn, z, corr, date, neg) {
   AuxMeda=AuxMeda[,2:dim(AuxMeda)[2]]
   AuxMedra=matrix(as.numeric(unlist(AuxMeda)),nrow=dim(AuxMeda)[1],ncol=dim(AuxMeda)[2])
   colnames(AuxMedra)=colnames(AuxMeda); rownames(AuxMedra)=rownames(AuxMeda)
-  p.mat.a1 <- AuxMedra     # ok 
   
   if (sum(!rownames(myData) %in% rownames(AuxMedra)) > 0) {
     to_df=rownames(myData)[!rownames(myData) %in% rownames(AuxMedra)]
@@ -4293,10 +2860,6 @@ CreateHeatmaps=function(hoi, rt2, switch, mn, z, corr, date, neg) {
   if (ImgRangea-ImgRange < 0 ) {resulta1[resulta1 <= -ImgRange] = -ImgRange; resulta1[resulta1 >= ImgRange2] = ImgRange}  
   
   path="C:/Users/patati/Documents/GitHub/Steroid_Data_Analysis/"; setwd(path) #check this if needed...
-  width  <- 12
-  height <- 10
-  width  <- as.numeric(width)
-  height <- as.numeric(height)
   jpeg(paste("Heatmap of high",date, mn,neg,".jpg"), width = width, height = height, quality = 100,pointsize = 14, res=300);# par( ps=ps)# par(cex.lab=90) 22 18
   # col = brewer.pal(n = 9, name = "YlOrRd")
   order="original"; range='orig';corre='no_renormaa'; type='full'; method='color';ga='All';gf='Female';gm='Male' #color square
@@ -4677,239 +3240,6 @@ p + geom_sankeyedge(aes(fill = Weight), position = pos) +
 # https://www.tutorialspoint.com/how-to-remove-rows-from-data-frame-in-r-that-contains-nan
 # CreateSankeyPlots(almam,date,sick,Group,d)
 
-
-##Alternetive plotting style
-# ===== PACKAGES =====
-suppressPackageStartupMessages({
-  library(ggplot2)
-  library(ggalluvial)
-  library(readxl)
-  library(dplyr)
-  library(stringr)
-  library(fs)
-  library(ragg)
-  # colorspace is used via after_scale() — part of ggplot2 v3.4+, colorspace enhances palettes
-  # If you don't have colorspace installed, comment out the after_scale() line or install.packages("colorspace")
-})
-
-# ===== PARAMETERS =====
-# Input Excel path
-excel_path <- "C:/Users/patati/Desktop/Turku/R/tests6/tests_basic/100basic All tikka3623 .xlsx"
-
-# Output directory (make sure it exists)
-out_dir <- "C:/Users/patati/Documents/GitHub/Steroid_Data_Analysis/"
-
-# How many top/bottom links to keep for negative/positive ACME
-lkm <- 10
-
-# Plot file name stem
-file_stem <- "sankey_med_res_all_nonadj_g40l0.1"
-
-# Font family (Windows: "Arial" usually works; otherwise pick an installed font)
-base_family <- "Arial"
-
-# ===== 1) LOAD =====
-# all_all <- readxl::read_xlsx(path = excel_path)
-
-# ===== 2) FILTER BY d0.p AND SELECT EXTREMES BY ACME =====
-# Ensure the needed columns exist
-required_cols <- c("ACME", "d0.p")
-missing_cols <- setdiff(required_cols, names(all_all))
-if (length(missing_cols)) {
-  stop("Missing required columns in the Excel file: ", paste(missing_cols, collapse = ", "))
-}
-
-c1 <- as.data.frame(all_all)
-
-# Keep rows with d0.p < 0.1
-c1 <- c1 %>% filter(.data[["d0.p"]] < 0.1)
-
-# Defensive: drop rows with missing ACME
-c1 <- c1 %>% filter(!is.na(.data[["ACME"]]))
-
-# Split negative/positive and take extremes by ACME
-# (Use explicit dplyr:: namespace to avoid desc() masking issues)
-neg <- c1 %>%
-  dplyr::filter(.data[["ACME"]] < 0) %>%
-  dplyr::arrange(.data[["ACME"]]) %>%
-  dplyr::slice_head(n = lkm)
-
-pos <- c1 %>%
-  dplyr::filter(.data[["ACME"]] > 0) %>%
-  dplyr::arrange(dplyr::desc(.data[["ACME"]])) %>%
-  dplyr::slice_head(n = lkm)
-
-c1_ext <- dplyr::bind_rows(neg, pos)
-
-# Color by ACME sign
-c1_ext <- c1_ext %>%
-  mutate(color = ifelse(.data[["ACME"]] < 0, "blue", "orange"))
-
-# ===== 3) PARSE THE FIRST COLUMN INTO THREE PARTS =====
-# Assumption: the FIRST column of the sheet contains the composite name.
-# If your composite label is in a different column, change [[1]] to the name, e.g. [["name_col"]].
-name_col <- names(c1_ext)[1]
-names_vec <- as.character(c1_ext[[name_col]])
-
-# Light cleanup pass before splitting
-names_vec <- str_trim(names_vec)
-names_vec <- gsub("PFHxA_Branched", "PFHxA-B.", names_vec)
-
-# Try underscore-first parsing; if a row doesn't have >= 2 underscores, fall back to space split.
-split_underscore <- strsplit(names_vec, "_", fixed = TRUE)
-
-parsed_mat <- vapply(split_underscore, function(x) {
-  len <- length(x)
-  if (len >= 3) {
-    # Contaminant = first token, Steroid = second, Outcome = rest
-    c(Contaminants = x[1],
-      Steroids     = x[2],
-      `Bile Acids or Lipids` = paste(x[3:len], collapse = "_"))
-  } else {
-    # Fallback: split by spaces if underscores are not present
-    xs <- strsplit(paste(x, collapse = "_"), "\\s+")[[1]]
-    len2 <- length(xs)
-    if (len2 >= 3) {
-      c(Contaminants = xs[1],
-        Steroids     = xs[2],
-        `Bile Acids or Lipids` = paste(xs[3:len2], collapse = " "))
-    } else {
-      c(Contaminants = NA_character_,
-        Steroids     = NA_character_,
-        `Bile Acids or Lipids` = NA_character_)
-    }
-  }
-}, FUN.VALUE = c(Contaminants = "", Steroids = "", `Bile Acids or Lipids` = ""))
-
-hoi <- as.data.frame(t(parsed_mat), stringsAsFactors = FALSE)
-
-# Optional label normalizations
-hoi$Contaminants <- gsub("PFHxA_Branched", "PFHxA_B.", hoi$Contaminants)
-hoi$Steroids     <- gsub("17a\\.OHP5", "17a-OHP5", hoi$Steroids)
-hoi$Steroids     <- gsub("17a\\.OHP4", "17a-OHP4", hoi$Steroids)
-hoi$Steroids     <- gsub("11\\.KT",    "11-KT",    hoi$Steroids)
-hoi$Steroids     <- gsub("11\\.KDHT",  "11-KDHT",  hoi$Steroids)
-
-# Attach ACME & color back; keep only rows that parsed successfully
-good <- complete.cases(hoi$Contaminants, hoi$Steroids, hoi$`Bile Acids or Lipids`)
-hoi <- hoi[good, , drop = FALSE]
-hoi$ACME  <- c1_ext$ACME[good]
-hoi$color <- ifelse(hoi$ACME < 0, "blue", "orange")
-
-# Optional: if you want to verify parsing results
-# print(head(hoi, 20))
-
-# ===== 4) BUILD THE ALLUVIAL PLOT =====
-p <- ggplot(
-  hoi,
-  aes(
-    axis1 = Contaminants,
-    axis2 = Steroids,
-    axis3 = `Bile Acids or Lipids`,
-    y     = abs(ACME),
-    fill  = color
-  )
-) +
-  # Flows (no `lineend` — not supported in some ggalluvial versions)
-  geom_alluvium(
-    aes(
-      fill   = color,
-      # If colorspace is installed, this creates a darker edge from fill; otherwise comment it out.
-      colour = after_scale(colorspace::darken(fill, 0.15))
-    ),
-    width = 0.15,
-    knot.pos = 0.5,
-    alpha = 0.9,
-    size  = 0.6,
-    show.legend = c(colour = FALSE)   # keep only the fill legend
-  ) +
-  # Strata (blocks)
-  geom_stratum(width = 0.15, fill = "white", color = "black") +
-  # Stratum labels
-  geom_text(
-    stat = "stratum",
-    aes(label = after_stat(stratum)),
-    size = 6.7, fontface = "bold", family = base_family
-  ) +
-  scale_x_discrete(
-    limits = c("Contaminants", "Steroids", "Bile Acids or Lipids"),
-    expand = c(.05, .05)
-  ) +
-  scale_fill_manual(
-    name   = "ACME Direction",
-    values = c("blue" = "blue", "orange" = "orange"),
-    labels = c("Negative", "Positive"),
-    na.translate = FALSE
-  ) +
-  theme_minimal(base_family = base_family) +
-  theme(
-    legend.position   = "right",
-    legend.text       = element_text(size = 22, face = "bold", family = base_family),
-    legend.title      = element_text(size = 22, face = "bold", family = base_family),
-    axis.title.y      = element_blank(),
-    axis.text.y       = element_blank(),
-    axis.ticks.y      = element_blank(),
-    axis.text.x       = element_text(size = 22, color = "black", face = "bold", family = base_family),
-    panel.grid        = element_blank(),
-    panel.background  = element_blank(),
-    plot.background   = element_blank()
-  )
-
-# Show interactively
-print(p)
-
-# ===== 5) SAVE HIGH-RES PNG =====
-if (!dir_exists(out_dir)) dir_create(out_dir)
-pngfile <- fs::path(out_dir, paste0(file_stem, ".png"))
-
-ragg::agg_png(
-  filename = pngfile,
-  width = 120, height = 60, units = "cm",
-  res = 500, scaling = 2
-)
-suppressWarnings(print(p))  # silences harmless "Some strata appear at multiple axes" messages
-invisible(dev.off())
-
-message("Saved plot: ", pngfile)
-
-
-# Show interactively
-# print(p)
-
-# ===== 5) SAVE VECTOR PDF =====
-if (!fs::dir_exists(out_dir)) fs::dir_create(out_dir)
-pdffile <- fs::path(out_dir, paste0(file_stem, ".pdf"))
-
-cairo_pdf(
-  filename = pdffile,
-  width = 120/2.54,   # cm → inches
-  height = 60/2.54,
-  family = "sans"
-)
-
-suppressWarnings(print(p))  # silences harmless warnings
-dev.off()
-
-message("Saved plot: ", pdffile)
-
-
-
-
-# ===== SAVE AS SVG (vector) =====
-svgfile <- fs::path(path, paste0(Group, Out, "BoxB", ".svg"))
-
-svglite::svglite(
-  file = svgfile,
-  width = 60 / 2.54,   # cm → inches
-  height = 36 / 2.54
-)
-print(p)
-dev.off()
-
-message("✅ SVG saved successfully: ", svgfile)
-
-
-
 # Copiloting helped with some of the comments. (But not with the streamlining.)
 
 
@@ -5038,15 +3368,11 @@ CalculateMeanQuantiles <- function(Group) {
                  'All' = rep(TRUE, nrow(AllData)))
   
   tv_red <- CombinedData[cond, ]
-  # M <- tv_red[, MediatorVariables] #Change this if needed, like
-  AllData_aux=AllData
-  colnames(AllData_aux) <- gsub("_L$", "", colnames(AllData_aux))
-  Var=colnames(AllData_aux)[9:71]; 
-  M <- tv_red[, Var] #check
+  M <- tv_red[, MediatorVariables]
   
-  cM <- round(apply(M, 2, median, na.rm = TRUE), 3)
+  cM <- round(apply(M, 2, median, na.rm = TRUE), 0)
   quants <- c(0.25, 0.75)
-  csd <- round(apply(M, 2, quantile, probs = quants, na.rm = TRUE), 3)
+  csd <- round(apply(M, 2, quantile, probs = quants, na.rm = TRUE), 0)
   
   tot <- rbind(cM, csd)
   return(tot)
@@ -5057,13 +3383,6 @@ femQ <- CalculateMeanQuantiles('Female')
 menQ <- CalculateMeanQuantiles('Male')
 tot3 <- cbind(t(totQ), t(femQ), t(menQ))
 print(tot3)
-
-# write.csv(tot3,'tables5_steroid pfas etc medians_tikka10925.csv')
-
-#
-
-# colnames(CombinedData)[colnames(CombinedData) %in% colnames(AllData)[9:71]]
-
 #Above goes, but not below...
 
 # I wanted to check the steroids with highest ACMEs between healthy (all, all) and sick (all, all).
